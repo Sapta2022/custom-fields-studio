@@ -1,0 +1,10 @@
+.DS_Store
+Thumbs.db
+node_modules/
+vendor/
+*.log
+*.zip
+.vscode/
+.idea/
+wp-cli.local.yml
+.env
