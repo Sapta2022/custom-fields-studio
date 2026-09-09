@@ -1,0 +1,112 @@
+/* Custom Fields Studio — field group builder styles */
+
+.cfs-fields-table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.cfs-fields-table thead th {
+	text-align: left;
+	padding: 8px 10px;
+}
+
+.cfs-col-handle {
+	width: 30px;
+}
+
+.cfs-drag-handle {
+	cursor: move;
+	color: #999;
+}
+
+.cfs-field-row {
+	border-bottom: 1px solid #e2e4e7;
+	background: #fff;
+}
+
+.cfs-field-row.ui-sortable-helper {
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.cfs-field-row-main {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px;
+	flex-wrap: wrap;
+}
+
+.cfs-field-row-main .cfs-field-label,
+.cfs-field-row-main .cfs-field-name {
+	flex: 1 1 160px;
+	min-width: 120px;
+}
+
+.cfs-field-row-main .cfs-field-type-select {
+	flex: 0 0 auto;
+}
+
+.cfs-field-settings-panel {
+	background: #f6f7f7;
+	border-top: 1px solid #e2e4e7;
+	padding: 12px 16px;
+	margin-top: 4px;
+}
+
+.cfs-field-setting-generic,
+.cfs-field-setting {
+	margin-bottom: 10px;
+}
+
+.cfs-field-setting-generic label,
+.cfs-field-setting label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 3px;
+}
+
+.cfs-field-setting-generic input[type='checkbox'],
+.cfs-field-setting input[type='checkbox'] {
+	display: inline-block;
+	margin-right: 4px;
+}
+
+.cfs-field-setting textarea,
+.cfs-field-setting input[type='text'],
+.cfs-field-setting input[type='number'],
+.cfs-field-setting select,
+.cfs-field-setting-generic textarea {
+	width: 100%;
+	max-width: 420px;
+}
+
+.button-link.cfs-remove-field {
+	color: #b32d2e;
+}
+
+/* Location rules */
+
+.cfs-location-rules-table {
+	margin-bottom: 8px;
+}
+
+.cfs-location-rules-table td {
+	padding: 4px 6px 4px 0;
+}
+
+.cfs-location-group {
+	border: 1px solid #e2e4e7;
+	background: #f6f7f7;
+	padding: 12px;
+	margin-bottom: 8px;
+}
+
+.cfs-location-or {
+	text-align: center;
+	font-weight: 600;
+	color: #787c82;
+	margin: 6px 0;
+	text-transform: uppercase;
+	font-size: 11px;
+	letter-spacing: 0.05em;
+}
