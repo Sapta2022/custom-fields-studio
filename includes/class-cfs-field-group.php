@@ -46,7 +46,10 @@ class CFS_Field_Group {
 				'show_ui'             => true,
 				'show_in_menu'        => true,
 				'menu_icon'           => 'dashicons-list-view',
-				'menu_position'       => 80,
+				// No 'menu_position' set deliberately: position 80 collides
+				// with WordPress core's own Settings menu (also at 80),
+				// which caused BOTH menus to disappear. Omitting this lets
+				// WP append Field Groups safely after the core menu items.
 				'capability_type'     => 'page',
 				'capabilities'        => array(
 					// Restrict management to admins/editors, not arbitrary post authors.
