@@ -52,10 +52,22 @@ class CFS_Field_Group {
 				// WP append Field Groups safely after the core menu items.
 				'capability_type'     => 'page',
 				'capabilities'        => array(
-					// Restrict management to admins/editors, not arbitrary post authors.
-					'edit_post'   => 'manage_options',
+					// Only override capabilities WP checks WITHOUT a specific
+					// post object (plural/generic ones). Restricting 'edit_posts'
+					// to manage_options is enough to hide the whole menu and
+					// screen from non-admins.
+					//
+					// Deliberately NOT overriding 'edit_post' / 'delete_post'
+					// here: those are per-object ("meta") capabilities that
+					// map_meta_cap() expects to check against a specific post.
+					// Overriding them directly caused WordPress core itself to
+					// call current_user_can('delete_post') generically (no
+					// post ID) somewhere during admin-menu building, which
+					// trips a "doing it wrong" notice. On this host that
+					// notice's output was sent early enough to corrupt the
+					// rest of the admin page output — which is what was
+					// breaking the Settings and Field Groups menus together.
 					'edit_posts'  => 'manage_options',
-					'delete_post' => 'manage_options',
 				),
 				'map_meta_cap'        => true,
 				'supports'            => array( 'title' ),
