@@ -20,6 +20,9 @@ class CFS_Loader {
 		$field_group = new CFS_Field_Group();
 		$field_group->hooks();
 
+		$meta_box = new CFS_Meta_Box();
+		$meta_box->hooks();
+
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 	}
 

@@ -110,3 +110,58 @@
 	font-size: 11px;
 	letter-spacing: 0.05em;
 }
+
+/* Phase 2 — field values on the post edit screen */
+
+.cfs-field-values .cfs-field {
+	margin-bottom: 20px;
+}
+
+.cfs-field-values .cfs-field:last-child {
+	margin-bottom: 0;
+}
+
+.cfs-field-values.cfs-seamless {
+	margin: -6px -12px -12px;
+}
+
+.cfs-field-label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 4px;
+}
+
+.cfs-required {
+	color: #b32d2e;
+	margin-left: 2px;
+}
+
+.cfs-field-instructions {
+	margin: 0 0 6px;
+	color: #646970;
+	font-size: 12px;
+}
+
+.cfs-field-input .regular-text,
+.cfs-field-input .large-text,
+.cfs-field-input select {
+	max-width: 100%;
+}
+
+.cfs-toggle {
+	font-weight: 400;
+}
+
+/* Image field */
+
+.cfs-image-preview img {
+	max-width: 200px;
+	height: auto;
+	display: block;
+	margin-bottom: 8px;
+	border: 1px solid #dcdcde;
+}
+
+.cfs-image-actions {
+	margin: 0;
+}

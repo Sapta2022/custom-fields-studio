@@ -48,4 +48,29 @@ class CFS_Field_Wysiwyg extends CFS_Field_Base {
 			'media_upload' => ! empty( $raw['media_upload'] ) ? 1 : 0,
 		);
 	}
+
+	public static function render_input( $field, $value, $name ) {
+		// wp_editor() prints its own <textarea name="..."> for us, so it
+		// needs a unique, valid HTML id — derive one from $name since field
+		// names are already unique within a post's field set.
+		$editor_id = 'cfs_editor_' . preg_replace( '/[^a-z0-9_]/', '_', strtolower( $name ) );
+
+		wp_editor(
+			(string) $value,
+			$editor_id,
+			array(
+				'textarea_name' => $name,
+				'textarea_rows' => 8,
+				'teeny'         => ( 'basic' === ( $field['toolbar'] ?? 'full' ) ),
+				'media_buttons' => ! empty( $field['media_upload'] ),
+			)
+		);
+	}
+
+	public static function sanitize_value( $raw_value, $field ) {
+		// wp_editor() content is rich HTML — sanitize as post content, same
+		// as WordPress does for the main post editor, rather than stripping
+		// tags with sanitize_text_field().
+		return wp_kses_post( $raw_value );
+	}
 }

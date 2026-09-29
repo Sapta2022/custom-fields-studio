@@ -14,11 +14,11 @@ well-documented WordPress plugin patterns.
 
 ## Phases
 
-- [ ] **Phase 1** — Field Group CPT, admin list/edit screen, basic field types
+- [x] **Phase 1** — Field Group CPT, admin list/edit screen, basic field types
       (text, textarea, select, true/false, WYSIWYG, image), location rules
       (post type only)
-- [ ] **Phase 2** — Meta box rendering on post edit screen, save handler,
-      template API (`cfs_get_field()`, `cfs_the_field()`)
+- [x] **Phase 2** — Meta box rendering on post edit screen, save handler,
+      template API (`cfs_get_field()`, `cfs_the_field()`, `cfs_get_fields()`)
 - [ ] **Phase 3** — Repeater field
 - [ ] **Phase 4** — Flexible Content field
 - [ ] **Phase 5** — Options Pages

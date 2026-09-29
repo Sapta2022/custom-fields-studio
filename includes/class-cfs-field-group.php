@@ -410,4 +410,102 @@ class CFS_Field_Group {
 			echo esc_html( $summary ? implode( ' OR ', $summary ) : '—' );
 		}
 	}
+
+	/**
+	 * All active field groups whose location rules match the given post
+	 * type, sorted by their configured display order. Used by the meta
+	 * box (Phase 2) to decide what to render/save on a post edit screen,
+	 * and by the template API to resolve a field selector to its config.
+	 *
+	 * Cached per request per post type — this can be called several times
+	 * on one screen (register meta boxes, save, enqueue) and each call
+	 * would otherwise re-run the same query.
+	 *
+	 * @param string $post_type Post type to match against.
+	 * @return array List of array( id, title, fields, options ).
+	 */
+	public static function get_matching_groups( $post_type ) {
+		static $cache = array();
+
+		if ( isset( $cache[ $post_type ] ) ) {
+			return $cache[ $post_type ];
+		}
+
+		$group_posts = get_posts(
+			array(
+				'post_type'   => self::POST_TYPE,
+				'post_status' => 'publish',
+				'numberposts' => -1,
+			)
+		);
+
+		$matching = array();
+
+		foreach ( $group_posts as $group_post ) {
+			$options = get_post_meta( $group_post->ID, '_cfs_options', true );
+			$options = is_array( $options ) ? $options : array();
+			$options = wp_parse_args(
+				$options,
+				array(
+					'active'     => 1,
+					'position'   => 'normal',
+					'style'      => 'default',
+					'menu_order' => 0,
+				)
+			);
+
+			if ( empty( $options['active'] ) ) {
+				continue;
+			}
+
+			$location = get_post_meta( $group_post->ID, '_cfs_location', true );
+			$location = is_array( $location ) ? $location : array();
+
+			if ( ! CFS_Location_Rules::matches_post_type( $location, $post_type ) ) {
+				continue;
+			}
+
+			$fields = get_post_meta( $group_post->ID, '_cfs_fields', true );
+
+			$matching[] = array(
+				'id'      => $group_post->ID,
+				'title'   => $group_post->post_title,
+				'fields'  => is_array( $fields ) ? $fields : array(),
+				'options' => $options,
+			);
+		}
+
+		usort(
+			$matching,
+			function ( $a, $b ) {
+				return $a['options']['menu_order'] <=> $b['options']['menu_order'];
+			}
+		);
+
+		$cache[ $post_type ] = $matching;
+
+		return $matching;
+	}
+
+	/**
+	 * Find one field's config by name or key across a list of groups (as
+	 * returned by get_matching_groups()). Used by the template API to
+	 * resolve cfs_get_field('my_field') to the settings needed to format
+	 * its stored value.
+	 *
+	 * @param array  $groups   Groups as returned by get_matching_groups().
+	 * @param string $selector Field name or field key.
+	 * @return array|null
+	 */
+	public static function find_field( $groups, $selector ) {
+		foreach ( $groups as $group ) {
+			foreach ( $group['fields'] as $field ) {
+				if ( $field['name'] === $selector || $field['key'] === $selector ) {
+					return $field;
+				}
+			}
+		}
+
+		return null;
+	}
 }
