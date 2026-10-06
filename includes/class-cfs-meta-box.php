@@ -103,7 +103,9 @@ class CFS_Meta_Box {
 			return;
 		}
 
-		$value = get_post_meta( $post_id, $field['name'], true );
+		// load_value() lets composite fields (repeater) reassemble their
+		// value from several keys; simple fields just read one.
+		$value = $type_class::load_value( $field, $post_id );
 		// An empty string means "no value saved yet" for most meta reads;
 		// pass null through so each field type can apply its own default
 		// rather than every type having to special-case ''.
@@ -111,7 +113,23 @@ class CFS_Meta_Box {
 			$value = null;
 		}
 
-		$name = 'cfs[' . $field['name'] . ']';
+		self::render_field( $field, $value, 'cfs[' . $field['name'] . ']' );
+	}
+
+	/**
+	 * Render one field's wrapper: label, required marker, instructions and
+	 * the type's own input. Public + static because the repeater renders
+	 * each sub field through this same markup.
+	 *
+	 * @param array  $field Field config.
+	 * @param mixed  $value Raw stored value, or null for "none yet".
+	 * @param string $name  Full HTML name attribute for the input.
+	 */
+	public static function render_field( $field, $value, $name ) {
+		$type_class = CFS_Field_Registry::get_class( $field['type'] );
+		if ( ! $type_class ) {
+			return;
+		}
 		?>
 		<div class="cfs-field cfs-field-type-<?php echo esc_attr( $field['type'] ); ?>">
 			<?php
@@ -183,15 +201,12 @@ class CFS_Meta_Box {
 				// sanitize_value() rather than being skipped, so unchecking
 				// a box actually saves the "off" state instead of leaving
 				// the previous "on" value in place.
-				$raw_value   = $posted[ $field['name'] ] ?? '';
-				$clean_value = $type_class::sanitize_value( $raw_value, $field );
-
-				update_post_meta( $post_id, $field['name'], $clean_value );
-				// Reference meta pointing at this field's key, so the
-				// template API can find a field's config (type + settings)
-				// from its stored value alone, without knowing which group
-				// it came from — the same pattern ACF uses.
-				update_post_meta( $post_id, '_' . $field['name'], $field['key'] );
+				// save_value() sanitizes, stores, and writes the reference
+				// key ("_name" => field key) that lets the template API map
+				// a stored value back to its field config — the same
+				// pattern ACF uses. Composite fields (repeater) override it
+				// to store their rows under compound keys.
+				$type_class::save_value( $field, $posted[ $field['name'] ] ?? '', $post_id );
 			}
 		}
 	}
@@ -222,10 +237,18 @@ class CFS_Meta_Box {
 		// Needed for the Image field's "Select Image" button (wp.media()).
 		wp_enqueue_media();
 
+		// Repeater rows are reorderable (jQuery UI Sortable) and may hold
+		// WYSIWYG sub fields, which are initialized in JS for rows that
+		// are cloned in the browser — that needs the editor assets loaded
+		// even when the post type has no classic editor on screen.
+		if ( self::groups_have_type( $groups, 'repeater' ) ) {
+			wp_enqueue_editor();
+		}
+
 		wp_enqueue_script(
 			'cfs-meta-box',
 			CFS_URL . 'admin/js/meta-box.js',
-			array( 'jquery' ),
+			array( 'jquery', 'jquery-ui-sortable' ),
 			CFS_VERSION,
 			true
 		);
@@ -240,5 +263,43 @@ class CFS_Meta_Box {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Whether any field in these groups (including nested sub fields) is
+	 * of the given type.
+	 *
+	 * @param array  $groups Groups from CFS_Field_Group::get_matching_groups().
+	 * @param string $type   Field type key.
+	 * @return bool
+	 */
+	protected static function groups_have_type( $groups, $type ) {
+		foreach ( $groups as $group ) {
+			if ( self::fields_have_type( $group['fields'], $type ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Recursive helper for groups_have_type().
+	 *
+	 * @param array  $fields Field configs.
+	 * @param string $type   Field type key.
+	 * @return bool
+	 */
+	protected static function fields_have_type( $fields, $type ) {
+		foreach ( $fields as $field ) {
+			if ( ( $field['type'] ?? '' ) === $type ) {
+				return true;
+			}
+			if ( ! empty( $field['sub_fields'] ) && self::fields_have_type( $field['sub_fields'], $type ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

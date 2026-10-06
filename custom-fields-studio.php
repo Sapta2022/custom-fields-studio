@@ -3,7 +3,7 @@
  * Plugin Name:       Custom Fields Studio
  * Plugin URI:        https://techshu.digital
  * Description:       Internal custom fields framework — field groups, location rules, repeater & flexible content fields, options pages, and a template API.
- * Version:           0.2.0
+ * Version:           0.3.0
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Author:            Saptarshi
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CFS_VERSION', '0.2.0' );
+define( 'CFS_VERSION', '0.3.0' );
 define( 'CFS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CFS_URL', plugin_dir_url( __FILE__ ) );
 define( 'CFS_BASENAME', plugin_basename( __FILE__ ) );
@@ -31,7 +31,9 @@ define( 'CFS_BASENAME', plugin_basename( __FILE__ ) );
  * Phase 2: rendering field groups as meta boxes on post edit screens,
  * saving posted values as post meta, and the cfs_get_field()-style
  * template API.
+ * Phase 3: repeater field (compound-key storage, row UI, loop API).
  */
+require_once CFS_PATH . 'includes/class-cfs-storage.php';
 require_once CFS_PATH . 'includes/fields/class-cfs-field-base.php';
 require_once CFS_PATH . 'includes/class-cfs-field-registry.php';
 require_once CFS_PATH . 'includes/fields/class-cfs-field-text.php';
@@ -40,6 +42,7 @@ require_once CFS_PATH . 'includes/fields/class-cfs-field-select.php';
 require_once CFS_PATH . 'includes/fields/class-cfs-field-true-false.php';
 require_once CFS_PATH . 'includes/fields/class-cfs-field-wysiwyg.php';
 require_once CFS_PATH . 'includes/fields/class-cfs-field-image.php';
+require_once CFS_PATH . 'includes/fields/class-cfs-field-repeater.php';
 require_once CFS_PATH . 'includes/class-cfs-location-rules.php';
 require_once CFS_PATH . 'includes/class-cfs-field-group.php';
 require_once CFS_PATH . 'includes/class-cfs-meta-box.php';

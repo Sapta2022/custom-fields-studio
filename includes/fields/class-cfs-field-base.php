@@ -109,4 +109,53 @@ abstract class CFS_Field_Base {
 	public static function format_value( $value, $field ) {
 		return $value;
 	}
+
+	/**
+	 * Read this field's raw stored value. Simple fields live in one key;
+	 * composite fields (repeater) override this to reassemble their value
+	 * from several keys.
+	 *
+	 * @param array       $field Field config.
+	 * @param int|string  $ctx   Post ID or 'option'.
+	 * @param string|null $key   Storage key. Defaults to the field name;
+	 *                           composite parents pass a compound key
+	 *                           (e.g. "rows_0_title") for nested fields.
+	 * @return mixed '' when nothing is stored.
+	 */
+	public static function load_value( $field, $ctx, $key = null ) {
+		$key = ( null === $key ) ? $field['name'] : $key;
+
+		return CFS_Storage::get( $key, $ctx );
+	}
+
+	/**
+	 * Sanitize a posted value and store it, plus the reference key that
+	 * lets the template API map a stored key back to its field config.
+	 *
+	 * @param array       $field      Field config.
+	 * @param mixed       $raw_posted Raw (unslashed) posted value, '' if none.
+	 * @param int|string  $ctx        Post ID or 'option'.
+	 * @param string|null $key        Storage key, defaults to the field name.
+	 */
+	public static function save_value( $field, $raw_posted, $ctx, $key = null ) {
+		$key = ( null === $key ) ? $field['name'] : $key;
+
+		CFS_Storage::update( $key, static::sanitize_value( $raw_posted, $field ), $ctx );
+		CFS_Storage::update( '_' . $key, $field['key'], $ctx );
+	}
+
+	/**
+	 * Remove everything this field stored under $key. Composite fields
+	 * override this to remove their child keys too.
+	 *
+	 * @param array       $field Field config.
+	 * @param int|string  $ctx   Post ID or 'option'.
+	 * @param string|null $key   Storage key, defaults to the field name.
+	 */
+	public static function delete_value( $field, $ctx, $key = null ) {
+		$key = ( null === $key ) ? $field['name'] : $key;
+
+		CFS_Storage::delete( $key, $ctx );
+		CFS_Storage::delete( '_' . $key, $ctx );
+	}
 }

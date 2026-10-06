@@ -111,9 +111,7 @@ class CFS_Field_Group {
 	}
 
 	/**
-	 * The main field builder: list of field rows (draggable to reorder)
-	 * plus an "Add Field" button. New rows are cloned client-side from a
-	 * hidden template and re-indexed on save.
+	 * The main field builder meta box.
 	 *
 	 * @param WP_Post $post Current field group post.
 	 */
@@ -122,40 +120,82 @@ class CFS_Field_Group {
 
 		$fields = get_post_meta( $post->ID, '_cfs_fields', true );
 		$fields = is_array( $fields ) ? $fields : array();
-		$types  = CFS_Field_Registry::get_choices();
+
+		if ( empty( $fields ) ) {
+			// Start a brand-new field group with one empty row.
+			$fields = array( self::empty_field() );
+		}
+
+		self::render_fields_editor( $fields, 'cfs_fields', true );
 		?>
-		<div id="cfs-fields-wrap">
+
+		<?php
+		/*
+		 * ONE row template for the whole page, shared by the top-level
+		 * "Add Field" button and every repeater's "Add Sub Field" button.
+		 * __PREFIX__ is swapped for the real name prefix (e.g.
+		 * "cfs_fields[n3]" or "cfs_fields[2][sub_fields][n4]") when a row
+		 * is cloned. A single shared template is what keeps a repeater
+		 * inside a repeater from recursing forever at render time.
+		 */
+		?>
+		<script type="text/html" id="tmpl-cfs-field-row">
+			<?php self::render_field_row( self::empty_field(), '__PREFIX__' ); ?>
+		</script>
+		<?php
+	}
+
+	/**
+	 * Render a list of field rows plus its "add" button. Used for the
+	 * top-level field list and, nested, for a repeater's sub fields.
+	 *
+	 * Rows are keyed by an index that never changes after a row is created
+	 * (new rows get a unique "n<counter>" key). Reordering therefore needs
+	 * no renaming: PHP receives POST arrays in DOM order, and the save
+	 * handler only cares about order, not keys.
+	 *
+	 * @param array  $fields Field configs to render.
+	 * @param string $base   Name prefix for this list, e.g. "cfs_fields" or
+	 *                       "cfs_fields[2][sub_fields]".
+	 * @param bool   $top    True for the main list (adds a header row and
+	 *                       the primary button style).
+	 */
+	public static function render_fields_editor( $fields, $base, $top = false ) {
+		?>
+		<div class="cfs-fields-editor<?php echo $top ? ' cfs-fields-editor-top' : ''; ?>">
 			<table class="cfs-fields-table widefat">
-				<thead>
-					<tr>
-						<th class="cfs-col-handle"></th>
-						<th><?php esc_html_e( 'Label', 'cfs' ); ?></th>
-						<th><?php esc_html_e( 'Name', 'cfs' ); ?></th>
-						<th><?php esc_html_e( 'Type', 'cfs' ); ?></th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody id="cfs-fields-rows">
+				<?php if ( $top ) : ?>
+					<thead>
+						<tr>
+							<th class="cfs-col-handle"></th>
+							<th><?php esc_html_e( 'Label  /  Name  /  Type', 'cfs' ); ?></th>
+						</tr>
+					</thead>
+				<?php endif; ?>
+				<tbody class="cfs-rows"<?php echo $top ? ' id="cfs-fields-rows"' : ''; ?> data-base="<?php echo esc_attr( $base ); ?>">
 					<?php
-					if ( empty( $fields ) ) {
-						// Start a brand-new field group with one empty row.
-						$fields = array( self::empty_field() );
-					}
 					foreach ( $fields as $index => $field ) {
-						$this->render_field_row( $field, $index, $types );
+						self::render_field_row( $field, $base . '[' . $index . ']' );
 					}
 					?>
 				</tbody>
 			</table>
 			<p>
-				<button type="button" class="button button-primary" id="cfs-add-field"><?php esc_html_e( '+ Add Field', 'cfs' ); ?></button>
+				<button type="button" class="button<?php echo $top ? ' button-primary' : ''; ?> cfs-add-field">
+					<?php echo $top ? esc_html__( '+ Add Field', 'cfs' ) : esc_html__( '+ Add Sub Field', 'cfs' ); ?>
+				</button>
 			</p>
 		</div>
-
-		<script type="text/html" id="tmpl-cfs-field-row">
-			<?php $this->render_field_row( self::empty_field(), '__INDEX__', $types ); ?>
-		</script>
 		<?php
+	}
+
+	/**
+	 * A fresh, unique field key ("field_" + 12 hex chars).
+	 *
+	 * @return string
+	 */
+	public static function new_key() {
+		return 'field_' . bin2hex( random_bytes( 6 ) );
 	}
 
 	/**
@@ -165,7 +205,7 @@ class CFS_Field_Group {
 	 */
 	protected static function empty_field() {
 		return array(
-			'key'          => 'field_' . uniqid(),
+			'key'          => self::new_key(),
 			'label'        => '',
 			'name'         => '',
 			'type'         => 'text',
@@ -180,17 +220,18 @@ class CFS_Field_Group {
 	 * inside a single <tr> so drag-reorder and add/remove only ever have
 	 * to move one element per field.
 	 *
-	 * @param array      $field Field config.
-	 * @param int|string $index Row index, or "__INDEX__" placeholder for the JS template.
-	 * @param array      $types Registered type choices.
+	 * @param array  $field  Field config.
+	 * @param string $prefix Full name prefix for this row's inputs, e.g.
+	 *                       "cfs_fields[0]", or the "__PREFIX__" placeholder
+	 *                       for the JS template.
 	 */
-	protected function render_field_row( $field, $index, $types ) {
-		$prefix = "cfs_fields[{$index}]";
-		$type   = $field['type'] ?? 'text';
+	public static function render_field_row( $field, $prefix ) {
+		$types = CFS_Field_Registry::get_choices();
+		$type  = $field['type'] ?? 'text';
 		?>
-		<tr class="cfs-field-row" data-index="<?php echo esc_attr( $index ); ?>">
+		<tr class="cfs-field-row">
 			<td class="cfs-col-handle"><span class="cfs-drag-handle dashicons dashicons-menu"></span></td>
-			<td colspan="4">
+			<td>
 				<div class="cfs-field-row-main">
 					<input type="hidden" name="<?php echo esc_attr( $prefix ); ?>[key]" value="<?php echo esc_attr( $field['key'] ?? '' ); ?>" class="cfs-field-key" />
 					<input type="text" name="<?php echo esc_attr( $prefix ); ?>[label]" value="<?php echo esc_attr( $field['label'] ?? '' ); ?>" class="cfs-field-label" placeholder="<?php esc_attr_e( 'Field Label', 'cfs' ); ?>" />
@@ -281,6 +322,100 @@ class CFS_Field_Group {
 	}
 
 	/**
+	 * Sanitize a posted list of field configs. Recursive: a repeater's
+	 * sanitize() calls this again for its own sub_fields.
+	 *
+	 * @param mixed $raw_fields Raw (unslashed) posted list of field rows.
+	 * @return array Clean, re-indexed list of field configs.
+	 */
+	public static function sanitize_fields( $raw_fields ) {
+		$clean_fields = array();
+
+		if ( ! is_array( $raw_fields ) ) {
+			return $clean_fields;
+		}
+
+		// Keys must be unique across the whole group, sub fields included,
+		// so the set of keys already used is shared with the recursive calls
+		// a repeater makes for its sub fields. The outermost call owns it.
+		$owns_seen_keys = ( null === self::$seen_keys );
+		if ( $owns_seen_keys ) {
+			self::$seen_keys = array();
+		}
+
+		foreach ( $raw_fields as $raw_field ) {
+			if ( ! is_array( $raw_field ) ) {
+				continue;
+			}
+
+			$label = isset( $raw_field['label'] ) ? sanitize_text_field( $raw_field['label'] ) : '';
+			$name  = isset( $raw_field['name'] ) ? sanitize_key( $raw_field['name'] ) : '';
+
+			// Skip fully-empty rows (e.g. an unused template row).
+			if ( '' === $label && '' === $name ) {
+				continue;
+			}
+
+			// Auto-derive the meta key from the label if left blank.
+			if ( '' === $name && '' !== $label ) {
+				$name = sanitize_key( $label );
+			}
+
+			$type       = isset( $raw_field['type'] ) ? sanitize_key( $raw_field['type'] ) : 'text';
+			$type_class = CFS_Field_Registry::get_class( $type );
+			if ( ! $type_class ) {
+				$type       = 'text';
+				$type_class = CFS_Field_Registry::get_class( 'text' );
+			}
+
+			$field = array(
+				'key'          => self::unique_key( $raw_field['key'] ?? '' ),
+				'label'        => $label,
+				'name'         => $name,
+				'type'         => $type,
+				'instructions' => isset( $raw_field['instructions'] ) ? sanitize_textarea_field( $raw_field['instructions'] ) : '',
+				'required'     => ! empty( $raw_field['required'] ) ? 1 : 0,
+			);
+
+			$clean_fields[] = array_merge( $field, $type_class::sanitize( $raw_field ) );
+		}
+
+		if ( $owns_seen_keys ) {
+			self::$seen_keys = null;
+		}
+
+		return $clean_fields;
+	}
+
+	/**
+	 * Keys already handed out during the current sanitize_fields() run
+	 * (null when no run is in progress).
+	 *
+	 * @var array|null
+	 */
+	protected static $seen_keys = null;
+
+	/**
+	 * Return the posted key if it is present and not used yet in this save,
+	 * otherwise a fresh one. Repairs field groups saved while every new row
+	 * was cloned with the same key.
+	 *
+	 * @param mixed $posted_key Raw posted key.
+	 * @return string
+	 */
+	protected static function unique_key( $posted_key ) {
+		$key = is_string( $posted_key ) ? sanitize_key( $posted_key ) : '';
+
+		if ( '' === $key || isset( self::$seen_keys[ $key ] ) ) {
+			$key = self::new_key();
+		}
+
+		self::$seen_keys[ $key ] = true;
+
+		return $key;
+	}
+
+	/**
 	 * Save handler: validate nonce/capability, then sanitize and store
 	 * fields, location rules, and settings as post meta.
 	 *
@@ -301,47 +436,11 @@ class CFS_Field_Group {
 		}
 
 		// --- Fields ---
-		$raw_fields   = isset( $_POST['cfs_fields'] ) ? wp_unslash( $_POST['cfs_fields'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-		$clean_fields = array();
+		$raw_fields = isset( $_POST['cfs_fields'] ) ? wp_unslash( $_POST['cfs_fields'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 
-		if ( is_array( $raw_fields ) ) {
-			foreach ( $raw_fields as $raw_field ) {
-				$label = isset( $raw_field['label'] ) ? sanitize_text_field( $raw_field['label'] ) : '';
-				$name  = isset( $raw_field['name'] ) ? sanitize_key( $raw_field['name'] ) : '';
-
-				// Skip fully-empty rows (e.g. an unused template row).
-				if ( '' === $label && '' === $name ) {
-					continue;
-				}
-
-				// Auto-derive the meta key from the label if left blank.
-				if ( '' === $name && '' !== $label ) {
-					$name = sanitize_key( $label );
-				}
-
-				$type       = isset( $raw_field['type'] ) ? sanitize_key( $raw_field['type'] ) : 'text';
-				$type_class = CFS_Field_Registry::get_class( $type );
-				if ( ! $type_class ) {
-					$type       = 'text';
-					$type_class = CFS_Field_Registry::get_class( 'text' );
-				}
-
-				$field = array(
-					'key'          => isset( $raw_field['key'] ) ? sanitize_key( $raw_field['key'] ) : 'field_' . uniqid(),
-					'label'        => $label,
-					'name'         => $name,
-					'type'         => $type,
-					'instructions' => isset( $raw_field['instructions'] ) ? sanitize_textarea_field( $raw_field['instructions'] ) : '',
-					'required'     => ! empty( $raw_field['required'] ) ? 1 : 0,
-				);
-
-				$field = array_merge( $field, $type_class::sanitize( $raw_field ) );
-
-				$clean_fields[] = $field;
-			}
-		}
-
-		update_post_meta( $post_id, '_cfs_fields', $clean_fields );
+		// update_post_meta() expects slashed data, so slash on the way in;
+		// otherwise a backslash in a label/choice is silently dropped.
+		update_post_meta( $post_id, '_cfs_fields', wp_slash( self::sanitize_fields( $raw_fields ) ) );
 
 		// --- Location rules ---
 		$raw_location = isset( $_POST['cfs_location'] ) ? wp_unslash( $_POST['cfs_location'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
