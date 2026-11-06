@@ -58,8 +58,8 @@
 	margin-bottom: 10px;
 }
 
-.cfs-field-setting-generic label,
-.cfs-field-setting label {
+.cfs-field-setting-generic > label,
+.cfs-field-setting > label {
 	display: block;
 	font-weight: 600;
 	margin-bottom: 3px;
@@ -71,11 +71,11 @@
 	margin-right: 4px;
 }
 
-.cfs-field-setting textarea,
-.cfs-field-setting input[type='text'],
-.cfs-field-setting input[type='number'],
-.cfs-field-setting select,
-.cfs-field-setting-generic textarea {
+.cfs-field-setting > textarea,
+.cfs-field-setting > input[type='text'],
+.cfs-field-setting > input[type='number'],
+.cfs-field-setting > select,
+.cfs-field-setting-generic > textarea {
 	width: 100%;
 	max-width: 420px;
 }
@@ -164,4 +164,105 @@
 
 .cfs-image-actions {
 	margin: 0;
+}
+
+/* Phase 3 — repeater: builder (nested sub-field editor) */
+
+.cfs-fields-editor .cfs-fields-editor {
+	margin-top: 4px;
+}
+
+.cfs-fields-editor .cfs-fields-editor .cfs-field-row {
+	background: #fff;
+}
+
+.cfs-fields-editor .cfs-fields-editor .cfs-field-settings-panel {
+	background: #f0f0f1;
+}
+
+/* Phase 3 — repeater: post edit screen */
+
+.cfs-repeater {
+	border: 1px solid #dcdcde;
+	background: #f6f7f7;
+	padding: 8px;
+}
+
+.cfs-repeater-rows {
+	counter-reset: cfs-row;
+}
+
+.cfs-repeater-row {
+	counter-increment: cfs-row;
+	display: flex;
+	align-items: stretch;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	margin-bottom: 8px;
+}
+
+.cfs-repeater-row.ui-sortable-helper {
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.cfs-repeater-row-handle {
+	flex: 0 0 34px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	padding: 8px 0;
+	background: #f0f0f1;
+	border-right: 1px solid #dcdcde;
+}
+
+.cfs-row-number::before {
+	content: counter(cfs-row);
+	font-size: 11px;
+	color: #646970;
+}
+
+.cfs-repeater-fields {
+	flex: 1 1 auto;
+	min-width: 0;
+	padding: 10px 12px;
+}
+
+/* "Row" layout: sub fields side by side, wrapping on narrow screens. */
+.cfs-layout-table > .cfs-repeater-rows > .cfs-repeater-row > .cfs-repeater-fields {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px 16px;
+}
+
+.cfs-layout-table > .cfs-repeater-rows > .cfs-repeater-row > .cfs-repeater-fields > .cfs-field {
+	flex: 1 1 200px;
+	margin-bottom: 0;
+	min-width: 0;
+}
+
+.cfs-repeater-row-actions {
+	flex: 0 0 auto;
+	padding: 6px 10px;
+}
+
+.cfs-repeater-row-actions .cfs-repeater-remove {
+	color: #b32d2e;
+	font-size: 20px;
+	line-height: 1;
+	text-decoration: none;
+}
+
+.cfs-repeater-row-actions .cfs-repeater-remove:disabled {
+	color: #a7aaad;
+	cursor: not-allowed;
+}
+
+.cfs-repeater-footer {
+	margin: 0;
+}
+
+/* A repeater inside a repeater row. */
+.cfs-repeater .cfs-repeater {
+	background: #fff;
 }

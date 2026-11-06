@@ -50,6 +50,22 @@ class CFS_Field_Wysiwyg extends CFS_Field_Base {
 	}
 
 	public static function render_input( $field, $value, $name ) {
+		// Inside a repeater, rows are cloned in the browser, so there is no
+		// PHP to call wp_editor() for a new row. Print a plain textarea
+		// instead and let meta-box.js turn it into an editor with
+		// wp.editor.initialize() — for existing rows and cloned rows alike,
+		// so there is only one code path.
+		if ( ! empty( $field['_lazy'] ) ) {
+			printf(
+				'<textarea class="cfs-wysiwyg-lazy large-text" name="%1$s" rows="8" data-toolbar="%2$s" data-media="%3$d">%4$s</textarea>',
+				esc_attr( $name ),
+				esc_attr( $field['toolbar'] ?? 'full' ),
+				! empty( $field['media_upload'] ) ? 1 : 0,
+				esc_textarea( (string) $value )
+			);
+			return;
+		}
+
 		// wp_editor() prints its own <textarea name="..."> for us, so it
 		// needs a unique, valid HTML id — derive one from $name since field
 		// names are already unique within a post's field set.

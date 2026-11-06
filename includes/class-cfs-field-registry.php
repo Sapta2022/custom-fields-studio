@@ -19,7 +19,7 @@ class CFS_Field_Registry {
 	protected static $types = array();
 
 	/**
-	 * Register the built-in Phase 1 field types.
+	 * Register the built-in field types.
 	 * Later phases (repeater, flexible_content, gallery, relationship,
 	 * taxonomy, date_picker) add themselves here the same way.
 	 */
@@ -30,6 +30,7 @@ class CFS_Field_Registry {
 		self::register( 'CFS_Field_True_False' );
 		self::register( 'CFS_Field_Wysiwyg' );
 		self::register( 'CFS_Field_Image' );
+		self::register( 'CFS_Field_Repeater' );
 
 		/**
 		 * Allow future phases / add-ons to register additional field types.
