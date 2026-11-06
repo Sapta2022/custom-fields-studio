@@ -266,3 +266,146 @@
 .cfs-repeater .cfs-repeater {
 	background: #fff;
 }
+
+/* Phase 4 — flexible content: builder (layout blocks) */
+
+.cfs-layout-block {
+	border: 1px solid #c3c4c7;
+	background: #fff;
+	margin-bottom: 10px;
+}
+
+.cfs-layout-block-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 10px;
+	background: #f0f0f1;
+	border-bottom: 1px solid #c3c4c7;
+}
+
+.cfs-layout-block-head .cfs-layout-label,
+.cfs-layout-block-head .cfs-layout-name {
+	flex: 1 1 140px;
+	min-width: 110px;
+}
+
+.cfs-layout-block-body {
+	padding: 8px 10px;
+}
+
+.cfs-layout-block .cfs-remove-layout {
+	color: #b32d2e;
+	font-size: 18px;
+	line-height: 1;
+	text-decoration: none;
+}
+
+/* Phase 4 — flexible content: post edit screen */
+
+.cfs-flex {
+	border: 1px solid #dcdcde;
+	background: #f6f7f7;
+	padding: 8px;
+}
+
+.cfs-flex-rows {
+	counter-reset: cfs-flex-row;
+}
+
+.cfs-flex-row {
+	counter-increment: cfs-flex-row;
+	display: flex;
+	align-items: stretch;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	margin-bottom: 8px;
+}
+
+.cfs-flex-row.ui-sortable-helper {
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.cfs-flex-row-handle {
+	flex: 0 0 34px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	padding: 8px 0;
+	background: #f0f0f1;
+	border-right: 1px solid #dcdcde;
+}
+
+.cfs-flex-row-handle .cfs-row-number::before {
+	content: counter(cfs-flex-row);
+}
+
+.cfs-flex-row-body {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.cfs-flex-row-title {
+	padding: 6px 12px;
+	font-weight: 600;
+	background: #f6f7f7;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.cfs-flex-row-fields {
+	padding: 10px 12px;
+}
+
+.cfs-flex-display-table > .cfs-flex-row-body > .cfs-flex-row-fields {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px 16px;
+}
+
+.cfs-flex-display-table > .cfs-flex-row-body > .cfs-flex-row-fields > .cfs-field {
+	flex: 1 1 200px;
+	margin-bottom: 0;
+	min-width: 0;
+}
+
+.cfs-flex-row-actions {
+	flex: 0 0 auto;
+	padding: 6px 10px;
+}
+
+.cfs-flex-row-actions .cfs-flex-remove {
+	color: #b32d2e;
+	font-size: 20px;
+	line-height: 1;
+	text-decoration: none;
+}
+
+.cfs-flex-row-actions .cfs-flex-remove:disabled {
+	color: #a7aaad;
+	cursor: not-allowed;
+}
+
+.cfs-flex-footer {
+	margin: 0;
+}
+
+.cfs-flex-menu {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 4px 14px;
+	margin-left: 10px;
+	vertical-align: middle;
+}
+
+.cfs-flex-menu[hidden] {
+	display: none;
+}
+
+/* Repeating fields nested inside each other. */
+.cfs-flex .cfs-flex,
+.cfs-flex .cfs-repeater,
+.cfs-repeater .cfs-flex {
+	background: #fff;
+}
