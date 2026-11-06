@@ -46,4 +46,21 @@ class CFS_Field_Textarea extends CFS_Field_Base {
 			'rows'          => isset( $raw['rows'] ) ? absint( $raw['rows'] ) : 4,
 		);
 	}
+
+	public static function render_input( $field, $value, $name ) {
+		if ( null === $value || '' === $value ) {
+			$value = $field['default_value'] ?? '';
+		}
+		printf(
+			'<textarea class="large-text" name="%1$s" rows="%2$d" placeholder="%3$s">%4$s</textarea>',
+			esc_attr( $name ),
+			absint( $field['rows'] ?? 4 ),
+			esc_attr( $field['placeholder'] ?? '' ),
+			esc_textarea( $value )
+		);
+	}
+
+	public static function sanitize_value( $raw_value, $field ) {
+		return sanitize_textarea_field( $raw_value );
+	}
 }

@@ -88,4 +88,56 @@ class CFS_Field_Select extends CFS_Field_Base {
 
 		return $choices;
 	}
+
+	public static function render_input( $field, $value, $name ) {
+		$choices  = self::parse_choices( $field['choices'] ?? '' );
+		$multiple = ! empty( $field['multiple'] );
+
+		if ( null === $value ) {
+			$value = $field['default_value'] ?? '';
+		}
+		// Normalize to an array for uniform "is this selected" checks below,
+		// whether the field is single or multiple select.
+		$selected = $multiple ? (array) $value : array( $value );
+
+		printf(
+			'<select name="%1$s"%2$s>',
+			esc_attr( $multiple ? $name . '[]' : $name ),
+			$multiple ? ' multiple="multiple"' : ''
+		);
+
+		if ( ! $multiple && ! empty( $field['allow_null'] ) ) {
+			echo '<option value="">' . esc_html__( '— Select —', 'cfs' ) . '</option>';
+		}
+
+		foreach ( $choices as $choice_value => $choice_label ) {
+			printf(
+				'<option value="%1$s"%2$s>%3$s</option>',
+				esc_attr( $choice_value ),
+				in_array( (string) $choice_value, array_map( 'strval', $selected ), true ) ? ' selected="selected"' : '',
+				esc_html( $choice_label )
+			);
+		}
+
+		echo '</select>';
+	}
+
+	public static function sanitize_value( $raw_value, $field ) {
+		$choices = self::parse_choices( $field['choices'] ?? '' );
+
+		if ( ! empty( $field['multiple'] ) ) {
+			$raw_values = is_array( $raw_value ) ? $raw_value : array();
+			$clean      = array();
+			foreach ( $raw_values as $one ) {
+				$one = sanitize_text_field( $one );
+				if ( array_key_exists( $one, $choices ) ) {
+					$clean[] = $one;
+				}
+			}
+			return $clean;
+		}
+
+		$raw_value = is_array( $raw_value ) ? '' : sanitize_text_field( $raw_value );
+		return array_key_exists( $raw_value, $choices ) ? $raw_value : '';
+	}
 }

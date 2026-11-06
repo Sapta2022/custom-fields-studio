@@ -47,4 +47,26 @@ class CFS_Field_Text extends CFS_Field_Base {
 			'maxlength'     => isset( $raw['maxlength'] ) ? absint( $raw['maxlength'] ) : '',
 		);
 	}
+
+	public static function render_input( $field, $value, $name ) {
+		if ( null === $value || '' === $value ) {
+			$value = $field['default_value'] ?? '';
+		}
+		$maxlength = ! empty( $field['maxlength'] ) ? ' maxlength="' . absint( $field['maxlength'] ) . '"' : '';
+		printf(
+			'<input type="text" class="regular-text" name="%1$s" value="%2$s" placeholder="%3$s"%4$s />',
+			esc_attr( $name ),
+			esc_attr( $value ),
+			esc_attr( $field['placeholder'] ?? '' ),
+			$maxlength // phpcs:ignore WordPress.Security.EscapeOutput -- built from absint() above, not raw input.
+		);
+	}
+
+	public static function sanitize_value( $raw_value, $field ) {
+		$value = sanitize_text_field( $raw_value );
+		if ( ! empty( $field['maxlength'] ) ) {
+			$value = mb_substr( $value, 0, absint( $field['maxlength'] ) );
+		}
+		return $value;
+	}
 }

@@ -48,4 +48,24 @@ class CFS_Field_True_False extends CFS_Field_Base {
 			'ui_off'        => isset( $raw['ui_off'] ) ? sanitize_text_field( wp_unslash( $raw['ui_off'] ) ) : 'No',
 		);
 	}
+
+	public static function render_input( $field, $value, $name ) {
+		if ( null === $value ) {
+			$value = $field['default_value'] ?? 0;
+		}
+		printf(
+			'<label class="cfs-toggle"><input type="checkbox" name="%1$s" value="1"%2$s /> %3$s</label>',
+			esc_attr( $name ),
+			checked( ! empty( $value ), true, false ),
+			esc_html( ! empty( $value ) ? ( $field['ui_on'] ?? 'Yes' ) : ( $field['ui_off'] ?? 'No' ) )
+		);
+	}
+
+	public static function sanitize_value( $raw_value, $field ) {
+		return ! empty( $raw_value ) ? 1 : 0;
+	}
+
+	public static function format_value( $value, $field ) {
+		return (bool) $value;
+	}
 }
