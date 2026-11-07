@@ -1,0 +1,95 @@
+// Builds a field group from scratch through the builder UI, one option at a time.
+const { launch, login } = require('./common');
+const { execFileSync } = require('child_process');
+const SP = __dirname; // ids.php lives next to this file
+const WP_ROOT = process.env.CFS_WP_ROOT; // path to the WordPress install under test
+const php = (...a) => execFileSync('php', [SP + '/ids.php', WP_ROOT, ...a], { encoding: 'utf8' });
+let ok=0,bad=0; const t=(n,c,x)=>{ c?ok++:bad++; console.log((c?'PASS ':'FAIL ')+n+(c?'':' '+JSON.stringify(x))); };
+(async () => {
+  const { b, p, errs } = await launch(3000);
+  await login(p);
+  p.on('dialog', d => d.accept());
+  await p.goto('http://127.0.0.1:8099/wp-admin/post-new.php?post_type=cfs_field_group');
+  await p.fill('#title', 'QA UI Built Group');
+  const rows = () => p.locator('#cfs-fields-rows > tr.cfs-field-row');
+  let n = 0;
+  const addRow = async (type, label) => {
+    if (n > 0) await p.locator('.cfs-fields-editor-top > p > .cfs-add-field').click();
+    const r = rows().nth(n++);
+    await r.locator('> td > .cfs-field-row-main .cfs-field-label').fill(label);
+    await r.locator('> td > .cfs-field-row-main .cfs-field-type-select').selectOption(type);
+    await r.locator('> td > .cfs-field-row-main .cfs-toggle-field-settings').click();
+    return r;
+  };
+  const S = (r, type, name) => r.locator(`> td > .cfs-field-settings-panel > .cfs-field-setting[data-type="${type}"] [name$="[${name}]"]`).first();
+  const generic = (r, name) => r.locator(`> td > .cfs-field-settings-panel > .cfs-field-setting-generic [name$="[${name}]"]`).first();
+
+  let r = await addRow('text', 'UI Text');
+  await generic(r, 'instructions').fill('Helpful text'); await generic(r, 'required').check();
+  await S(r, 'text', 'default_value').fill('dv'); await S(r, 'text', 'placeholder').fill('ph'); await S(r, 'text', 'maxlength').fill('12');
+  r = await addRow('textarea', 'UI Textarea');
+  await S(r, 'textarea', 'default_value').fill('area dv'); await S(r, 'textarea', 'placeholder').fill('area ph'); await S(r, 'textarea', 'rows').fill('9');
+  r = await addRow('select', 'UI Select');
+  await S(r, 'select', 'choices').fill('a : Alpha\nb : Beta\nc'); await S(r, 'select', 'default_value').fill('b'); await S(r, 'select', 'allow_null').check(); await S(r, 'select', 'multiple').check();
+  r = await addRow('true_false', 'UI Bool');
+  await S(r, 'true_false', 'default_value').check(); await S(r, 'true_false', 'ui_on').fill('Si'); await S(r, 'true_false', 'ui_off').fill('No!');
+  r = await addRow('wysiwyg', 'UI Wysiwyg');
+  await S(r, 'wysiwyg', 'toolbar').selectOption('basic'); await S(r, 'wysiwyg', 'media_upload').uncheck();
+  r = await addRow('image', 'UI Image');
+  await S(r, 'image', 'return_format').selectOption('url'); await S(r, 'image', 'preview_size').selectOption('large');
+  r = await addRow('date_picker', 'UI Date');
+  await S(r, 'date_picker', 'return_format').fill('D, d M y');
+  r = await addRow('gallery', 'UI Gallery');
+  await S(r, 'gallery', 'return_format').selectOption('id'); await S(r, 'gallery', 'preview_size').selectOption('medium'); await S(r, 'gallery', 'min').fill('1'); await S(r, 'gallery', 'max').fill('4');
+  r = await addRow('relationship', 'UI Rel');
+  await r.locator('input[name$="[post_types][]"][value="post"]').first().uncheck();
+  await r.locator('input[name$="[post_types][]"][value="page"]').first().check();
+  await S(r, 'relationship', 'return_format').selectOption('id'); await S(r, 'relationship', 'max').fill('3');
+  r = await addRow('taxonomy', 'UI Tax');
+  await S(r, 'taxonomy', 'taxonomy').selectOption('post_tag'); await S(r, 'taxonomy', 'field_type').selectOption('radio'); await S(r, 'taxonomy', 'return_format').selectOption('id'); await S(r, 'taxonomy', 'save_terms').check();
+  r = await addRow('repeater', 'UI Repeater');
+  await S(r, 'repeater', 'layout').selectOption('block'); await S(r, 'repeater', 'min').fill('1'); await S(r, 'repeater', 'max').fill('5'); await S(r, 'repeater', 'button_label').fill('Plus');
+  await r.locator('.cfs-fields-editor .cfs-add-field').first().click();
+  const sr = r.locator('.cfs-fields-editor tr.cfs-field-row').first();
+  await sr.locator('> td > .cfs-field-row-main .cfs-field-label').fill('Sub Gallery');
+  await sr.locator('> td > .cfs-field-row-main .cfs-field-type-select').selectOption('gallery');
+  await sr.locator('> td > .cfs-field-row-main .cfs-toggle-field-settings').click();
+  await S(sr, 'gallery', 'max').fill('2');
+  r = await addRow('flexible_content', 'UI Flex');
+  await S(r, 'flexible_content', 'max').fill('3'); await S(r, 'flexible_content', 'button_label').fill('More');
+  await r.locator('.cfs-add-layout').first().click();
+  const lay = r.locator('.cfs-layout-block').first();
+  await lay.locator('input[name$="[label]"]').first().fill('Teaser');
+  await lay.locator('select[name$="[display]"]').first().selectOption('table');
+  await lay.locator('.cfs-add-field').first().click();
+  const lr = lay.locator('tr.cfs-field-row').first();
+  await lr.locator('> td > .cfs-field-row-main .cfs-field-label').fill('Headline');
+
+  // Location: page OR post != ...
+  await p.locator('.cfs-add-rule-group').click();
+  await Promise.all([p.waitForNavigation(), p.click('#publish')]);
+  const gid = new URL(p.url()).searchParams.get('post');
+  const f = JSON.parse(php('group', gid));
+  const by = Object.fromEntries(f.map(x => [x.label, x]));
+  t('12 top-level fields saved', f.length === 12, f.length);
+  const x = by['UI Text'];
+  t('text settings', x.default_value === 'dv' && x.placeholder === 'ph' && x.maxlength === 12 && x.required === 1 && x.instructions === 'Helpful text' && x.name === 'ui_text', x);
+  t('textarea settings', by['UI Textarea'].rows === 9 && by['UI Textarea'].default_value === 'area dv' && by['UI Textarea'].placeholder === 'area ph', by['UI Textarea']);
+  t('select settings', by['UI Select'].choices === 'a : Alpha\nb : Beta\nc' && by['UI Select'].default_value === 'b' && by['UI Select'].allow_null === 1 && by['UI Select'].multiple === 1, by['UI Select']);
+  t('true/false settings', by['UI Bool'].default_value === 1 && by['UI Bool'].ui_on === 'Si' && by['UI Bool'].ui_off === 'No!', by['UI Bool']);
+  t('wysiwyg settings', by['UI Wysiwyg'].toolbar === 'basic' && !by['UI Wysiwyg'].media_upload, by['UI Wysiwyg']);
+  t('image settings', by['UI Image'].return_format === 'url' && by['UI Image'].preview_size === 'large', by['UI Image']);
+  t('date settings', by['UI Date'].return_format === 'D, d M y', by['UI Date']);
+  t('gallery settings', by['UI Gallery'].return_format === 'id' && by['UI Gallery'].preview_size === 'medium' && by['UI Gallery'].min === 1 && by['UI Gallery'].max === 4, by['UI Gallery']);
+  t('relationship settings', JSON.stringify(by['UI Rel'].post_types) === '["page"]' && by['UI Rel'].return_format === 'id' && by['UI Rel'].max === 3, by['UI Rel']);
+  t('taxonomy settings', by['UI Tax'].taxonomy === 'post_tag' && by['UI Tax'].field_type === 'radio' && by['UI Tax'].return_format === 'id' && by['UI Tax'].save_terms === 1, by['UI Tax']);
+  const rp = by['UI Repeater'];
+  t('repeater settings', rp.layout === 'block' && rp.min === 1 && rp.max === 5 && rp.button_label === 'Plus', rp);
+  t('repeater sub gallery with max 2', rp.sub_fields.length === 1 && rp.sub_fields[0].type === 'gallery' && rp.sub_fields[0].max === 2, rp.sub_fields);
+  const fx = by['UI Flex'];
+  t('flex settings', fx.max === 3 && fx.button_label === 'More' && fx.layouts.length === 1 && fx.layouts[0].label === 'Teaser' && fx.layouts[0].display === 'table' && fx.layouts[0].sub_fields[0].label === 'Headline', fx);
+  t('flex layout name derived from label', fx.layouts[0].name === 'teaser', fx.layouts[0].name);
+  console.log('errs', errs.filter(e=>!/Failed to load resource/.test(e)));
+  console.log(ok+' passed, '+bad+' failed  (group '+gid+')');
+  await b.close();
+})().catch(e=>{console.error(e);process.exit(1);});

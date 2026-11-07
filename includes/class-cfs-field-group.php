@@ -22,6 +22,11 @@ class CFS_Field_Group {
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 		add_action( 'save_post_' . self::POST_TYPE, array( $this, 'save' ), 10, 2 );
+		// Keep the per-request group cache honest (after the meta is saved).
+		add_action( 'save_post_' . self::POST_TYPE, array( __CLASS__, 'flush_cache' ), 99 );
+		foreach ( array( 'trashed_post', 'untrashed_post', 'deleted_post' ) as $hook ) {
+			add_action( $hook, array( __CLASS__, 'flush_cache' ) );
+		}
 
 		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns', array( $this, 'columns' ) );
 		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( $this, 'render_column' ), 10, 2 );
@@ -554,10 +559,8 @@ class CFS_Field_Group {
 	 * @return array List of array( id, title, fields, options ).
 	 */
 	public static function get_matching_groups( $post_type ) {
-		static $cache = array();
-
-		if ( ! isset( $cache[ $post_type ] ) ) {
-			$cache[ $post_type ] = array_values(
+		if ( ! isset( self::$matching_cache[ $post_type ] ) ) {
+			self::$matching_cache[ $post_type ] = array_values(
 				array_filter(
 					self::get_active_groups(),
 					function ( $group ) use ( $post_type ) {
@@ -567,7 +570,24 @@ class CFS_Field_Group {
 			);
 		}
 
-		return $cache[ $post_type ];
+		return self::$matching_cache[ $post_type ];
+	}
+
+	/** @var array|null Request cache of every active group. */
+	protected static $groups_cache = null;
+
+	/** @var array Request cache of matching groups per post type. */
+	protected static $matching_cache = array();
+
+	/**
+	 * Forget the cached groups. Called automatically whenever a field
+	 * group is saved, trashed, restored or deleted, so a group created or
+	 * changed earlier in the same request (imports, tests, code that
+	 * programmatically saves groups) is seen by later lookups.
+	 */
+	public static function flush_cache() {
+		self::$groups_cache   = null;
+		self::$matching_cache = array();
 	}
 
 	/**
@@ -605,10 +625,8 @@ class CFS_Field_Group {
 	 * @return array List of array( id, title, fields, options, location ).
 	 */
 	protected static function get_active_groups() {
-		static $groups = null;
-
-		if ( null !== $groups ) {
-			return $groups;
+		if ( null !== self::$groups_cache ) {
+			return self::$groups_cache;
 		}
 
 		$group_posts = get_posts(
@@ -656,6 +674,8 @@ class CFS_Field_Group {
 				return $a['options']['menu_order'] <=> $b['options']['menu_order'];
 			}
 		);
+
+		self::$groups_cache = $groups;
 
 		return $groups;
 	}

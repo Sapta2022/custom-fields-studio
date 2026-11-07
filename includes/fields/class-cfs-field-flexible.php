@@ -439,9 +439,8 @@ class CFS_Field_Flexible extends CFS_Field_Base {
 						$sub_field = $sub['field'];
 						$sub_value = $row[ $sub_field['name'] ] ?? null;
 
-						if ( '' === $sub_value ) {
-							$sub_value = null;
-						}
+						// A saved row keeps '' as the editor's deliberate empty value; only
+						// rows with no entry at all (new / padded to min) get field defaults.
 
 						// Rows are cloned in the browser, so WYSIWYG sub fields
 						// print a plain textarea that JS upgrades.

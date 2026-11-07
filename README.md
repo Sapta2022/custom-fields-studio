@@ -25,7 +25,7 @@ well-documented WordPress plugin patterns.
 - [x] **Phase 5** — Options Pages (code + UI registry, `options_page` location rule, `'option'` context)
 - [x] **Phase 6** — Remaining field types (gallery, relationship, taxonomy, date picker)
 - [x] **Phase 7** — Field group builder UI polish (drag-drop ordering, settings panel)
-- [ ] **Phase 8** — Testing & edge cases
+- [x] **Phase 8** — Testing & edge cases
 
 ## Storage approach
 
@@ -101,6 +101,12 @@ Or render without PHP, anywhere shortcodes work (pages, posts, widgets):
 ```
 
 The output is plain HTML with `cfs-out-*` classes for styling.
+
+### Testing
+
+See [`tests/README.md`](tests/README.md): the *CFS QA Suite* companion plugin seeds 3 field groups, 3 demo
+pages and 2 options pages covering every field type/option, and runs ~235 checks per phase; Playwright
+end-to-end tests drive the same content in a browser.
 
 ### Phase 6 field types
 
