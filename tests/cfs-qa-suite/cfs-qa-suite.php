@@ -15,6 +15,8 @@ define( 'CFS_QA_PATH', plugin_dir_path( __FILE__ ) );
 require_once CFS_QA_PATH . 'inc/definitions.php';
 require_once CFS_QA_PATH . 'inc/seed.php';
 require_once CFS_QA_PATH . 'inc/tests.php';
+require_once CFS_QA_PATH . 'inc/tests-p9.php';
+require_once CFS_QA_PATH . 'inc/tests-p10.php';
 
 // Options pages used by the QA group (registered in code on every request).
 add_action(

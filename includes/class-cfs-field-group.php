@@ -279,6 +279,7 @@ class CFS_Field_Group {
 							<?php esc_html_e( 'Required', 'cfs' ); ?>
 						</label>
 					</div>
+					<?php CFS_Conditional::render_builder( $field, $prefix ); ?>
 					<?php
 					// Render every registered type's settings; JS shows only the
 					// block matching the row's currently-selected type.
@@ -411,6 +412,11 @@ class CFS_Field_Group {
 				'instructions' => isset( $raw_field['instructions'] ) ? sanitize_textarea_field( $raw_field['instructions'] ) : '',
 				'required'     => ! empty( $raw_field['required'] ) ? 1 : 0,
 			);
+
+			$logic = CFS_Conditional::sanitize( $raw_field['conditional_logic'] ?? array() );
+			if ( $logic ) {
+				$field['conditional_logic'] = $logic;
+			}
 
 			$clean_fields[] = array_merge( $field, $type_class::sanitize( $raw_field ) );
 		}

@@ -23,7 +23,7 @@ let ok=0,bad=0; const t=(n,c,x)=>{ c?ok++:bad++; console.log((c?'PASS ':'FAIL ')
         const type = tr.querySelector(':scope > td > .cfs-field-row-main .cfs-field-type-select').value;
         tr.querySelectorAll(':scope > td > .cfs-field-settings-panel > .cfs-field-setting').forEach(s => {
           const shown = s.style.display !== 'none';
-          if (shown !== (s.dataset.type === type)) out.push(type + '/' + s.dataset.type);
+          if (shown !== s.dataset.type.split(' ').includes(type)) out.push(type + '/' + s.dataset.type);
         });
       });
       return out;

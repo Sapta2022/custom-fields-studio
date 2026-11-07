@@ -75,6 +75,7 @@ class CFS_Loader {
 				// Every location param's values, to refill the value dropdown
 				// when a rule's param changes.
 				'locationValues' => CFS_Location_Rules::get_all_values(),
+				'condOps'        => CFS_Conditional::operators(),
 			)
 		);
 	}

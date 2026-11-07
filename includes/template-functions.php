@@ -99,6 +99,10 @@ function cfs_get_fields( $post_id = null ) {
 
 	foreach ( $groups as $group ) {
 		foreach ( $group['fields'] as $field ) {
+			$class = CFS_Field_Registry::get_class( $field['type'] );
+			if ( ! $class || ! $class::stores_value() ) {
+				continue;
+			}
 			$values[ $field['name'] ] = cfs_get_field( $field['name'], $post_id );
 		}
 	}
