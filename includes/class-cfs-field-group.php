@@ -173,6 +173,14 @@ class CFS_Field_Group {
 	public static function render_fields_editor( $fields, $base, $top = false ) {
 		?>
 		<div class="cfs-fields-editor<?php echo $top ? ' cfs-fields-editor-top' : ''; ?>">
+			<?php if ( $top ) : ?>
+				<p class="cfs-builder-toolbar">
+					<button type="button" class="button-link cfs-expand-all"><?php esc_html_e( 'Expand all', 'cfs' ); ?></button>
+					&middot;
+					<button type="button" class="button-link cfs-collapse-all"><?php esc_html_e( 'Collapse all', 'cfs' ); ?></button>
+				</p>
+				<div class="notice notice-error inline cfs-builder-errors" style="display:none;"><p></p></div>
+			<?php endif; ?>
 			<table class="cfs-fields-table widefat">
 				<?php if ( $top ) : ?>
 					<thead>
@@ -251,7 +259,8 @@ class CFS_Field_Group {
 							<option value="<?php echo esc_attr( $type_key ); ?>" <?php selected( $type, $type_key ); ?>><?php echo esc_html( $type_label ); ?></option>
 						<?php endforeach; ?>
 					</select>
-					<button type="button" class="button-link cfs-toggle-field-settings"><?php esc_html_e( 'Settings', 'cfs' ); ?></button>
+					<button type="button" class="button-link cfs-toggle-field-settings" aria-expanded="false"><?php esc_html_e( 'Settings', 'cfs' ); ?></button>
+					<button type="button" class="button-link cfs-duplicate-field"><?php esc_html_e( 'Duplicate', 'cfs' ); ?></button>
 					<button type="button" class="button-link cfs-remove-field" aria-label="<?php esc_attr_e( 'Remove field', 'cfs' ); ?>">&times;</button>
 				</div>
 				<div class="cfs-field-settings-panel" style="display:none;">
@@ -353,6 +362,8 @@ class CFS_Field_Group {
 			self::$seen_keys = array();
 		}
 
+		$used_names = array();
+
 		foreach ( $raw_fields as $raw_field ) {
 			if ( ! is_array( $raw_field ) ) {
 				continue;
@@ -370,6 +381,15 @@ class CFS_Field_Group {
 			if ( '' === $name && '' !== $label ) {
 				$name = sanitize_key( $label );
 			}
+
+			// Two fields of one list can't share a name (they'd overwrite each
+			// other's stored value): suffix repeats with _2, _3, ...
+			$base_name = $name;
+			$suffix    = 2;
+			while ( in_array( $name, $used_names, true ) ) {
+				$name = $base_name . '_' . $suffix++;
+			}
+			$used_names[] = $name;
 
 			$type       = isset( $raw_field['type'] ) ? sanitize_key( $raw_field['type'] ) : 'text';
 			$type_class = CFS_Field_Registry::get_class( $type );

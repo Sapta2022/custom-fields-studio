@@ -427,3 +427,10 @@
 .cfs-rel-selected li { display: flex; align-items: center; gap: 8px; cursor: move; }
 .cfs-rel-title { flex: 1; }
 .cfs-taxonomy-list { margin: 0; max-height: 200px; overflow: auto; list-style: none; padding: 0; }
+
+/* Phase 7 builder polish */
+.cfs-builder-toolbar { margin: 0 0 6px; text-align: right; }
+.cfs-sort-placeholder td { height: 44px; background: #f0f6fc; border: 1px dashed #72aee6; }
+.cfs-field-name.cfs-invalid { border-color: #d63638; box-shadow: 0 0 0 1px #d63638; }
+.cfs-duplicate-field { color: #2271b1; }
+.cfs-field-row:hover > td > .cfs-field-row-main .cfs-drag-handle, .cfs-drag-handle:hover { color: #2271b1; }
