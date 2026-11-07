@@ -24,7 +24,7 @@ well-documented WordPress plugin patterns.
 - [x] **Phase 4** — Flexible Content field (layouts, per-row layout storage, `cfs_get_row_layout()`)
 - [x] **Phase 5** — Options Pages (code + UI registry, `options_page` location rule, `'option'` context)
 - [x] **Phase 6** — Remaining field types (gallery, relationship, taxonomy, date picker)
-- [ ] **Phase 7** — Field group builder UI polish (drag-drop ordering, settings panel)
+- [x] **Phase 7** — Field group builder UI polish (drag-drop ordering, settings panel)
 - [ ] **Phase 8** — Testing & edge cases
 
 ## Storage approach

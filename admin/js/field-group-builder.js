@@ -77,7 +77,122 @@
 				handle: '> td.cfs-col-handle > .cfs-drag-handle',
 				axis: 'y',
 				tolerance: 'pointer',
+				forcePlaceholderSize: true,
+				// Keep column widths while dragging a table row.
+				helper: function ( e, $tr ) {
+					$tr.children().each( function () {
+						$( this ).width( $( this ).width() );
+					} );
+					return $tr;
+				},
+				placeholder: {
+					element: function () {
+						return $( '<tr class="cfs-sort-placeholder"><td colspan="2"></td></tr>' );
+					},
+					update: function () {},
+				},
 			} );
+	}
+
+	/** Lower-case snake_case slug from a label. */
+	function slugify( text ) {
+		return text
+			.toLowerCase()
+			.replace( /[^a-z0-9]+/g, '_' )
+			.replace( /^_+|_+$/g, '' );
+	}
+
+	/** Set a row's settings panel open/closed (own panel only). */
+	function setPanel( $row, open ) {
+		var $panel = panelOf( $row );
+		$panel.toggle( open );
+		$row.children( 'td' ).children( '.cfs-field-row-main' ).find( '.cfs-toggle-field-settings' ).attr( 'aria-expanded', open ? 'true' : 'false' );
+	}
+
+	/**
+	 * Duplicate a row (and everything nested in it) right below itself,
+	 * with fresh field keys and a new unique input-name prefix.
+	 */
+	function duplicateRow( $row ) {
+		var oldPrefix = $row.find( '.cfs-field-key' ).first().attr( 'name' ).replace( /\[key\]$/, '' );
+		var base = oldPrefix.replace( /\[[^\]]*\]$/, '' );
+		var newPrefix = base + '[' + nextRowKey() + ']';
+		var $clone = $row.clone();
+
+		// clone() doesn't carry over live select / textarea values.
+		var $srcFields = $row.find( 'select, textarea' );
+		$clone.find( 'select, textarea' ).each( function ( i ) {
+			$( this ).val( $srcFields.eq( i ).val() );
+		} );
+
+		$clone.find( '[name]' ).each( function () {
+			if ( 0 === this.name.indexOf( oldPrefix ) ) {
+				this.name = newPrefix + this.name.slice( oldPrefix.length );
+			}
+		} );
+		$clone.find( '.cfs-field-key' ).each( function () {
+			$( this ).val( newFieldKey() );
+		} );
+		$clone.find( '.ui-sortable' ).removeClass( 'ui-sortable' );
+		$clone.find( '.ui-sortable-handle' ).removeClass( 'ui-sortable-handle' );
+
+		var $name = $clone.find( '.cfs-field-name' ).first();
+		var $label = $clone.find( '.cfs-field-label' ).first();
+		if ( $name.val() ) {
+			$name.val( $name.val() + '_copy' );
+		}
+		$name.data( 'touched', true );
+		$label.val( $label.val() + cfsBuilder.i18n.copySuffix );
+
+		$row.after( $clone );
+		$clone.find( '.cfs-field-row' ).addBack().each( function () {
+			syncFieldTypeVisibility( $( this ) );
+		} );
+		initSortables();
+	}
+
+	/**
+	 * Block saving when a list has two fields with the same name.
+	 *
+	 * @return {boolean} True when everything is fine.
+	 */
+	function validateNames() {
+		var dupes = [];
+
+		$( '.cfs-fields-editor-top tbody.cfs-rows' ).each( function () {
+			var seen = {};
+			$( this )
+				.children( 'tr.cfs-field-row' )
+				.each( function () {
+					var $input = $( this ).children( 'td' ).children( '.cfs-field-row-main' ).find( '.cfs-field-name' );
+					var $label = $( this ).children( 'td' ).children( '.cfs-field-row-main' ).find( '.cfs-field-label' );
+					var name = $input.val() || slugify( $label.val() || '' );
+
+					$input.removeClass( 'cfs-invalid' );
+					if ( ! name ) {
+						return;
+					}
+					if ( seen[ name ] ) {
+						$input.addClass( 'cfs-invalid' );
+						seen[ name ].addClass( 'cfs-invalid' );
+						if ( -1 === dupes.indexOf( name ) ) {
+							dupes.push( name );
+						}
+					} else {
+						seen[ name ] = $input;
+					}
+				} );
+		} );
+
+		var $err = $( '.cfs-builder-errors' );
+		if ( dupes.length ) {
+			$err.find( 'p' ).text( cfsBuilder.i18n.duplicateName.replace( '%s', dupes.join( ', ' ) ) );
+			$err.show();
+			$err[ 0 ].scrollIntoView( { block: 'center' } );
+			return false;
+		}
+		$err.hide();
+		return true;
 	}
 
 	/**
@@ -97,6 +212,7 @@
 		$tbody.append( $row );
 		syncFieldTypeVisibility( $row );
 		initSortables();
+		$row.find( '.cfs-field-label' ).first().trigger( 'focus' );
 	}
 
 	/**
@@ -142,7 +258,47 @@
 		} );
 
 		$editor.on( 'click', '.cfs-toggle-field-settings', function () {
-			panelOf( $( this ).closest( '.cfs-field-row' ) ).slideToggle( 120 );
+			var $row = $( this ).closest( '.cfs-field-row' );
+			setPanel( $row, ! panelOf( $row ).is( ':visible' ) );
+		} );
+
+		$editor.on( 'click', '.cfs-duplicate-field', function () {
+			duplicateRow( $( this ).closest( '.cfs-field-row' ) );
+		} );
+
+		$editor.on( 'click', '.cfs-expand-all, .cfs-collapse-all', function () {
+			var open = $( this ).hasClass( 'cfs-expand-all' );
+			$editor.find( '.cfs-field-row' ).each( function () {
+				setPanel( $( this ), open );
+			} );
+		} );
+
+		// Label -> name auto-slug, until the name has been edited by hand.
+		// Rows that already have a saved name are never rewritten.
+		$editor.find( '.cfs-field-name' ).each( function () {
+			if ( $( this ).val() ) {
+				$( this ).data( 'touched', true );
+			}
+		} );
+		$editor.on( 'input', '.cfs-field-name', function () {
+			$( this ).data( 'touched', true ).removeClass( 'cfs-invalid' );
+		} );
+		$editor.on( 'blur', '.cfs-field-name', function () {
+			$( this ).val( slugify( $( this ).val() ) );
+		} );
+		$editor.on( 'input', '.cfs-field-label', function () {
+			var $name = $( this ).siblings( '.cfs-field-name' );
+			if ( ! $name.data( 'touched' ) ) {
+				$name.val( slugify( $( this ).val() ) );
+			}
+		} );
+
+		$( '#post' ).on( 'submit', function ( e ) {
+			if ( ! validateNames() ) {
+				e.preventDefault();
+				$( '#publish, #save-post' ).removeClass( 'disabled' );
+				$( '.spinner' ).removeClass( 'is-active' );
+			}
 		} );
 
 		// Flexible Content layouts: clone the shared layout template, with
