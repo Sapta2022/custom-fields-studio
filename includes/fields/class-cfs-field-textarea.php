@@ -48,7 +48,7 @@ class CFS_Field_Textarea extends CFS_Field_Base {
 	}
 
 	public static function render_input( $field, $value, $name ) {
-		if ( null === $value || '' === $value ) {
+		if ( null === $value ) {
 			$value = $field['default_value'] ?? '';
 		}
 		printf(
@@ -61,6 +61,7 @@ class CFS_Field_Textarea extends CFS_Field_Base {
 	}
 
 	public static function sanitize_value( $raw_value, $field ) {
-		return sanitize_textarea_field( $raw_value );
+		// Browsers submit CRLF; store plain \n so values compare and render the same everywhere.
+		return str_replace( array( "\r\n", "\r" ), "\n", sanitize_textarea_field( $raw_value ) );
 	}
 }

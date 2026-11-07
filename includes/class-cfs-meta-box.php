@@ -120,7 +120,10 @@ class CFS_Meta_Box {
 		// An empty string means "no value saved yet" for most meta reads;
 		// pass null through so each field type can apply its own default
 		// rather than every type having to special-case ''.
-		if ( '' === $value ) {
+		// ...but only when nothing was ever saved: the reference key
+		// ("_name") is written on every save, so if it exists an empty value
+		// is the editor's deliberate choice and a default must not return.
+		if ( '' === $value && ! CFS_Storage::exists( '_' . $field['name'], $ctx ) ) {
 			$value = null;
 		}
 

@@ -44,12 +44,12 @@ class CFS_Field_Text extends CFS_Field_Base {
 		return array(
 			'default_value' => isset( $raw['default_value'] ) ? sanitize_text_field( wp_unslash( $raw['default_value'] ) ) : '',
 			'placeholder'   => isset( $raw['placeholder'] ) ? sanitize_text_field( wp_unslash( $raw['placeholder'] ) ) : '',
-			'maxlength'     => isset( $raw['maxlength'] ) ? absint( $raw['maxlength'] ) : '',
+			'maxlength'     => ( isset( $raw['maxlength'] ) && absint( $raw['maxlength'] ) > 0 ) ? absint( $raw['maxlength'] ) : '',
 		);
 	}
 
 	public static function render_input( $field, $value, $name ) {
-		if ( null === $value || '' === $value ) {
+		if ( null === $value ) {
 			$value = $field['default_value'] ?? '';
 		}
 		$maxlength = ! empty( $field['maxlength'] ) ? ' maxlength="' . absint( $field['maxlength'] ) . '"' : '';

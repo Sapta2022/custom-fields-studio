@@ -87,6 +87,6 @@ class CFS_Field_Wysiwyg extends CFS_Field_Base {
 		// wp_editor() content is rich HTML — sanitize as post content, same
 		// as WordPress does for the main post editor, rather than stripping
 		// tags with sanitize_text_field().
-		return wp_kses_post( $raw_value );
+		return str_replace( array( "\r\n", "\r" ), "\n", wp_kses_post( $raw_value ) );
 	}
 }

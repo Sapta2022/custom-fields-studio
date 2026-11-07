@@ -54,7 +54,7 @@ class CFS_Field_Select extends CFS_Field_Base {
 
 	public static function sanitize( $raw ) {
 		return array(
-			'choices'       => isset( $raw['choices'] ) ? sanitize_textarea_field( wp_unslash( $raw['choices'] ) ) : '',
+			'choices'       => isset( $raw['choices'] ) ? str_replace( array( "\r\n", "\r" ), "\n", sanitize_textarea_field( wp_unslash( $raw['choices'] ) ) ) : '',
 			'default_value' => isset( $raw['default_value'] ) ? sanitize_text_field( wp_unslash( $raw['default_value'] ) ) : '',
 			'allow_null'    => ! empty( $raw['allow_null'] ) ? 1 : 0,
 			'multiple'      => ! empty( $raw['multiple'] ) ? 1 : 0,
