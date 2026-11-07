@@ -53,13 +53,42 @@
 	 * @param {jQuery} $row The .cfs-field-row row.
 	 */
 	function syncFieldTypeVisibility( $row ) {
-		var type = $row.children( 'td' ).children( '.cfs-field-row-main' ).find( '.cfs-field-type-select' ).val();
-
-		panelOf( $row )
-			.children( '.cfs-field-setting' )
+		// This row first, then rows nested inside it, so an inner row's own
+		// type decides what is enabled inside an enabled outer block.
+		$row.find( '.cfs-field-row' )
+			.addBack()
 			.each( function () {
-				var $setting = $( this );
-				$setting.toggle( $setting.data( 'type' ) === type );
+				var $r = $( this );
+				var type = $r.children( 'td' ).children( '.cfs-field-row-main' ).find( '.cfs-field-type-select' ).val();
+
+				panelOf( $r )
+					.children( '.cfs-field-setting' )
+					.each( function () {
+						var $setting = $( this );
+						var match = $setting.data( 'type' ) === type;
+						$setting.toggle( match );
+						// Several field types use the same input names
+						// (default_value, return_format, max, ...). Inputs of
+						// a type that isn't selected must not be submitted, or
+						// they overwrite the real settings.
+						$setting.find( ':input' ).prop( 'disabled', ! match );
+					} );
+			} );
+
+		// A block that isn't selected stays fully disabled, nested rows
+		// included (the pass above may have re-enabled some of those).
+		$row.find( '.cfs-field-row' )
+			.addBack()
+			.each( function () {
+				var $r = $( this );
+				var type = $r.children( 'td' ).children( '.cfs-field-row-main' ).find( '.cfs-field-type-select' ).val();
+				panelOf( $r )
+					.children( '.cfs-field-setting' )
+					.each( function () {
+						if ( $( this ).data( 'type' ) !== type ) {
+							$( this ).find( ':input' ).prop( 'disabled', true );
+						}
+					} );
 			} );
 	}
 

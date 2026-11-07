@@ -40,6 +40,23 @@ class CFS_Storage {
 	}
 
 	/**
+	 * Whether a key has ever been written (even with an empty value).
+	 * Used to tell "never saved, show the default" apart from "saved on
+	 * purpose as empty".
+	 *
+	 * @param string     $key Storage key.
+	 * @param int|string $ctx Post ID or 'option'.
+	 * @return bool
+	 */
+	public static function exists( $key, $ctx ) {
+		if ( 'option' === $ctx ) {
+			return false !== get_option( self::OPTION_PREFIX . $key, false );
+		}
+
+		return metadata_exists( 'post', (int) $ctx, $key );
+	}
+
+	/**
 	 * Write one value.
 	 *
 	 * update_post_meta() expects SLASHED data (it runs wp_unslash() on the
