@@ -34,3 +34,4 @@ node tests/e2e/qa-builder.js            # etc.
 
 `tests/e2e/p9.js` builds a group with the 14 Phase 9 field types in the builder UI, fills a real page, saves, reloads, clears values and checks front-end output.
 `tests/e2e/p10.js` builds tabs, accordion, message, group, post object, user and conditional rules in the builder, then exercises them on a real page. `tests/e2e/p10b.js` (with `mkcond.php`) checks that conditional logic is scoped per repeater row and per group.
+`tests/e2e/p11.js` (with `p11setup.php`) builds a group with a clone field and non-default location rules in the builder, then exercises post-status rules, the user profile and term screens, the Tools import/export page and the REST API.

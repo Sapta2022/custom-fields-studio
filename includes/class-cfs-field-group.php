@@ -317,6 +317,7 @@ class CFS_Field_Group {
 		$position = $options['position'] ?? 'normal';
 		$style    = $options['style'] ?? 'default';
 		$order    = $options['menu_order'] ?? 0;
+		$in_rest  = ! empty( $options['show_in_rest'] );
 		?>
 		<p>
 			<label>
@@ -337,6 +338,13 @@ class CFS_Field_Group {
 				<option value="default" <?php selected( $style, 'default' ); ?>><?php esc_html_e( 'Standard (WP metabox)', 'cfs' ); ?></option>
 				<option value="seamless" <?php selected( $style, 'seamless' ); ?>><?php esc_html_e( 'Seamless (no metabox styling)', 'cfs' ); ?></option>
 			</select>
+		</p>
+		<p>
+			<label>
+				<input type="checkbox" name="cfs_options[show_in_rest]" value="1" <?php checked( $in_rest ); ?> />
+				<?php esc_html_e( 'Show in REST API', 'cfs' ); ?>
+			</label><br />
+			<span class="description"><?php esc_html_e( 'Exposes this group\'s values as the "cfs" field on posts and at /wp-json/cfs/v1/.', 'cfs' ); ?></span>
 		</p>
 		<p>
 			<label for="cfs-menu-order"><?php esc_html_e( 'Order', 'cfs' ); ?></label><br />
@@ -489,13 +497,29 @@ class CFS_Field_Group {
 
 		// --- Settings ---
 		$raw_options = isset( $_POST['cfs_options'] ) ? wp_unslash( $_POST['cfs_options'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-		$options     = array(
-			'active'     => ! empty( $raw_options['active'] ) ? 1 : 0,
-			'position'   => ( isset( $raw_options['position'] ) && 'side' === $raw_options['position'] ) ? 'side' : 'normal',
-			'style'      => ( isset( $raw_options['style'] ) && 'seamless' === $raw_options['style'] ) ? 'seamless' : 'default',
-			'menu_order' => isset( $raw_options['menu_order'] ) ? intval( $raw_options['menu_order'] ) : 0,
-		);
+		$options = self::sanitize_options( $raw_options );
 		update_post_meta( $post_id, '_cfs_options', $options );
+
+		// Make sure the group has its stable key (used by JSON and clone fields).
+		self::get_group_key( $post_id );
+	}
+
+	/**
+	 * Clean a posted/imported settings array.
+	 *
+	 * @param mixed $raw_options Raw settings.
+	 * @return array
+	 */
+	public static function sanitize_options( $raw_options ) {
+		$raw_options = is_array( $raw_options ) ? $raw_options : array();
+
+		return array(
+			'active'       => ! empty( $raw_options['active'] ) ? 1 : 0,
+			'position'     => ( isset( $raw_options['position'] ) && 'side' === $raw_options['position'] ) ? 'side' : 'normal',
+			'style'        => ( isset( $raw_options['style'] ) && 'seamless' === $raw_options['style'] ) ? 'seamless' : 'default',
+			'menu_order'   => isset( $raw_options['menu_order'] ) ? intval( $raw_options['menu_order'] ) : 0,
+			'show_in_rest' => ! empty( $raw_options['show_in_rest'] ) ? 1 : 0,
+		);
 	}
 
 	/**
@@ -579,6 +603,138 @@ class CFS_Field_Group {
 		return self::$matching_cache[ $post_type ];
 	}
 
+	/**
+	 * The stable key of a field group ("group_xxxxxxxxxxxxx"), created on
+	 * first use. JSON import/export and clone fields refer to groups by it.
+	 *
+	 * @param int $group_id Field group post ID.
+	 * @return string
+	 */
+	public static function get_group_key( $group_id ) {
+		$key = get_post_meta( $group_id, '_cfs_group_key', true );
+
+		if ( ! is_string( $key ) || '' === $key ) {
+			$key = 'group_' . substr( md5( uniqid( (string) $group_id, true ) ), 0, 13 );
+			update_post_meta( $group_id, '_cfs_group_key', $key );
+		}
+
+		return $key;
+	}
+
+	/**
+	 * Active groups for one post: location rules checked against the post
+	 * itself (type, id, status, page template, categories/terms) and the
+	 * current user's role.
+	 *
+	 * @param WP_Post|int $post Post.
+	 * @return array
+	 */
+	public static function get_groups_for_post( $post ) {
+		$context = CFS_Location_Rules::post_context( $post );
+		if ( ! $context ) {
+			return array();
+		}
+
+		return array_values(
+			array_filter(
+				self::get_active_groups(),
+				function ( $group ) use ( $context ) {
+					return CFS_Location_Rules::matches( $group['location'], 'post', $context );
+				}
+			)
+		);
+	}
+
+	/**
+	 * Groups whose fields should be saved for a post: the groups that match
+	 * it now, plus groups that were on the edit screen when it was opened but
+	 * stopped matching because of what this very save changed (publishing a
+	 * draft, picking another page template or category). Those are only
+	 * accepted when the post still passes their other rules.
+	 *
+	 * @param WP_Post $post     Post being saved.
+	 * @param array   $rendered Group IDs the edit screen reported showing.
+	 * @return array
+	 */
+	public static function get_groups_for_save( $post, $rendered = array() ) {
+		$groups = self::get_groups_for_post( $post );
+		$have   = wp_list_pluck( $groups, 'id' );
+		$rendered = array_map( 'absint', (array) $rendered );
+
+		if ( ! $rendered ) {
+			return $groups;
+		}
+
+		$context = CFS_Location_Rules::post_context( $post );
+		foreach ( self::get_active_groups() as $group ) {
+			if ( in_array( $group['id'], $have, true ) || ! in_array( $group['id'], $rendered, true ) ) {
+				continue;
+			}
+			if ( CFS_Location_Rules::matches( $group['location'], 'post', $context, array( 'post_status', 'page_template', 'post_category', 'post_taxonomy' ) ) ) {
+				$groups[] = $group;
+			}
+		}
+
+		return $groups;
+	}
+
+	/**
+	 * Active groups for a user profile screen.
+	 *
+	 * @param int $user_id User being edited.
+	 * @return array
+	 */
+	public static function get_groups_for_user( $user_id ) {
+		$user = get_userdata( $user_id );
+		if ( ! $user ) {
+			return array();
+		}
+
+		$context = array( 'user_role' => (array) $user->roles );
+
+		return array_values(
+			array_filter(
+				self::get_active_groups(),
+				function ( $group ) use ( $context ) {
+					return CFS_Location_Rules::matches( $group['location'], 'user', $context );
+				}
+			)
+		);
+	}
+
+	/**
+	 * Active groups for a taxonomy term screen.
+	 *
+	 * @param WP_Term|int $term Term object or ID.
+	 * @return array
+	 */
+	public static function get_groups_for_term( $term ) {
+		$term = get_term( $term );
+		if ( ! $term || is_wp_error( $term ) ) {
+			return array();
+		}
+
+		$context = array( 'taxonomy' => $term->taxonomy );
+
+		return array_values(
+			array_filter(
+				self::get_active_groups(),
+				function ( $group ) use ( $context ) {
+					return CFS_Location_Rules::matches( $group['location'], 'term', $context );
+				}
+			)
+		);
+	}
+
+	/**
+	 * Every active group (cached); public for the REST/JSON layers.
+	 *
+	 * @return array
+	 */
+	public static function all_active() {
+		return self::get_active_groups();
+	}
+
 	/** @var array|null Request cache of every active group. */
 	protected static $groups_cache = null;
 
@@ -645,6 +801,24 @@ class CFS_Field_Group {
 
 		$groups = array();
 
+		// Every group's raw fields by group key (active or not), so clone
+		// fields can pull fields from any group.
+		$sources = array();
+		foreach ( get_posts(
+			array(
+				'post_type'   => self::POST_TYPE,
+				'post_status' => array( 'publish', 'draft', 'pending', 'private' ),
+				'numberposts' => -1,
+			)
+		) as $source_post ) {
+			$source_fields = get_post_meta( $source_post->ID, '_cfs_fields', true );
+
+			$sources[ self::get_group_key( $source_post->ID ) ] = array(
+				'id'     => $source_post->ID,
+				'fields' => is_array( $source_fields ) ? $source_fields : array(),
+			);
+		}
+
 		foreach ( $group_posts as $group_post ) {
 			$options = get_post_meta( $group_post->ID, '_cfs_options', true );
 			$options = is_array( $options ) ? $options : array();
@@ -655,6 +829,7 @@ class CFS_Field_Group {
 					'position'   => 'normal',
 					'style'      => 'default',
 					'menu_order' => 0,
+					'show_in_rest' => 0,
 				)
 			);
 
@@ -667,8 +842,9 @@ class CFS_Field_Group {
 
 			$groups[] = array(
 				'id'       => $group_post->ID,
+				'key'      => self::get_group_key( $group_post->ID ),
 				'title'    => $group_post->post_title,
-				'fields'   => is_array( $fields ) ? $fields : array(),
+				'fields'   => CFS_Field_Clone::resolve( is_array( $fields ) ? $fields : array(), $sources ),
 				'options'  => $options,
 				'location' => is_array( $location ) ? $location : array(),
 			);

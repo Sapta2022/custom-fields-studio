@@ -15,9 +15,17 @@
  *   ),
  * )
  *
- * Supported params: `post_type` (post edit screens) and `options_page`
- * (Options Pages, Phase 5). A group whose rules mix the two never matches
- * anywhere: a screen is either a post edit screen or an options page.
+ * Supported params, by the screen they apply to:
+ *  - post screens:   post_type, post_id, post_status, page_template,
+ *                    post_category, post_taxonomy
+ *  - user profiles:  user_role (the role of the user being edited)
+ *  - term screens:   taxonomy
+ *  - options pages:  options_page
+ *  - any screen:     current_user_role (the role of whoever is editing)
+ *
+ * A group whose rules mix params of different screens never matches
+ * anywhere: a screen is exactly one kind. A group made only of
+ * current_user_role rules has no screen to anchor to, so it never matches.
  *
  * @package CustomFieldsStudio
  */
@@ -36,10 +44,29 @@ class CFS_Location_Rules {
 	 */
 	public static function get_params() {
 		return array(
-			'post_type'    => __( 'Post Type', 'cfs' ),
-			'options_page' => __( 'Options Page', 'cfs' ),
+			'post_type'         => __( 'Post Type', 'cfs' ),
+			'post_id'           => __( 'Post', 'cfs' ),
+			'post_status'       => __( 'Post Status', 'cfs' ),
+			'page_template'     => __( 'Page Template', 'cfs' ),
+			'post_category'     => __( 'Post Category', 'cfs' ),
+			'post_taxonomy'     => __( 'Post Taxonomy Term', 'cfs' ),
+			'current_user_role' => __( 'Current User Role', 'cfs' ),
+			'user_role'         => __( 'User Form (edited user role)', 'cfs' ),
+			'taxonomy'          => __( 'Taxonomy Term Screen', 'cfs' ),
+			'options_page'      => __( 'Options Page', 'cfs' ),
 		);
 	}
+
+	/** Params that belong to each kind of admin screen. */
+	const SCREEN_PARAMS = array(
+		'post'    => array( 'post_type', 'post_id', 'post_status', 'page_template', 'post_category', 'post_taxonomy' ),
+		'user'    => array( 'user_role' ),
+		'term'    => array( 'taxonomy' ),
+		'options' => array( 'options_page' ),
+	);
+
+	/** Params that apply on any screen. */
+	const NEUTRAL_PARAMS = array( 'current_user_role' );
 
 	/**
 	 * Values available for a given param, e.g. all public post types for
@@ -65,6 +92,89 @@ class CFS_Location_Rules {
 			$values = array();
 			foreach ( CFS_Options_Page::get_pages() as $page ) {
 				$values[ $page['menu_slug'] ] = $page['menu_title'];
+			}
+			return $values;
+		}
+
+		if ( 'post_id' === $param ) {
+			$values = array();
+			$posts  = get_posts(
+				array(
+					'post_type'   => array_keys( self::get_values_for_param( 'post_type' ) ),
+					'post_status' => array( 'publish', 'draft', 'pending', 'private', 'future' ),
+					'numberposts' => 200,
+					'orderby'     => 'title',
+					'order'       => 'ASC',
+				)
+			);
+			foreach ( $posts as $one ) {
+				$values[ (string) $one->ID ] = ( '' !== $one->post_title ? $one->post_title : __( '(no title)', 'cfs' ) ) . ' (#' . $one->ID . ')';
+			}
+			return $values;
+		}
+
+		if ( 'post_status' === $param ) {
+			return array(
+				'publish' => __( 'Published', 'cfs' ),
+				'draft'   => __( 'Draft', 'cfs' ),
+				'pending' => __( 'Pending Review', 'cfs' ),
+				'private' => __( 'Private', 'cfs' ),
+				'future'  => __( 'Scheduled', 'cfs' ),
+			);
+		}
+
+		if ( 'page_template' === $param ) {
+			$values = array( 'default' => __( 'Default Template', 'cfs' ) );
+			if ( function_exists( 'wp_get_theme' ) ) {
+				foreach ( wp_get_theme()->get_page_templates( null, 'page' ) as $file => $name ) {
+					$values[ $file ] = $name;
+				}
+			}
+			return $values;
+		}
+
+		if ( 'post_category' === $param ) {
+			$values = array();
+			$terms  = get_terms( array( 'taxonomy' => 'category', 'hide_empty' => false, 'number' => 200 ) );
+			if ( ! is_wp_error( $terms ) ) {
+				foreach ( $terms as $term ) {
+					$values[ (string) $term->term_id ] = $term->name;
+				}
+			}
+			return $values;
+		}
+
+		if ( 'post_taxonomy' === $param ) {
+			$values = array();
+			foreach ( get_taxonomies( array( 'public' => true ), 'objects' ) as $tax ) {
+				$terms = get_terms( array( 'taxonomy' => $tax->name, 'hide_empty' => false, 'number' => 100 ) );
+				if ( is_wp_error( $terms ) ) {
+					continue;
+				}
+				foreach ( $terms as $term ) {
+					$values[ $tax->name . ':' . $term->slug ] = $tax->labels->singular_name . ': ' . $term->name;
+				}
+			}
+			return $values;
+		}
+
+		if ( 'current_user_role' === $param || 'user_role' === $param ) {
+			$values = array();
+			if ( 'current_user_role' === $param ) {
+				$values['super_admin'] = __( 'Super Admin', 'cfs' );
+			} else {
+				$values['all'] = __( 'All roles', 'cfs' );
+			}
+			foreach ( wp_roles()->get_names() as $slug => $name ) {
+				$values[ $slug ] = translate_user_role( $name );
+			}
+			return $values;
+		}
+
+		if ( 'taxonomy' === $param ) {
+			$values = array( 'all' => __( 'All taxonomies', 'cfs' ) );
+			foreach ( get_taxonomies( array( 'public' => true ), 'objects' ) as $tax ) {
+				$values[ $tax->name ] = $tax->labels->singular_name;
 			}
 			return $values;
 		}
@@ -212,36 +322,67 @@ class CFS_Location_Rules {
 	}
 
 	/**
-	 * Whether a set of location rule groups matches the given post type.
-	 * (Phase 2 will call this when deciding whether to show a field
-	 * group's meta box on a post edit screen.)
+	 * Whether a set of location rule groups matches a screen.
 	 *
-	 * @param array  $groups    Saved rule groups.
-	 * @param string $post_type Post type to test against.
+	 * @param array  $groups  Saved rule groups.
+	 * @param string $screen  'post', 'user', 'term' or 'options'.
+	 * @param array  $context Facts about the screen, keyed by param (see
+	 *                        self::post_context() and friends). Array values
+	 *                        (e.g. post_category) match when ANY item equals.
+	 * @param array  $ignore  Params to treat as passing (used when saving, for
+	 *                        facts the same save may change, like post status).
 	 * @return bool
 	 */
-	public static function matches_post_type( $groups, $post_type ) {
-		if ( empty( $groups ) ) {
+	public static function matches( $groups, $screen, $context, $ignore = array() ) {
+		if ( empty( $groups ) || ! isset( self::SCREEN_PARAMS[ $screen ] ) ) {
 			return false;
 		}
 
+		if ( ! isset( $context['current_user_role'] ) ) {
+			$context['current_user_role'] = self::current_user_roles();
+		}
+
 		foreach ( $groups as $rules ) {
-			$group_matches = true;
-			foreach ( $rules as $rule ) {
-				if ( 'post_type' !== $rule['param'] ) {
-					// Any other param (e.g. options_page) means this group
-					// is not for post edit screens.
-					$group_matches = false;
+			$anchored      = false;
+			$group_matches = ! empty( $rules );
+
+			foreach ( (array) $rules as $rule ) {
+				$param = $rule['param'] ?? '';
+
+				if ( in_array( $param, self::SCREEN_PARAMS[ $screen ], true ) ) {
+					$anchored = true;
+				} elseif ( ! in_array( $param, self::NEUTRAL_PARAMS, true ) ) {
+					$group_matches = false; // A param of another screen.
 					break;
 				}
-				$is_equal = ( $rule['value'] === $post_type );
-				$passes   = ( '==' === $rule['operator'] ) ? $is_equal : ! $is_equal;
+
+				if ( in_array( $param, $ignore, true ) ) {
+					continue;
+				}
+
+				if ( ! array_key_exists( $param, $context ) ) {
+					$group_matches = false; // Nothing known about this fact.
+					break;
+				}
+
+				$have     = $context[ $param ];
+				$have     = array_map( 'strval', (array) $have );
+				$want     = (string) ( $rule['value'] ?? '' );
+				$is_equal = in_array( $want, $have, true );
+
+				// "all" is a wildcard for user_role / taxonomy rules.
+				if ( 'all' === $want && in_array( $param, array( 'user_role', 'taxonomy' ), true ) ) {
+					$is_equal = true;
+				}
+
+				$passes = ( '!=' === ( $rule['operator'] ?? '==' ) ) ? ! $is_equal : $is_equal;
 				if ( ! $passes ) {
 					$group_matches = false;
 					break;
 				}
 			}
-			if ( $group_matches ) {
+
+			if ( $group_matches && $anchored ) {
 				return true; // Any matching OR-group is enough.
 			}
 		}
@@ -250,38 +391,80 @@ class CFS_Location_Rules {
 	}
 
 	/**
+	 * Roles of the user doing the editing, plus 'super_admin' on multisite.
+	 *
+	 * @return array
+	 */
+	public static function current_user_roles() {
+		$user  = wp_get_current_user();
+		$roles = $user && $user->exists() ? (array) $user->roles : array();
+
+		if ( is_multisite() && is_super_admin() ) {
+			$roles[] = 'super_admin';
+		}
+
+		return $roles;
+	}
+
+	/**
+	 * Context for a post edit screen / REST request / template lookup.
+	 *
+	 * @param WP_Post|int $post Post.
+	 * @return array
+	 */
+	public static function post_context( $post ) {
+		$post = get_post( $post );
+		if ( ! $post ) {
+			return array();
+		}
+
+		$template = get_page_template_slug( $post );
+		$ctx      = array(
+			'post_type'     => $post->post_type,
+			'post_id'       => (string) $post->ID,
+			'post_status'   => 'auto-draft' === $post->post_status ? 'draft' : $post->post_status,
+			'page_template' => $template ? $template : 'default',
+			'post_category' => array(),
+			'post_taxonomy' => array(),
+		);
+
+		foreach ( get_object_taxonomies( $post->post_type ) as $taxonomy ) {
+			$terms = wp_get_object_terms( $post->ID, $taxonomy );
+			if ( is_wp_error( $terms ) ) {
+				continue;
+			}
+			foreach ( $terms as $term ) {
+				$ctx['post_taxonomy'][] = $taxonomy . ':' . $term->slug;
+				if ( 'category' === $taxonomy ) {
+					$ctx['post_category'][] = (string) $term->term_id;
+				}
+			}
+		}
+
+		return $ctx;
+	}
+
+	/**
+	 * Whether a set of location rule groups matches the given post type.
+	 * Kept for callers that only know the post type; rules about a specific
+	 * post (id, status, template, terms) never match here.
+	 *
+	 * @param array  $groups    Saved rule groups.
+	 * @param string $post_type Post type to test against.
+	 * @return bool
+	 */
+	public static function matches_post_type( $groups, $post_type ) {
+		return self::matches( $groups, 'post', array( 'post_type' => $post_type ) );
+	}
+
+	/**
 	 * Whether a set of location rule groups matches the given options page.
-	 * A group matches when every rule is an options_page rule that passes;
-	 * post_type rules (or anything else) never match an options page.
 	 *
 	 * @param array  $groups Saved rule groups.
 	 * @param string $slug   Options page menu slug.
 	 * @return bool
 	 */
 	public static function matches_options_page( $groups, $slug ) {
-		if ( empty( $groups ) ) {
-			return false;
-		}
-
-		foreach ( $groups as $rules ) {
-			$group_matches = ! empty( $rules );
-			foreach ( $rules as $rule ) {
-				if ( 'options_page' !== ( $rule['param'] ?? '' ) ) {
-					$group_matches = false;
-					break;
-				}
-				$is_equal = ( $rule['value'] === $slug );
-				$passes   = ( '==' === $rule['operator'] ) ? $is_equal : ! $is_equal;
-				if ( ! $passes ) {
-					$group_matches = false;
-					break;
-				}
-			}
-			if ( $group_matches ) {
-				return true;
-			}
-		}
-
-		return false;
+		return self::matches( $groups, 'options', array( 'options_page' => $slug ) );
 	}
 }

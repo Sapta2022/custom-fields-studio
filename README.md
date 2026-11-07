@@ -28,7 +28,7 @@ well-documented WordPress plugin patterns.
 - [x] **Phase 8** — Testing & edge cases
 - [x] **Phase 9** — More field types: number, range, email, URL, password, checkbox, radio, button group, file, color picker, time picker, date-time picker, link, oEmbed
 - [x] **Phase 10** — Layout fields (group, tab, accordion, message), conditional logic, post object / page link / user fields
-- [ ] **Phase 11** — JSON import/export + local JSON sync, REST API exposure, extra location rules, clone field
+- [x] **Phase 11** — JSON import/export + local JSON sync, REST API exposure, extra location rules, clone field
 - [ ] **Phase 12** — Custom Gutenberg blocks, Google Map, WPML / Polylang
 
 ## Storage approach
@@ -111,6 +111,35 @@ The output is plain HTML with `cfs-out-*` classes for styling.
 See [`tests/README.md`](tests/README.md): the *CFS QA Suite* companion plugin seeds 3 field groups, 3 demo
 pages and 2 options pages covering every field type/option, and runs ~235 checks per phase; Playwright
 end-to-end tests drive the same content in a browser.
+
+### Phase 11: JSON, REST, location rules, clone
+
+**More location rules.** Besides post type and options page: a specific post, post status, page template,
+post category, post taxonomy term, the current user's role, the role of the user being edited (field groups on
+**user profile screens**) and a taxonomy (field groups on **term edit screens**). Rules are OR-groups of AND-rules.
+Values live in user meta / term meta; read them with `cfs_get_field( 'x', 'user_5' )` / `'term_3'` (a `WP_User`
+or `WP_Term` object works too). A group that was on screen when you press Publish still saves, even if publishing
+(or a new page template) makes its rule stop matching.
+
+**Clone field.** Reuse the fields of other field groups: display *group* (one named group of the cloned fields)
+or *seamless* (fields appear in place, optionally prefixed with the clone's name). Clones are resolved when
+groups load, so templates, shortcodes and the REST API see ordinary fields. Clones can be nested; groups that
+clone each other are cut off safely.
+
+**JSON import / export** (*Field Groups → Tools*). Export any set of groups to a `.json` file and import it on
+another site; groups carry a stable key, so importing again updates instead of duplicating, and everything goes
+through the same sanitizers as the builder.
+
+**Local JSON.** Create a writable `cfs-json` folder in your theme (or point the `cfs/json_dir` filter at one) and
+every saved field group is also written there as `{key}.json`, so field groups can live in git. Files that are new
+or newer than the database copy are offered on the Tools page as *Sync changes*.
+
+**REST API.** Tick *Show in REST API* on a group to expose it:
+
+- a `cfs` field on posts, pages, other REST post types, users and terms (read and write; write needs the usual
+  edit capability; `?cfs_format=1` on a read returns formatted values instead of raw ones)
+- `GET`/`POST /wp-json/cfs/v1/options` (reading is public like the front end; writing needs `manage_options`)
+- `GET /wp-json/cfs/v1/groups` — field schema of the exposed groups (needs `edit_posts`)
 
 ### Phase 6 field types
 
