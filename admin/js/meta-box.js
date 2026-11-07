@@ -115,8 +115,95 @@
 			.prop( 'disabled', count <= l.min );
 	}
 
+	/* ------------------------------------------------------------------
+	 * Flexible Content (same row model as the repeater, but each row is
+	 * cloned from the <template> of the layout the editor picked)
+	 * ---------------------------------------------------------------- */
+
+	function flexRowsOf( $flex ) {
+		return $flex.children( '.cfs-flex-rows' ).children( '.cfs-flex-row' );
+	}
+
+	function refreshFlex( $flex ) {
+		var l = limits( $flex );
+		var count = flexRowsOf( $flex ).length;
+
+		$flex
+			.children( '.cfs-flex-footer' )
+			.find( '.cfs-flex-add' )
+			.prop( 'disabled', l.max > 0 && count >= l.max );
+
+		flexRowsOf( $flex )
+			.children( '.cfs-flex-row-actions' )
+			.find( '.cfs-flex-remove' )
+			.prop( 'disabled', count <= l.min );
+	}
+
+	function addFlexRow( $flex, layout ) {
+		var l = limits( $flex );
+
+		if ( l.max > 0 && flexRowsOf( $flex ).length >= l.max ) {
+			return;
+		}
+
+		var template = $flex
+			.children( 'template.cfs-flex-template' )
+			.filter( function () {
+				return this.getAttribute( 'data-layout' ) === layout;
+			} )[ 0 ];
+
+		if ( ! template ) {
+			return;
+		}
+
+		var html = template.innerHTML.split( $flex.attr( 'data-token' ) ).join( nextRowKey() );
+		var $row = $( $.parseHTML( html ) ).filter( '.cfs-flex-row' );
+
+		$flex.children( '.cfs-flex-rows' ).append( $row );
+
+		// A new row can contain nested repeaters / flexible fields / editors.
+		initRepeaters( $row );
+		refreshFlex( $flex );
+	}
+
+	function removeFlexRow( $row ) {
+		var $flex = $row.closest( '.cfs-flex' );
+
+		if ( flexRowsOf( $flex ).length <= limits( $flex ).min ) {
+			return;
+		}
+
+		destroyEditors( $row );
+		$row.remove();
+		refreshFlex( $flex );
+	}
+
 	/** Make rows draggable, start editors, and sync button state. */
 	function initRepeaters( $scope ) {
+		$scope
+			.find( '.cfs-flex-rows' )
+			.addBack( '.cfs-flex-rows' )
+			.not( '.ui-sortable' )
+			.sortable( {
+				items: '> .cfs-flex-row',
+				handle: '> .cfs-flex-row-handle > .cfs-drag-handle',
+				axis: 'y',
+				tolerance: 'pointer',
+				start: function ( e, ui ) {
+					destroyEditors( ui.item );
+				},
+				stop: function ( e, ui ) {
+					initEditors( ui.item );
+				},
+			} );
+
+		$scope
+			.find( '.cfs-flex' )
+			.addBack( '.cfs-flex' )
+			.each( function () {
+				refreshFlex( $( this ) );
+			} );
+
 		$scope
 			.find( '.cfs-repeater-rows' )
 			.addBack( '.cfs-repeater-rows' )
@@ -234,6 +321,41 @@
 		$( document ).on( 'click', '.cfs-repeater-add', function ( e ) {
 			e.preventDefault();
 			addRow( $( this ).closest( '.cfs-repeater' ) );
+		} );
+
+		$( document ).on( 'click', '.cfs-flex-add', function ( e ) {
+			e.preventDefault();
+			e.stopPropagation();
+
+			var $flex = $( this ).closest( '.cfs-flex' );
+			var $menu = $( this ).siblings( '.cfs-flex-menu' );
+			var $choices = $menu.children( '.cfs-flex-add-layout' );
+
+			// One layout: nothing to choose, add it straight away.
+			if ( 1 === $choices.length ) {
+				addFlexRow( $flex, $choices.attr( 'data-layout' ) );
+				return;
+			}
+
+			var wasHidden = $menu.prop( 'hidden' );
+			$( '.cfs-flex-menu' ).prop( 'hidden', true );
+			$menu.prop( 'hidden', ! wasHidden );
+		} );
+
+		$( document ).on( 'click', '.cfs-flex-add-layout', function ( e ) {
+			e.preventDefault();
+
+			$( this ).parent().prop( 'hidden', true );
+			addFlexRow( $( this ).closest( '.cfs-flex' ), $( this ).attr( 'data-layout' ) );
+		} );
+
+		$( document ).on( 'click', function () {
+			$( '.cfs-flex-menu' ).prop( 'hidden', true );
+		} );
+
+		$( document ).on( 'click', '.cfs-flex-remove', function ( e ) {
+			e.preventDefault();
+			removeFlexRow( $( this ).closest( '.cfs-flex-row' ) );
 		} );
 
 		$( document ).on( 'click', '.cfs-repeater-remove', function ( e ) {

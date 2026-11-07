@@ -297,6 +297,23 @@ function cfs_the_sub_field( $name ) {
 }
 
 /**
+ * Layout name of the current row of a flexible content loop (e.g. "hero"),
+ * or null when not in a loop / before cfs_the_row(). Repeater rows have none.
+ *
+ *   while ( cfs_have_rows( 'sections' ) ) {
+ *       cfs_the_row();
+ *       switch ( cfs_get_row_layout() ) { case 'hero': ...; case 'text': ...; }
+ *   }
+ *
+ * @return string|null
+ */
+function cfs_get_row_layout() {
+	$layout = cfs_get_sub_field( CFS_Field_Flexible::LAYOUT_KEY );
+
+	return is_string( $layout ) ? $layout : null;
+}
+
+/**
  * 1-based number of the current row (1 for the first row), or 0 when not
  * in a loop / before cfs_the_row().
  *

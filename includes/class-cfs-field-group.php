@@ -143,6 +143,16 @@ class CFS_Field_Group {
 			<?php self::render_field_row( self::empty_field(), '__PREFIX__' ); ?>
 		</script>
 		<?php
+		/*
+		 * Same idea for Flexible Content layouts: one empty layout block,
+		 * cloned by every "Add Layout" button with __PREFIX__ replaced by
+		 * e.g. "cfs_fields[2][layouts][n5]".
+		 */
+		?>
+		<script type="text/html" id="tmpl-cfs-layout">
+			<?php CFS_Field_Flexible::render_layout_editor( array(), '__PREFIX__' ); ?>
+		</script>
+		<?php
 	}
 
 	/**

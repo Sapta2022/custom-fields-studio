@@ -31,6 +31,7 @@ class CFS_Field_Registry {
 		self::register( 'CFS_Field_Wysiwyg' );
 		self::register( 'CFS_Field_Image' );
 		self::register( 'CFS_Field_Repeater' );
+		self::register( 'CFS_Field_Flexible' );
 
 		/**
 		 * Allow future phases / add-ons to register additional field types.

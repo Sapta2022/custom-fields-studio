@@ -21,7 +21,7 @@ well-documented WordPress plugin patterns.
       template API (`cfs_get_field()`, `cfs_the_field()`, `cfs_get_fields()`)
 - [x] **Phase 3** — Repeater field (nested repeaters, min/max rows, drag-reorder,
       WYSIWYG/image sub fields, `cfs_have_rows()` loop API)
-- [ ] **Phase 4** — Flexible Content field
+- [x] **Phase 4** — Flexible Content field (layouts, per-row layout storage, `cfs_get_row_layout()`)
 - [ ] **Phase 5** — Options Pages
 - [ ] **Phase 6** — Remaining field types (gallery, relationship, taxonomy, date picker)
 - [ ] **Phase 7** — Field group builder UI polish (drag-drop ordering, settings panel)
@@ -40,6 +40,16 @@ team_0_name          = Bob
 team_1_name          = Alice
 team_1_links         = 2          (a nested repeater: its own row count)
 team_1_links_0_url   = https://…
+```
+
+A flexible content field stores the layout name of each row as a list under its
+own name; each row's cells use the same compound keys as a repeater:
+
+```
+sections             = [hero, text_block]     (layout per row)
+_sections            = field_9f8e7d
+sections_0_heading   = Welcome                (row 0 is a "hero")
+sections_1_body      = <p>Hello</p>           (row 1 is a "text_block")
 ```
 
 Reads and writes go through `CFS_Storage`, so the same field code will serve
@@ -66,6 +76,31 @@ while ( cfs_have_rows( 'team' ) ) {
 // Or take the rows as an array
 $rows = cfs_get_field( 'team' );
 ```
+
+```php
+// Flexible content: branch on the row's layout
+while ( cfs_have_rows( 'sections' ) ) {
+    cfs_the_row();
+
+    switch ( cfs_get_row_layout() ) {
+        case 'hero':
+            echo '<h1>' . esc_html( cfs_get_sub_field( 'heading' ) ) . '</h1>';
+            break;
+        case 'text_block':
+            echo wp_kses_post( cfs_get_sub_field( 'body' ) );
+            break;
+    }
+}
+```
+
+Or render without PHP, anywhere shortcodes work (pages, posts, widgets):
+
+```
+[cfs field="sections"]
+[cfs field="team" post_id="21"]
+```
+
+The output is plain HTML with `cfs-out-*` classes for styling.
 
 After leaving a loop early with `break`, call `cfs_reset_rows()`.
 
