@@ -224,6 +224,12 @@
 		initEditors( $scope );
 
 		$scope
+			.find( '.cfs-gallery-list' )
+			.addBack( '.cfs-gallery-list' )
+			.not( '.ui-sortable' )
+			.sortable( { tolerance: 'pointer', items: '> .cfs-gallery-item' } );
+
+		$scope
 			.find( '.cfs-repeater' )
 			.addBack( '.cfs-repeater' )
 			.each( function () {
@@ -315,7 +321,116 @@
 		} );
 	}
 
+	/** Gallery + Relationship (delegated, so cloned rows just work). */
+	function bindGalleryAndRelationship() {
+		var cfg = window.cfsMetaBox || {};
+		var i18n = cfg.i18n || {};
+
+		$( document ).on( 'click', '.cfs-field-values .cfs-gallery-add', function ( e ) {
+			e.preventDefault();
+			if ( typeof wp === 'undefined' || ! wp.media ) {
+				return;
+			}
+			var $wrap = $( this ).closest( '.cfs-gallery' );
+			var frame = wp.media( {
+				title: i18n.addImages || 'Add images',
+				button: { text: i18n.addImages || 'Add images' },
+				library: { type: 'image' },
+				multiple: 'add',
+			} );
+			frame.on( 'select', function () {
+				var max = parseInt( $wrap.data( 'max' ), 10 ) || 0;
+				var name = $wrap.attr( 'data-name' );
+				frame.state().get( 'selection' ).each( function ( att ) {
+					var $list = $wrap.find( '.cfs-gallery-list' );
+					var id = att.get( 'id' );
+					if ( max && $list.children().length >= max ) {
+						return;
+					}
+					if ( $list.children( '[data-id="' + id + '"]' ).length ) {
+						return;
+					}
+					var sizes = att.get( 'sizes' ) || {};
+					var size = sizes.thumbnail || sizes.full || { url: att.get( 'url' ) };
+					var $li = $( '<li class="cfs-gallery-item"></li>' ).attr( 'data-id', id );
+					$( '<input type="hidden" />' ).attr( 'name', name + '[]' ).val( id ).appendTo( $li );
+					$( '<img alt="" />' ).attr( 'src', size.url ).appendTo( $li );
+					$( '<button type="button" class="cfs-gallery-remove">&times;</button>' ).appendTo( $li );
+					$list.append( $li );
+				} );
+			} );
+			frame.open();
+		} );
+
+		$( document ).on( 'click', '.cfs-field-values .cfs-gallery-remove', function ( e ) {
+			e.preventDefault();
+			$( this ).closest( '.cfs-gallery-item' ).remove();
+		} );
+
+		var timer;
+		function search( $rel ) {
+			var $results = $rel.find( '.cfs-rel-results' );
+			$.post( cfg.ajaxUrl, {
+				action: 'cfs_relationship_search',
+				nonce: cfg.relationshipNonce,
+				types: $rel.attr( 'data-types' ),
+				s: $rel.find( '.cfs-rel-search' ).val(),
+			} ).done( function ( res ) {
+				$results.empty();
+				var items = res && res.success ? res.data : [];
+				if ( ! items.length ) {
+					$( '<li class="cfs-rel-empty"></li>' ).text( i18n.noResults || 'No results' ).appendTo( $results );
+					return;
+				}
+				$.each( items, function ( i, item ) {
+					$( '<li class="cfs-rel-result"></li>' )
+						.attr( 'data-id', item.id )
+						.text( item.title + ' (' + item.type + ')' )
+						.data( 'title', item.title )
+						.appendTo( $results );
+				} );
+			} );
+		}
+
+		$( document ).on( 'focus input', '.cfs-field-values .cfs-rel-search', function () {
+			var $rel = $( this ).closest( '.cfs-relationship' );
+			clearTimeout( timer );
+			timer = setTimeout( function () {
+				search( $rel );
+			}, 250 );
+		} );
+		$( document ).on( 'keydown', '.cfs-field-values .cfs-rel-search', function ( e ) {
+			if ( 13 === e.which ) {
+				e.preventDefault(); // Don't submit the post form.
+			}
+		} );
+
+		$( document ).on( 'click', '.cfs-field-values .cfs-rel-result', function () {
+			var $rel = $( this ).closest( '.cfs-relationship' );
+			var $sel = $rel.find( '.cfs-rel-selected' );
+			var id = $( this ).attr( 'data-id' );
+			var max = parseInt( $rel.attr( 'data-max' ), 10 ) || 0;
+			if ( $sel.children( '[data-id="' + id + '"]' ).length || ( max && $sel.children().length >= max ) ) {
+				return;
+			}
+			var $li = $( '<li></li>' ).attr( 'data-id', id );
+			$( '<input type="hidden" />' ).attr( 'name', $rel.attr( 'data-name' ) + '[]' ).val( id ).appendTo( $li );
+			$( '<span class="cfs-rel-title"></span>' ).text( $( this ).data( 'title' ) ).appendTo( $li );
+			$( '<button type="button" class="cfs-rel-remove">&times;</button>' ).appendTo( $li );
+			$sel.append( $li );
+		} );
+
+		$( document ).on( 'click', '.cfs-field-values .cfs-rel-remove', function () {
+			$( this ).closest( 'li' ).remove();
+		} );
+
+		$( document ).on( 'mouseenter', '.cfs-field-values .cfs-rel-selected:not(.ui-sortable)', function () {
+			$( this ).sortable( { tolerance: 'pointer' } );
+		} );
+	}
+
 	$( function () {
+		bindGalleryAndRelationship();
 		bindImageField();
 
 		$( document ).on( 'click', '.cfs-repeater-add', function ( e ) {
