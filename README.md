@@ -22,7 +22,7 @@ well-documented WordPress plugin patterns.
 - [x] **Phase 3** — Repeater field (nested repeaters, min/max rows, drag-reorder,
       WYSIWYG/image sub fields, `cfs_have_rows()` loop API)
 - [x] **Phase 4** — Flexible Content field (layouts, per-row layout storage, `cfs_get_row_layout()`)
-- [ ] **Phase 5** — Options Pages
+- [x] **Phase 5** — Options Pages (code + UI registry, `options_page` location rule, `'option'` context)
 - [ ] **Phase 6** — Remaining field types (gallery, relationship, taxonomy, date picker)
 - [ ] **Phase 7** — Field group builder UI polish (drag-drop ordering, settings panel)
 - [ ] **Phase 8** — Testing & edge cases
@@ -101,6 +101,44 @@ Or render without PHP, anywhere shortcodes work (pages, posts, widgets):
 ```
 
 The output is plain HTML with `cfs-out-*` classes for styling.
+
+### Options Pages
+
+Site-wide values (phone number, social links, footer blocks…). Create a page
+under **Field Groups → Options Pages**, or register one from code:
+
+```php
+add_action( 'init', function () {
+    cfs_add_options_page( array(
+        'page_title' => 'Site Options',
+        'menu_slug'  => 'site-options',
+    ) );
+
+    // Under an existing menu (Settings here):
+    cfs_add_options_sub_page( array(
+        'page_title'  => 'Footer',
+        'menu_slug'   => 'site-footer',
+        'parent_slug' => 'options-general.php',
+    ) );
+} );
+```
+
+Then create a field group with the location **Options Page is equal to Site
+Options** and read the values by passing `'option'` where a post ID goes:
+
+```php
+echo esc_html( cfs_get_field( 'phone', 'option' ) );
+
+while ( cfs_have_rows( 'social_links', 'option' ) ) {
+    cfs_the_row();
+    echo esc_url( cfs_get_sub_field( 'url' ) );
+}
+```
+
+or in content: `[cfs field="phone" post_id="option"]`. Values live in
+`wp_options` as `options_{name}` (not autoloaded). All options pages share one
+namespace, so keep field names unique across them. A page's capability
+(default `manage_options`) controls who can open and save it.
 
 After leaving a loop early with `break`, call `cfs_reset_rows()`.
 

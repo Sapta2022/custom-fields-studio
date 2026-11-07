@@ -182,6 +182,22 @@
 
 		// --- Location rules builder ---
 
+		// A rule's param decides which values the value dropdown offers.
+		$locationWrap.on( 'change', '.cfs-location-param', function () {
+			var values = ( cfsBuilder.locationValues || {} )[ $( this ).val() ] || {};
+			var $select = $( this ).closest( '.cfs-location-rule' ).find( '.cfs-location-value' ).empty();
+			var keys = Object.keys( values );
+
+			if ( ! keys.length ) {
+				$select.append( $( '<option>', { value: '', text: cfsBuilder.i18n.noValues } ) );
+				return;
+			}
+
+			keys.forEach( function ( key ) {
+				$select.append( $( '<option>', { value: key, text: values[ key ] } ) );
+			} );
+		} );
+
 		$locationWrap.on( 'click', '.cfs-add-rule', function () {
 			var $group = $( this ).closest( '.cfs-location-group' );
 			var groupIndex = $group.data( 'group' );
