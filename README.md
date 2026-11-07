@@ -23,7 +23,7 @@ well-documented WordPress plugin patterns.
       WYSIWYG/image sub fields, `cfs_have_rows()` loop API)
 - [x] **Phase 4** — Flexible Content field (layouts, per-row layout storage, `cfs_get_row_layout()`)
 - [x] **Phase 5** — Options Pages (code + UI registry, `options_page` location rule, `'option'` context)
-- [ ] **Phase 6** — Remaining field types (gallery, relationship, taxonomy, date picker)
+- [x] **Phase 6** — Remaining field types (gallery, relationship, taxonomy, date picker)
 - [ ] **Phase 7** — Field group builder UI polish (drag-drop ordering, settings panel)
 - [ ] **Phase 8** — Testing & edge cases
 
@@ -101,6 +101,15 @@ Or render without PHP, anywhere shortcodes work (pages, posts, widgets):
 ```
 
 The output is plain HTML with `cfs-out-*` classes for styling.
+
+### Phase 6 field types
+
+- **Date Picker** — stored as `Ymd`; `return_format` is a PHP date format.
+- **Gallery** — array of image IDs; returns arrays/URLs/IDs; optional max.
+- **Relationship** — searchable post picker (AJAX, nonce + capability checked); returns post objects or IDs.
+- **Taxonomy** — checkbox / multi select / radio / select of terms; optionally assigns terms to the post.
+
+All four work inside Repeater, Flexible Content and Options Pages, and render with the `[cfs]` shortcode.
 
 ### Options Pages
 

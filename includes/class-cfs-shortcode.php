@@ -114,6 +114,39 @@ class CFS_Shortcode {
 				}
 				return is_scalar( $value ) ? '<span class="cfs-out-field">' . esc_html( (string) $value ) . '</span>' : '';
 
+			case 'gallery':
+				$html = '<div class="cfs-out-field cfs-out-gallery">';
+				foreach ( (array) $value as $img ) {
+					$src = is_array( $img ) ? ( $img['sizes']['medium'] ?? $img['url'] ?? '' ) : ( is_numeric( $img ) ? wp_get_attachment_image_url( (int) $img, 'medium' ) : $img );
+					$alt = is_array( $img ) ? ( $img['alt'] ?? '' ) : '';
+					if ( $src ) {
+						$html .= '<img src="' . esc_url( $src ) . '" alt="' . esc_attr( $alt ) . '" /> ';
+					}
+				}
+				return $html . '</div>';
+
+			case 'relationship':
+				$html = '<ul class="cfs-out-field cfs-out-relationship">';
+				foreach ( (array) $value as $item ) {
+					$id = is_object( $item ) ? $item->ID : absint( $item );
+					if ( $id ) {
+						$html .= '<li><a href="' . esc_url( get_permalink( $id ) ) . '">' . esc_html( get_the_title( $id ) ) . '</a></li>';
+					}
+				}
+				return $html . '</ul>';
+
+			case 'taxonomy':
+				$terms = is_array( $value ) ? $value : array( $value );
+				$html  = '<ul class="cfs-out-field cfs-out-taxonomy">';
+				foreach ( $terms as $term ) {
+					$term = is_object( $term ) ? $term : get_term( absint( $term ), $field['taxonomy'] ?? 'category' );
+					if ( $term && ! is_wp_error( $term ) ) {
+						$link  = get_term_link( $term );
+						$html .= '<li>' . ( is_wp_error( $link ) ? esc_html( $term->name ) : '<a href="' . esc_url( $link ) . '">' . esc_html( $term->name ) . '</a>' ) . '</li>';
+					}
+				}
+				return $html . '</ul>';
+
 			case 'true_false':
 				return '<span class="cfs-out-field">' . ( $value ? esc_html__( 'Yes', 'cfs' ) : esc_html__( 'No', 'cfs' ) ) . '</span>';
 

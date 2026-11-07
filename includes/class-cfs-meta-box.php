@@ -278,7 +278,11 @@ class CFS_Meta_Box {
 			'cfs-meta-box',
 			'cfsMetaBox',
 			array(
-				'i18n' => array(
+				'ajaxUrl'           => admin_url( 'admin-ajax.php' ),
+				'relationshipNonce' => wp_create_nonce( CFS_Field_Relationship::NONCE ),
+				'i18n'              => array(
+					'addImages'   => __( 'Add images', 'cfs' ),
+					'noResults'   => __( 'No results', 'cfs' ),
 					'selectImage' => __( 'Select Image', 'cfs' ),
 					'useImage'    => __( 'Use this image', 'cfs' ),
 				),

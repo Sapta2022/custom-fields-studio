@@ -30,6 +30,10 @@ class CFS_Field_Registry {
 		self::register( 'CFS_Field_True_False' );
 		self::register( 'CFS_Field_Wysiwyg' );
 		self::register( 'CFS_Field_Image' );
+		self::register( 'CFS_Field_Date_Picker' );
+		self::register( 'CFS_Field_Gallery' );
+		self::register( 'CFS_Field_Relationship' );
+		self::register( 'CFS_Field_Taxonomy' );
 		self::register( 'CFS_Field_Repeater' );
 		self::register( 'CFS_Field_Flexible' );
 
