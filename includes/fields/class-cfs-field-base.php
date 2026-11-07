@@ -169,4 +169,70 @@ abstract class CFS_Field_Base {
 		CFS_Storage::delete( $key, $ctx );
 		CFS_Storage::delete( '_' . $key, $ctx );
 	}
+
+	/* ------------------------------------------------------------------
+	 * Small helpers for rendering builder settings rows.
+	 * ---------------------------------------------------------------- */
+
+	/** A labelled <input> settings row. */
+	protected static function setting_input( $type, $prefix, $key, $label, $field, $input = 'text', $desc = '', $default = '' ) {
+		$value = $field[ $key ] ?? $default;
+		?>
+		<div class="cfs-field-setting" data-type="<?php echo esc_attr( $type ); ?>">
+			<label><?php echo esc_html( $label ); ?></label>
+			<input type="<?php echo esc_attr( $input ); ?>" name="<?php echo esc_attr( $prefix ); ?>[<?php echo esc_attr( $key ); ?>]" value="<?php echo esc_attr( is_scalar( $value ) ? $value : '' ); ?>"<?php echo 'number' === $input ? ' step="any"' : ''; ?> />
+			<?php if ( $desc ) : ?>
+				<p class="description"><?php echo esc_html( $desc ); ?></p>
+			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/** A labelled <select> settings row. $options is value => label. */
+	protected static function setting_select( $type, $prefix, $key, $label, $field, $options, $default = '' ) {
+		$value = $field[ $key ] ?? $default;
+		?>
+		<div class="cfs-field-setting" data-type="<?php echo esc_attr( $type ); ?>">
+			<label><?php echo esc_html( $label ); ?></label>
+			<select name="<?php echo esc_attr( $prefix ); ?>[<?php echo esc_attr( $key ); ?>]">
+				<?php foreach ( $options as $opt_value => $opt_label ) : ?>
+					<option value="<?php echo esc_attr( $opt_value ); ?>" <?php selected( (string) $value, (string) $opt_value ); ?>><?php echo esc_html( $opt_label ); ?></option>
+				<?php endforeach; ?>
+			</select>
+		</div>
+		<?php
+	}
+
+	/** A checkbox settings row. */
+	protected static function setting_checkbox( $type, $prefix, $key, $label, $field ) {
+		?>
+		<div class="cfs-field-setting" data-type="<?php echo esc_attr( $type ); ?>">
+			<label>
+				<input type="checkbox" name="<?php echo esc_attr( $prefix ); ?>[<?php echo esc_attr( $key ); ?>]" value="1" <?php checked( ! empty( $field[ $key ] ) ); ?> />
+				<?php echo esc_html( $label ); ?>
+			</label>
+		</div>
+		<?php
+	}
+
+	/** Pick a value from an allow-list, falling back to $default. */
+	protected static function pick( $raw, $key, $allowed, $default ) {
+		$value = isset( $raw[ $key ] ) && is_scalar( $raw[ $key ] ) ? sanitize_text_field( wp_unslash( $raw[ $key ] ) ) : '';
+
+		return in_array( $value, $allowed, true ) ? $value : $default;
+	}
+
+	/** Sanitize a text setting. */
+	protected static function text_setting( $raw, $key, $default = '' ) {
+		return isset( $raw[ $key ] ) && is_scalar( $raw[ $key ] ) ? sanitize_text_field( wp_unslash( $raw[ $key ] ) ) : $default;
+	}
+
+	/** Sanitize a numeric setting; '' when blank or not numeric. */
+	protected static function number_setting( $raw, $key ) {
+		if ( ! isset( $raw[ $key ] ) || ! is_scalar( $raw[ $key ] ) || ! is_numeric( trim( (string) $raw[ $key ] ) ) ) {
+			return '';
+		}
+
+		return 0 + trim( (string) $raw[ $key ] );
+	}
 }

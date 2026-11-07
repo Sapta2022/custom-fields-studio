@@ -34,6 +34,20 @@ class CFS_Field_Registry {
 		self::register( 'CFS_Field_Gallery' );
 		self::register( 'CFS_Field_Relationship' );
 		self::register( 'CFS_Field_Taxonomy' );
+		self::register( 'CFS_Field_Number' );
+		self::register( 'CFS_Field_Range' );
+		self::register( 'CFS_Field_Email' );
+		self::register( 'CFS_Field_Url' );
+		self::register( 'CFS_Field_Password' );
+		self::register( 'CFS_Field_Checkbox' );
+		self::register( 'CFS_Field_Radio' );
+		self::register( 'CFS_Field_Button_Group' );
+		self::register( 'CFS_Field_File' );
+		self::register( 'CFS_Field_Color_Picker' );
+		self::register( 'CFS_Field_Time_Picker' );
+		self::register( 'CFS_Field_Date_Time_Picker' );
+		self::register( 'CFS_Field_Link' );
+		self::register( 'CFS_Field_Oembed' );
 		self::register( 'CFS_Field_Repeater' );
 		self::register( 'CFS_Field_Flexible' );
 

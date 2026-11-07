@@ -434,3 +434,17 @@
 .cfs-field-name.cfs-invalid { border-color: #d63638; box-shadow: 0 0 0 1px #d63638; }
 .cfs-duplicate-field { color: #2271b1; }
 .cfs-field-row:hover > td > .cfs-field-row-main .cfs-drag-handle, .cfs-drag-handle:hover { color: #2271b1; }
+
+/* Phase 9 field types */
+.cfs-choice-list { margin: 0; padding: 0; list-style: none; }
+.cfs-choice-list.cfs-layout-horizontal li { display: inline-block; margin-right: 16px; }
+.cfs-button-group { display: inline-flex; flex-wrap: wrap; }
+.cfs-button-group.cfs-layout-vertical { flex-direction: column; align-items: flex-start; }
+.cfs-button-group label.button { margin: 0 -1px 0 0; border-radius: 0; cursor: pointer; }
+.cfs-button-group label.button input { position: absolute; opacity: 0; pointer-events: none; }
+.cfs-button-group label.cfs-active { background: #2271b1; border-color: #2271b1; color: #fff; }
+.cfs-color-field { display: inline-flex; align-items: center; gap: 6px; }
+.cfs-color-pick { width: 40px; height: 30px; padding: 0; }
+.cfs-link-field input.regular-text { display: block; margin-bottom: 6px; }
+.cfs-file-info .dashicons { vertical-align: middle; }
+.cfs-range-out { display: inline-block; min-width: 2.5em; }

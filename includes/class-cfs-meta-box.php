@@ -288,6 +288,8 @@ class CFS_Meta_Box {
 					'noResults'   => __( 'No results', 'cfs' ),
 					'selectImage' => __( 'Select Image', 'cfs' ),
 					'useImage'    => __( 'Use this image', 'cfs' ),
+					'selectFile'  => __( 'Select File', 'cfs' ),
+					'useFile'     => __( 'Use this file', 'cfs' ),
 				),
 			)
 		);
