@@ -6,7 +6,9 @@
  * A "context" ($ctx) says where to read/write:
  *  - an int post ID  → post meta
  *  - the string 'option' → wp_options, keys prefixed "options_" (used by
- *    Options Pages in a later phase)
+ *    Options Pages)
+ *  - the string 'user_N' → user meta of user N (user profile screens)
+ *  - the string 'term_N' → term meta of term N (taxonomy term screens)
  *
  * Composite fields (repeater, later flexible content) build compound keys
  * like "gallery_0_caption" and pass them in as $key, so this class stays
@@ -24,6 +26,21 @@ class CFS_Storage {
 	const OPTION_PREFIX = 'options_';
 
 	/**
+	 * Split a non-option, non-post context into array( meta_type, object_id ).
+	 * Post IDs give array( 'post', id ); 'user_5' gives array( 'user', 5 ).
+	 *
+	 * @param int|string $ctx Context.
+	 * @return array
+	 */
+	public static function target( $ctx ) {
+		if ( is_string( $ctx ) && preg_match( '/^(user|term)_(\d+)$/', $ctx, $m ) ) {
+			return array( $m[1], (int) $m[2] );
+		}
+
+		return array( 'post', (int) $ctx );
+	}
+
+	/**
 	 * Read one stored value. Returns '' when nothing is stored (the same
 	 * convention as get_post_meta( ..., true )).
 	 *
@@ -36,7 +53,9 @@ class CFS_Storage {
 			return get_option( self::OPTION_PREFIX . $key, '' );
 		}
 
-		return get_post_meta( (int) $ctx, $key, true );
+		list( $type, $id ) = self::target( $ctx );
+
+		return get_metadata( $type, $id, $key, true );
 	}
 
 	/**
@@ -53,7 +72,9 @@ class CFS_Storage {
 			return false !== get_option( self::OPTION_PREFIX . $key, false );
 		}
 
-		return metadata_exists( 'post', (int) $ctx, $key );
+		list( $type, $id ) = self::target( $ctx );
+
+		return metadata_exists( $type, $id, $key );
 	}
 
 	/**
@@ -74,7 +95,9 @@ class CFS_Storage {
 			return;
 		}
 
-		update_post_meta( (int) $ctx, $key, wp_slash( $value ) );
+		list( $type, $id ) = self::target( $ctx );
+
+		update_metadata( $type, $id, $key, wp_slash( $value ) );
 	}
 
 	/**
@@ -89,6 +112,8 @@ class CFS_Storage {
 			return;
 		}
 
-		delete_post_meta( (int) $ctx, $key );
+		list( $type, $id ) = self::target( $ctx );
+
+		delete_metadata( $type, $id, $key );
 	}
 }

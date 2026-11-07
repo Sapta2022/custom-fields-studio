@@ -22,6 +22,120 @@ class CFS_Meta_Box {
 		add_action( 'add_meta_boxes', array( $this, 'register' ) );
 		add_action( 'save_post', array( $this, 'save' ), 10, 2 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
+
+		// User profile screens.
+		add_action( 'show_user_profile', array( $this, 'render_user_groups' ) );
+		add_action( 'edit_user_profile', array( $this, 'render_user_groups' ) );
+		add_action( 'personal_options_update', array( $this, 'save_user' ) );
+		add_action( 'edit_user_profile_update', array( $this, 'save_user' ) );
+
+		// Taxonomy term edit screens.
+		add_action( 'admin_init', array( $this, 'hook_term_screens' ) );
+		add_action( 'edited_term', array( $this, 'save_term' ), 10, 3 );
+	}
+
+	/**
+	 * Print the groups that apply to the user being edited.
+	 *
+	 * @param WP_User $user User.
+	 */
+	public function render_user_groups( $user ) {
+		$groups = CFS_Field_Group::get_groups_for_user( $user->ID );
+		if ( ! $groups ) {
+			return;
+		}
+
+		wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD );
+		foreach ( $groups as $group ) {
+			echo '<h2>' . esc_html( $group['title'] ) . '</h2><div class="cfs-screen-group" id="cfs_group_' . (int) $group['id'] . '">';
+			self::render_group_fields( $group, 'user_' . $user->ID );
+			echo '</div>';
+		}
+	}
+
+	/**
+	 * Save the user profile screen's values.
+	 *
+	 * @param int $user_id User ID.
+	 */
+	public function save_user( $user_id ) {
+		if ( ! current_user_can( 'edit_user', $user_id ) || ! self::nonce_ok() ) {
+			return;
+		}
+
+		self::save_groups( CFS_Field_Group::get_groups_for_user( $user_id ), 'user_' . $user_id );
+	}
+
+	/** Add the edit-form hook for every public taxonomy. */
+	public function hook_term_screens() {
+		foreach ( get_taxonomies( array( 'public' => true ) ) as $taxonomy ) {
+			add_action( $taxonomy . '_edit_form_fields', array( $this, 'render_term_groups' ), 10, 2 );
+		}
+	}
+
+	/**
+	 * Print the groups that apply to the term being edited.
+	 *
+	 * @param WP_Term $term Term.
+	 */
+	public function render_term_groups( $term ) {
+		$groups = CFS_Field_Group::get_groups_for_term( $term );
+		if ( ! $groups ) {
+			return;
+		}
+
+		wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD );
+		foreach ( $groups as $group ) {
+			echo '<tr class="form-field"><td colspan="2"><h2>' . esc_html( $group['title'] ) . '</h2><div class="cfs-screen-group" id="cfs_group_' . (int) $group['id'] . '">';
+			self::render_group_fields( $group, 'term_' . $term->term_id );
+			echo '</div></td></tr>';
+		}
+	}
+
+	/**
+	 * Save the term edit screen's values.
+	 *
+	 * @param int    $term_id  Term ID.
+	 * @param int    $tt_id    Term taxonomy ID.
+	 * @param string $taxonomy Taxonomy.
+	 */
+	public function save_term( $term_id, $tt_id = 0, $taxonomy = '' ) {
+		$tax = get_taxonomy( $taxonomy );
+		if ( ! $tax || ! current_user_can( $tax->cap->edit_terms ) || ! self::nonce_ok() ) {
+			return;
+		}
+
+		self::save_groups( CFS_Field_Group::get_groups_for_term( $term_id ), 'term_' . $term_id );
+	}
+
+	/** Whether the shared value-save nonce was posted and is valid. */
+	protected static function nonce_ok() {
+		return isset( $_POST[ self::NONCE_FIELD ] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ self::NONCE_FIELD ] ) ), self::NONCE_ACTION );
+	}
+
+	/**
+	 * Save the posted values of a list of groups into a context. The posted
+	 * data is read from $_POST['cfs'] (or $posted when given).
+	 *
+	 * @param array      $groups Groups.
+	 * @param int|string $ctx    Storage context.
+	 * @param array|null $posted Unslashed posted values, or null for $_POST.
+	 */
+	public static function save_groups( $groups, $ctx, $posted = null ) {
+		if ( null === $posted ) {
+			$posted = isset( $_POST['cfs'] ) ? wp_unslash( $_POST['cfs'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- each field type sanitizes its own value.
+		}
+
+		foreach ( $groups as $group ) {
+			foreach ( $group['fields'] as $field ) {
+				$type_class = CFS_Field_Registry::get_class( $field['type'] );
+				if ( ! $type_class ) {
+					continue;
+				}
+
+				$type_class::save_value( $field, $posted[ $field['name'] ] ?? '', $ctx );
+			}
+		}
 	}
 
 	/**
@@ -34,7 +148,8 @@ class CFS_Meta_Box {
 			return;
 		}
 
-		$groups = CFS_Field_Group::get_matching_groups( $screen->post_type );
+		$current = get_post();
+		$groups  = $current ? CFS_Field_Group::get_groups_for_post( $current ) : array();
 
 		foreach ( $groups as $group ) {
 			add_meta_box(
@@ -74,6 +189,9 @@ class CFS_Meta_Box {
 			wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD );
 			self::$nonce_printed = true;
 		}
+
+		// Tell save() which groups were on screen (see get_groups_for_save()).
+		echo '<input type="hidden" name="cfs_rendered[]" value="' . (int) $group['id'] . '" />';
 
 		if ( empty( $group['fields'] ) ) {
 			echo '<p>' . esc_html__( 'This field group has no fields yet.', 'cfs' ) . '</p>';
@@ -202,7 +320,8 @@ class CFS_Meta_Box {
 			return;
 		}
 
-		$groups = CFS_Field_Group::get_matching_groups( $post->post_type );
+		$rendered = isset( $_POST['cfs_rendered'] ) ? (array) wp_unslash( $_POST['cfs_rendered'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- cast to ints in get_groups_for_save().
+		$groups   = CFS_Field_Group::get_groups_for_save( $post, $rendered );
 		if ( empty( $groups ) ) {
 			return;
 		}
@@ -238,7 +357,7 @@ class CFS_Meta_Box {
 	 * @param string $hook Current admin page hook.
 	 */
 	public function enqueue( $hook ) {
-		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
+		if ( ! in_array( $hook, array( 'post.php', 'post-new.php', 'profile.php', 'user-edit.php', 'term.php' ), true ) ) {
 			return;
 		}
 
@@ -247,7 +366,15 @@ class CFS_Meta_Box {
 			return;
 		}
 
-		$groups = CFS_Field_Group::get_matching_groups( $screen->post_type );
+		if ( 'post' === $screen->base ) {
+			$current = get_post();
+			$groups  = $current ? CFS_Field_Group::get_groups_for_post( $current ) : array();
+		} else {
+			// User profile / term screens: every active group is a
+			// candidate; the screen itself decides which render.
+			$groups = CFS_Field_Group::all_active();
+		}
+
 		if ( empty( $groups ) ) {
 			return;
 		}
