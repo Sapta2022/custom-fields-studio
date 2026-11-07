@@ -3,7 +3,7 @@
  * Plugin Name:       Custom Fields Studio
  * Plugin URI:        https://techshu.digital
  * Description:       Internal custom fields framework — field groups, location rules, repeater & flexible content fields, options pages, and a template API.
- * Version:           0.9.0
+ * Version:           0.10.0
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Author:            Saptarshi
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CFS_VERSION', '0.9.0' );
+define( 'CFS_VERSION', '0.10.0' );
 define( 'CFS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CFS_URL', plugin_dir_url( __FILE__ ) );
 define( 'CFS_BASENAME', plugin_basename( __FILE__ ) );
@@ -54,8 +54,12 @@ require_once CFS_PATH . 'includes/fields/class-cfs-field-choice.php';
 require_once CFS_PATH . 'includes/fields/class-cfs-field-file.php';
 require_once CFS_PATH . 'includes/fields/class-cfs-field-picker.php';
 require_once CFS_PATH . 'includes/fields/class-cfs-field-link.php';
+require_once CFS_PATH . 'includes/fields/class-cfs-field-layout.php';
+require_once CFS_PATH . 'includes/fields/class-cfs-field-post-object.php';
+require_once CFS_PATH . 'includes/fields/class-cfs-field-user.php';
 require_once CFS_PATH . 'includes/fields/class-cfs-field-repeater.php';
 require_once CFS_PATH . 'includes/fields/class-cfs-field-flexible.php';
+require_once CFS_PATH . 'includes/class-cfs-conditional.php';
 require_once CFS_PATH . 'includes/class-cfs-location-rules.php';
 require_once CFS_PATH . 'includes/class-cfs-field-group.php';
 require_once CFS_PATH . 'includes/class-cfs-meta-box.php';

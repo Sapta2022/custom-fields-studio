@@ -27,7 +27,7 @@ well-documented WordPress plugin patterns.
 - [x] **Phase 7** — Field group builder UI polish (drag-drop ordering, settings panel)
 - [x] **Phase 8** — Testing & edge cases
 - [x] **Phase 9** — More field types: number, range, email, URL, password, checkbox, radio, button group, file, color picker, time picker, date-time picker, link, oEmbed
-- [ ] **Phase 10** — Layout fields (group, tab, accordion, message), conditional logic, post object / page link / user fields
+- [x] **Phase 10** — Layout fields (group, tab, accordion, message), conditional logic, post object / page link / user fields
 - [ ] **Phase 11** — JSON import/export + local JSON sync, REST API exposure, extra location rules, clone field
 - [ ] **Phase 12** — Custom Gutenberg blocks, Google Map, WPML / Polylang
 

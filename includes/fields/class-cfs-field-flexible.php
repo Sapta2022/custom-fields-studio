@@ -198,7 +198,7 @@ class CFS_Field_Flexible extends CFS_Field_Base {
 				continue;
 			}
 			$type_class = CFS_Field_Registry::get_class( $sub_field['type'] );
-			if ( $type_class ) {
+			if ( $type_class && $type_class::stores_value() ) {
 				$usable[] = array(
 					'field' => $sub_field,
 					'class' => $type_class,

@@ -65,7 +65,8 @@ class CFS_Field_Repeater extends CFS_Field_Base {
 			<label><?php esc_html_e( 'Add Row Button Label', 'cfs' ); ?></label>
 			<input type="text" name="<?php echo esc_attr( $prefix ); ?>[button_label]" value="<?php echo esc_attr( $field['button_label'] ?? 'Add Row' ); ?>" />
 		</div>
-		<div class="cfs-field-setting" data-type="repeater">
+		<?php // One shared editor serves Repeater and Group (same input names), so it is rendered once. ?>
+		<div class="cfs-field-setting" data-type="repeater group">
 			<label><?php esc_html_e( 'Sub Fields', 'cfs' ); ?></label>
 			<?php
 			$sub_fields = isset( $field['sub_fields'] ) && is_array( $field['sub_fields'] ) ? $field['sub_fields'] : array();
@@ -126,7 +127,7 @@ class CFS_Field_Repeater extends CFS_Field_Base {
 				continue;
 			}
 			$type_class = CFS_Field_Registry::get_class( $sub_field['type'] );
-			if ( $type_class ) {
+			if ( $type_class && $type_class::stores_value() ) {
 				$usable[] = array(
 					'field' => $sub_field,
 					'class' => $type_class,

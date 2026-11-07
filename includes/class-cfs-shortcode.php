@@ -147,6 +147,27 @@ class CFS_Shortcode {
 				}
 				return $html . '</ul>';
 
+			case 'group':
+				return '<div class="cfs-out cfs-out-group">' . self::render_cells( $field['sub_fields'] ?? array(), (array) $value ) . '</div>';
+
+			case 'post_object':
+			case 'user':
+			case 'page_link':
+				$html = '<ul class="cfs-out-field cfs-out-' . esc_attr( $type ) . '">';
+				$list = ( is_array( $value ) && isset( $value[0] ) ) ? $value : array( $value );
+				foreach ( $list as $item ) {
+					if ( 'post_object' === $type ) {
+						$id   = is_object( $item ) ? $item->ID : absint( $item );
+						$html .= $id ? '<li><a href="' . esc_url( get_permalink( $id ) ) . '">' . esc_html( get_the_title( $id ) ) . '</a></li>' : '';
+					} elseif ( 'page_link' === $type ) {
+						$html .= '<li><a href="' . esc_url( (string) $item ) . '">' . esc_html( (string) $item ) . '</a></li>';
+					} else {
+						$name  = is_object( $item ) ? $item->display_name : ( is_array( $item ) ? ( $item['display_name'] ?? '' ) : (string) get_the_author_meta( 'display_name', absint( $item ) ) );
+						$html .= '<li>' . esc_html( $name ) . '</li>';
+					}
+				}
+				return $html . '</ul>';
+
 			case 'email':
 				return '<a class="cfs-out-field cfs-out-email" href="' . esc_url( 'mailto:' . $value ) . '">' . esc_html( (string) $value ) . '</a>';
 

@@ -65,7 +65,7 @@
 					.children( '.cfs-field-setting' )
 					.each( function () {
 						var $setting = $( this );
-						var match = $setting.data( 'type' ) === type;
+						var match = String( $setting.data( 'type' ) ).split( ' ' ).indexOf( type ) > -1;
 						$setting.toggle( match );
 						// Several field types use the same input names
 						// (default_value, return_format, max, ...). Inputs of
@@ -85,7 +85,7 @@
 				panelOf( $r )
 					.children( '.cfs-field-setting' )
 					.each( function () {
-						if ( $( this ).data( 'type' ) !== type ) {
+						if ( String( $( this ).data( 'type' ) ).split( ' ' ).indexOf( type ) === -1 ) {
 							$( this ).find( ':input' ).prop( 'disabled', true );
 						}
 					} );
@@ -346,6 +346,69 @@
 			if ( window.confirm( cfsBuilder.i18n.confirmRemove ) ) {
 				$( this ).closest( '.cfs-layout-block' ).remove();
 			}
+		} );
+
+
+		/* ---- conditional logic editor (per field row) ---- */
+		function condPrefix( $cond ) {
+			return $cond.find( '.cfs-cond-enabled' ).attr( 'name' ).replace( /\[enabled\]$/, '' );
+		}
+		function siblingNames( $row ) {
+			var names = [];
+			var own = $row.find( '.cfs-field-name' ).first().val();
+			$row.parent().children( '.cfs-field-row' ).each( function () {
+				var n = $( this ).find( '.cfs-field-name' ).first().val();
+				if ( n && n !== own ) {
+					names.push( n );
+				}
+			} );
+			return names;
+		}
+		function fillCondFields( $select ) {
+			var current = $select.val();
+			var $row = $select.closest( '.cfs-field-row' );
+			var names = siblingNames( $row );
+			if ( current && names.indexOf( current ) === -1 ) {
+				names.unshift( current );
+			}
+			$select.empty();
+			$select.append( $( '<option></option>' ).val( '' ).text( '—' ) );
+			$.each( names, function ( i, n ) {
+				$select.append( $( '<option></option>' ).val( n ).text( n ) );
+			} );
+			$select.val( current );
+		}
+		$editor.on( 'change', '.cfs-cond-enabled', function () {
+			$( this ).closest( '.cfs-cond' ).find( '.cfs-cond-body' ).first().toggle( this.checked );
+			if ( this.checked && ! $( this ).closest( '.cfs-cond' ).find( '.cfs-cond-rule' ).length ) {
+				$( this ).closest( '.cfs-cond' ).find( '.cfs-cond-add' ).first().trigger( 'click' );
+			}
+		} );
+		$editor.on( 'focus mousedown', '.cfs-cond-field', function () {
+			fillCondFields( $( this ) );
+		} );
+		$editor.on( 'change', '.cfs-cond-op', function () {
+			$( this ).siblings( '.cfs-cond-value' ).toggle( 'empty' !== this.value && '!empty' !== this.value );
+		} );
+		$editor.on( 'click', '.cfs-cond-remove', function () {
+			$( this ).closest( '.cfs-cond-rule' ).remove();
+		} );
+		$editor.on( 'click', '.cfs-cond-add', function () {
+			var $cond = $( this ).closest( '.cfs-cond' );
+			var i = parseInt( $cond.attr( 'data-next' ), 10 ) || 0;
+			$cond.attr( 'data-next', i + 1 );
+			var base = condPrefix( $cond ) + '[rules][' + i + ']';
+			var $rule = $( '<div class="cfs-cond-rule"></div>' );
+			var $f = $( '<select class="cfs-cond-field"></select>' ).attr( 'name', base + '[field]' );
+			var $o = $( '<select class="cfs-cond-op"></select>' ).attr( 'name', base + '[operator]' );
+			$.each( cfsBuilder.condOps || {}, function ( k, label ) {
+				$o.append( $( '<option></option>' ).val( k ).text( label ) );
+			} );
+			var $v = $( '<input type="text" class="cfs-cond-value" />' ).attr( 'name', base + '[value]' );
+			var $x = $( '<button type="button" class="button-link cfs-cond-remove">&times;</button>' );
+			$rule.append( $f, $o, $v, $x );
+			$cond.find( '.cfs-cond-rules' ).first().append( $rule );
+			fillCondFields( $f );
 		} );
 
 		$editor.on( 'click', '.cfs-remove-field', function () {

@@ -144,8 +144,14 @@ class CFS_Meta_Box {
 		if ( ! $type_class ) {
 			return;
 		}
+		if ( ! $type_class::has_wrapper() ) {
+			// Tabs and accordions draw only their own marker.
+			$type_class::render_input( $field, $value, $name );
+			return;
+		}
+		$cond = CFS_Conditional::data_attr( $field );
 		?>
-		<div class="cfs-field cfs-field-type-<?php echo esc_attr( $field['type'] ); ?>">
+		<div class="cfs-field cfs-field-type-<?php echo esc_attr( $field['type'] ); ?>"<?php echo $cond ? ' data-cfs-cond="' . esc_attr( $cond ) . '"' : ''; ?>>
 			<?php
 			/**
 			 * Deliberately no for="" here: field types render their own

@@ -448,3 +448,20 @@
 .cfs-link-field input.regular-text { display: block; margin-bottom: 6px; }
 .cfs-file-info .dashicons { vertical-align: middle; }
 .cfs-range-out { display: inline-block; min-width: 2.5em; }
+
+/* Phase 10: layout fields, conditional logic */
+.cfs-cond-hidden { display: none !important; }
+.cfs-message { padding: 8px 12px; background: #f6f7f7; border-left: 4px solid #72aee6; }
+.cfs-tabs-bar { display: flex; flex-wrap: wrap; gap: 2px; border-bottom: 1px solid #c3c4c7; margin: 0 0 12px; }
+.cfs-tab-button { border: 1px solid #c3c4c7; border-bottom: 0; background: #f0f0f1; padding: 6px 14px; cursor: pointer; margin-bottom: -1px; }
+.cfs-tab-button.cfs-tab-active { background: #fff; font-weight: 600; }
+.cfs-accordion { border: 1px solid #c3c4c7; margin: 0 0 8px; }
+.cfs-accordion-head { display: block; width: 100%; text-align: left; border: 0; background: #f6f7f7; padding: 8px 12px; cursor: pointer; font-weight: 600; }
+.cfs-accordion-head::after { content: "\25BC"; float: right; font-size: 10px; }
+.cfs-accordion.cfs-open .cfs-accordion-head::after { content: "\25B2"; }
+.cfs-accordion-body { padding: 12px; }
+.cfs-group-fields { border: 1px solid #dcdcde; padding: 10px 12px; }
+.cfs-group-fields.cfs-group-row { display: flex; gap: 16px; flex-wrap: wrap; }
+.cfs-group-row > .cfs-field { flex: 1 1 200px; }
+.cfs-cond-rule { display: flex; gap: 6px; margin: 0 0 6px; align-items: center; }
+.cfs-cond-rule .cfs-cond-value { width: 140px; }
