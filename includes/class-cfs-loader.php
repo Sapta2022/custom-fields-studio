@@ -68,6 +68,8 @@ class CFS_Loader {
 				'i18n' => array(
 					'confirmRemove' => __( 'Remove this field?', 'cfs' ),
 					'newFieldLabel' => __( 'New Field', 'cfs' ),
+					'duplicateName' => __( 'Field names must be unique within a list. Duplicated: %s', 'cfs' ),
+					'copySuffix'    => __( ' (copy)', 'cfs' ),
 					'noValues'      => __( '— none available —', 'cfs' ),
 				),
 				// Every location param's values, to refill the value dropdown

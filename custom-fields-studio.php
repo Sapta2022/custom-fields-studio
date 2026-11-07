@@ -3,7 +3,7 @@
  * Plugin Name:       Custom Fields Studio
  * Plugin URI:        https://techshu.digital
  * Description:       Internal custom fields framework — field groups, location rules, repeater & flexible content fields, options pages, and a template API.
- * Version:           0.6.0
+ * Version:           0.7.0
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Author:            Saptarshi
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CFS_VERSION', '0.6.0' );
+define( 'CFS_VERSION', '0.7.0' );
 define( 'CFS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CFS_URL', plugin_dir_url( __FILE__ ) );
 define( 'CFS_BASENAME', plugin_basename( __FILE__ ) );
