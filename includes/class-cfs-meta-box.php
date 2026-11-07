@@ -241,7 +241,7 @@ class CFS_Meta_Box {
 		// WYSIWYG sub fields, which are initialized in JS for rows that
 		// are cloned in the browser — that needs the editor assets loaded
 		// even when the post type has no classic editor on screen.
-		if ( self::groups_have_type( $groups, 'repeater' ) ) {
+		if ( self::groups_have_type( $groups, 'repeater' ) || self::groups_have_type( $groups, 'flexible_content' ) ) {
 			wp_enqueue_editor();
 		}
 
@@ -297,6 +297,12 @@ class CFS_Meta_Box {
 			}
 			if ( ! empty( $field['sub_fields'] ) && self::fields_have_type( $field['sub_fields'], $type ) ) {
 				return true;
+			}
+			// Flexible content: sub fields live inside each layout.
+			foreach ( (array) ( $field['layouts'] ?? array() ) as $layout ) {
+				if ( ! empty( $layout['sub_fields'] ) && self::fields_have_type( $layout['sub_fields'], $type ) ) {
+					return true;
+				}
 			}
 		}
 

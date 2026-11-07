@@ -28,16 +28,6 @@ class CFS_Field_Repeater extends CFS_Field_Base {
 	public static $type  = 'repeater';
 	public static $label = 'Repeater';
 
-	/**
-	 * How deeply nested the repeater being rendered is (0 = top level).
-	 * Each level's JS row template uses its own placeholder token
-	 * (__ROW0__, __ROW1__, ...) so that a repeater inside a repeater row
-	 * can be cloned without the outer clone consuming the inner token.
-	 *
-	 * @var int
-	 */
-	protected static $depth = 0;
-
 	public static function defaults() {
 		return array(
 			'layout'       => 'table',
@@ -274,7 +264,7 @@ class CFS_Field_Repeater extends CFS_Field_Base {
 		$max    = isset( $field['max'] ) ? (int) $field['max'] : 0;
 		$layout = ( isset( $field['layout'] ) && 'block' === $field['layout'] ) ? 'block' : 'table';
 		$button = ! empty( $field['button_label'] ) ? $field['button_label'] : __( 'Add Row', 'cfs' );
-		$token  = '__ROW' . self::$depth . '__';
+		$token  = '__ROW' . self::$row_depth . '__';
 
 		// Show at least "min" rows so the editor can fill them in.
 		while ( count( $rows ) < $min ) {
@@ -284,7 +274,7 @@ class CFS_Field_Repeater extends CFS_Field_Base {
 		// Everything rendered below (this level's rows AND its row
 		// template) may contain nested repeaters, which must use the next
 		// token level.
-		self::$depth++;
+		self::$row_depth++;
 		?>
 		<div class="cfs-repeater cfs-layout-<?php echo esc_attr( $layout ); ?>"
 			data-token="<?php echo esc_attr( $token ); ?>"
@@ -313,7 +303,7 @@ class CFS_Field_Repeater extends CFS_Field_Base {
 			</p>
 		</div>
 		<?php
-		self::$depth--;
+		self::$row_depth--;
 	}
 
 	/**

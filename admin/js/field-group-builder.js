@@ -145,6 +145,24 @@
 			panelOf( $( this ).closest( '.cfs-field-row' ) ).slideToggle( 120 );
 		} );
 
+		// Flexible Content layouts: clone the shared layout template, with
+		// the same never-renamed unique-key scheme as field rows.
+		$editor.on( 'click', '.cfs-add-layout', function () {
+			var $wrap = $( this ).closest( '.cfs-layouts' );
+			var prefix = $wrap.attr( 'data-base' ) + '[' + nextRowKey() + ']';
+			var html = $( '#tmpl-cfs-layout' ).html().replace( /__PREFIX__/g, prefix );
+
+			$wrap.children( '.cfs-layouts-list' ).append( html );
+			initSortables();
+		} );
+
+		$editor.on( 'click', '.cfs-remove-layout', function () {
+			// eslint-disable-next-line no-alert
+			if ( window.confirm( cfsBuilder.i18n.confirmRemove ) ) {
+				$( this ).closest( '.cfs-layout-block' ).remove();
+			}
+		} );
+
 		$editor.on( 'click', '.cfs-remove-field', function () {
 			var $row = $( this ).closest( '.cfs-field-row' );
 

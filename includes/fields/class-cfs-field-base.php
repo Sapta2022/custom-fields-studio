@@ -32,6 +32,17 @@ abstract class CFS_Field_Base {
 	public static $label = '';
 
 	/**
+	 * How deeply nested the repeating field being rendered is (0 = top
+	 * level). Repeater and Flexible Content share this one counter, because
+	 * they can sit inside each other. Each level's JS row template uses its
+	 * own placeholder token (__ROW0__, __ROW1__, ...) so that cloning an
+	 * outer row never consumes an inner level's token.
+	 *
+	 * @var int
+	 */
+	protected static $row_depth = 0;
+
+	/**
 	 * Default values for this field type's settings, merged over the
 	 * generic field defaults (label, name, instructions, required).
 	 *
