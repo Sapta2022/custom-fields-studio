@@ -42,6 +42,23 @@ abstract class CFS_Field_Base {
 	 */
 	protected static $row_depth = 0;
 
+
+	/**
+	 * Whether this type holds a value. Layout-only types (message, tab,
+	 * accordion) return false: nothing is stored, loaded or returned.
+	 */
+	public static function stores_value() {
+		return true;
+	}
+
+	/**
+	 * Whether the meta box wraps this type's input in the usual label +
+	 * instructions block. Tabs and accordions draw their own marker.
+	 */
+	public static function has_wrapper() {
+		return true;
+	}
+
 	/**
 	 * Default values for this field type's settings, merged over the
 	 * generic field defaults (label, name, instructions, required).

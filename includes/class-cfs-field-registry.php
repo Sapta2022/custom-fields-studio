@@ -48,6 +48,13 @@ class CFS_Field_Registry {
 		self::register( 'CFS_Field_Date_Time_Picker' );
 		self::register( 'CFS_Field_Link' );
 		self::register( 'CFS_Field_Oembed' );
+		self::register( 'CFS_Field_Message' );
+		self::register( 'CFS_Field_Tab' );
+		self::register( 'CFS_Field_Accordion' );
+		self::register( 'CFS_Field_Group_Field' );
+		self::register( 'CFS_Field_Post_Object' );
+		self::register( 'CFS_Field_Page_Link' );
+		self::register( 'CFS_Field_User' );
 		self::register( 'CFS_Field_Repeater' );
 		self::register( 'CFS_Field_Flexible' );
 

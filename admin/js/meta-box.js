@@ -384,6 +384,191 @@
 		} );
 	}
 
+
+	/* ------------------------------------------------------------------
+	 * Phase 10: tabs, accordions, conditional logic
+	 * ---------------------------------------------------------------- */
+
+	/** Turn tab / accordion markers inside one .cfs-field-values into UI. */
+	function buildSections( $values ) {
+		if ( $values.data( 'cfsSections' ) ) {
+			return;
+		}
+		$values.data( 'cfsSections', true );
+
+		var $kids = $values.children();
+		var hasTab = $kids.filter( '.cfs-tab-marker' ).length > 0;
+		var hasAcc = $kids.filter( '.cfs-accordion-marker' ).length > 0;
+		if ( ! hasTab && ! hasAcc ) {
+			return;
+		}
+
+		var $bar = null;
+		var $tabBody = null; // the panel receiving the fields of the current tab
+		var $accBody = null; // the body receiving the fields of the current accordion
+		var tabs = [];
+
+		$kids.each( function () {
+			var $el = $( this );
+
+			if ( $el.hasClass( 'cfs-tab-marker' ) ) {
+				if ( ! $bar ) {
+					$bar = $( '<div class="cfs-tabs-bar" role="tablist"></div>' ).insertBefore( $el );
+				}
+				var $panel = $( '<div class="cfs-tab-panel" role="tabpanel"></div>' ).insertAfter( $bar.nextAll( '.cfs-tab-panel' ).last().length ? $bar.nextAll( '.cfs-tab-panel' ).last() : $bar );
+				var $btn = $( '<button type="button" class="cfs-tab-button" role="tab"></button>' ).text( $el.attr( 'data-label' ) || '…' );
+				$bar.append( $btn );
+				tabs.push( { $btn: $btn, $panel: $panel } );
+				$tabBody = $panel;
+				$accBody = null;
+				$el.remove();
+				return;
+			}
+
+			if ( $el.hasClass( 'cfs-accordion-marker' ) ) {
+				var open = '1' === String( $el.attr( 'data-open' ) );
+				var $acc = $( '<div class="cfs-accordion"></div>' ).toggleClass( 'cfs-open', open );
+				var $head = $( '<button type="button" class="cfs-accordion-head" aria-expanded="' + open + '"></button>' ).text( $el.attr( 'data-label' ) || '…' );
+				$accBody = $( '<div class="cfs-accordion-body"></div>' ).toggle( open );
+				$acc.append( $head, $accBody );
+				if ( $tabBody ) {
+					$tabBody.append( $acc );
+				} else {
+					$acc.insertBefore( $el );
+				}
+				$el.remove();
+				return;
+			}
+
+			// An ordinary field: goes into the current accordion, else tab.
+			if ( $accBody ) {
+				$accBody.append( $el );
+			} else if ( $tabBody ) {
+				$tabBody.append( $el );
+			}
+		} );
+
+		function showTab( i ) {
+			$.each( tabs, function ( n, t ) {
+				t.$btn.toggleClass( 'cfs-tab-active', n === i ).attr( 'aria-selected', n === i );
+				t.$panel.toggle( n === i );
+			} );
+		}
+		if ( tabs.length ) {
+			$bar.on( 'click', '.cfs-tab-button', function () {
+				showTab( $( this ).index() );
+			} );
+			showTab( 0 );
+		}
+	}
+
+	/** The closest container whose direct fields a rule can refer to. */
+	function scopeOf( $el ) {
+		return $el.closest( '.cfs-repeater-row, .cfs-flex-row, .cfs-group-fields, .cfs-field-values' );
+	}
+
+	/** Current value of the sibling field named ref (string, or array for multi-value inputs). */
+	function siblingValue( $scope, ref ) {
+		var tail = '[' + ref + ']';
+		var $inputs = $scope.find( ':input' ).filter( function () {
+			var n = this.name || '';
+			var ok = n.slice( -tail.length ) === tail || n.slice( -tail.length - 2 ) === tail + '[]';
+			return ok && scopeOf( $( this ) )[ 0 ] === $scope[ 0 ];
+		} );
+		if ( ! $inputs.length ) {
+			return '';
+		}
+		var $real = $inputs.not( '[type=hidden]' );
+		var $use = $real.length ? $real : $inputs;
+		var first = $use[ 0 ];
+		var multi = /\[\]$/.test( first.name );
+
+		if ( 'checkbox' === first.type || 'radio' === first.type ) {
+			var vals = $use.filter( ':checked' ).map( function () {
+				return this.value;
+			} ).get();
+			if ( 'checkbox' === first.type && ! multi && 1 === $use.length ) {
+				return vals.length ? '1' : '';
+			}
+			return ( multi || $use.length > 1 ) && 'radio' !== first.type ? vals : ( vals[ 0 ] || '' );
+		}
+		if ( 'SELECT' === first.tagName && first.multiple ) {
+			return $( first ).val() || [];
+		}
+		if ( multi ) {
+			return $use.map( function () {
+				return this.value;
+			} ).get().filter( function ( v ) { return '' !== v; } );
+		}
+		return $( first ).val();
+	}
+
+	function ruleMatches( rule, actual ) {
+		var arr = $.isArray( actual );
+		var want = String( rule.value );
+		switch ( rule.operator ) {
+			case '==':
+				return arr ? actual.indexOf( want ) > -1 : String( actual ) === want;
+			case '!=':
+				return arr ? actual.indexOf( want ) === -1 : String( actual ) !== want;
+			case 'empty':
+				return arr ? 0 === actual.length : '' === String( actual );
+			case '!empty':
+				return arr ? actual.length > 0 : '' !== String( actual );
+			case 'contains':
+				return arr ? actual.indexOf( want ) > -1 : String( actual ).indexOf( want ) > -1;
+			case '>':
+				return parseFloat( actual ) > parseFloat( want );
+			case '<':
+				return parseFloat( actual ) < parseFloat( want );
+		}
+		return true;
+	}
+
+	function applyConditions() {
+		$( '.cfs-field[data-cfs-cond]' ).each( function () {
+			var $field = $( this );
+			var cond;
+			try {
+				cond = JSON.parse( $field.attr( 'data-cfs-cond' ) );
+			} catch ( e ) {
+				return;
+			}
+			var $scope = scopeOf( $field );
+			var results = $.map( cond.rules || [], function ( rule ) {
+				return ruleMatches( rule, siblingValue( $scope, rule.field ) ) ? 1 : 0;
+			} );
+			var show = ! results.length ||
+				( 'any' === cond.match ? results.indexOf( 1 ) > -1 : results.indexOf( 0 ) === -1 );
+			$field.toggleClass( 'cfs-cond-hidden', ! show );
+		} );
+	}
+
+	function bindPhase10() {
+		$( '.cfs-field-values' ).each( function () {
+			buildSections( $( this ) );
+		} );
+
+		$( document ).on( 'click', '.cfs-accordion-head', function () {
+			var $acc = $( this ).closest( '.cfs-accordion' );
+			var open = ! $acc.hasClass( 'cfs-open' );
+			$acc.toggleClass( 'cfs-open', open );
+			$( this ).attr( 'aria-expanded', open );
+			$acc.children( '.cfs-accordion-body' ).toggle( open );
+		} );
+
+		// Evaluated right away (cheap), so a newly added row never flashes
+		// a field that should be hidden.
+		$( document ).on( 'change input click', '.cfs-field-values', applyConditions );
+		if ( window.MutationObserver ) {
+			// New repeater / flexible rows and picker changes re-evaluate too.
+			$( '.cfs-field-values' ).each( function () {
+				new MutationObserver( applyConditions ).observe( this, { childList: true, subtree: true } );
+			} );
+		}
+		applyConditions();
+	}
+
 	/** Gallery + Relationship (delegated, so cloned rows just work). */
 	function bindGalleryAndRelationship() {
 		var cfg = window.cfsMetaBox || {};
@@ -473,7 +658,13 @@
 			var $sel = $rel.find( '.cfs-rel-selected' );
 			var id = $( this ).attr( 'data-id' );
 			var max = parseInt( $rel.attr( 'data-max' ), 10 ) || 0;
-			if ( $sel.children( '[data-id="' + id + '"]' ).length || ( max && $sel.children().length >= max ) ) {
+			if ( $sel.children( '[data-id="' + id + '"]' ).length ) {
+				return;
+			}
+			if ( 1 === max ) {
+				// Single choice (Post Object / Page Link): replace it.
+				$sel.empty();
+			} else if ( max && $sel.children().length >= max ) {
 				return;
 			}
 			var $li = $( '<li></li>' ).attr( 'data-id', id );
@@ -496,6 +687,7 @@
 		bindGalleryAndRelationship();
 		bindImageField();
 		bindPhase9Fields();
+		bindPhase10();
 
 		$( document ).on( 'click', '.cfs-repeater-add', function ( e ) {
 			e.preventDefault();
