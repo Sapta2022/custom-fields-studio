@@ -93,6 +93,15 @@ while ( cfs_have_rows( 'sections' ) ) {
 }
 ```
 
+Or render without PHP, anywhere shortcodes work (pages, posts, widgets):
+
+```
+[cfs field="sections"]
+[cfs field="team" post_id="21"]
+```
+
+The output is plain HTML with `cfs-out-*` classes for styling.
+
 After leaving a loop early with `break`, call `cfs_reset_rows()`.
 
 ## Branching
