@@ -533,6 +533,7 @@ function cfs_qa_run_tests() {
 			return 'SUBHACK' !== cfs_get_field( 'qa_text', $P1 );
 		} )() );
 		$t( 'Field group CPT is not public', ! get_post_type_object( 'cfs_field_group' )->public );
+		cfs_qa_run_p9( $t, $phase, $module, $P1 );
 		// The tests above change demo content on purpose; leave it pristine.
 		cfs_qa_seed();
 	} catch ( Throwable $e ) {

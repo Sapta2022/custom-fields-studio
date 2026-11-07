@@ -17,7 +17,7 @@ It (re)creates, tagged so they can be removed exactly:
 * **2 options pages** - *QA Options* (top level) and *QA Options (Settings)* (sub page);
 * images, related posts, categories and tags to point the fields at.
 
-Then it runs ~235 checks grouped by phase (P1-P7, EDGE) and module, and shows PASS/FAIL per check.
+Then it runs ~380 checks grouped by phase (P1-P7, P9, EDGE) and module, and shows PASS/FAIL per check.
 *Remove all QA content* deletes everything it created.
 
 ## 2. Browser end-to-end tests (Playwright)
@@ -31,3 +31,5 @@ export CFS_WP_ROOT=/path/to/wordpress   # for the helper that reads saved meta
 export WP_USER=admin WP_PASS=...        # test site only
 node tests/e2e/qa-builder.js            # etc.
 ```
+
+`tests/e2e/p9.js` builds a group with the 14 Phase 9 field types in the builder UI, fills a real page, saves, reloads, clears values and checks front-end output.

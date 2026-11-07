@@ -147,6 +147,41 @@ class CFS_Shortcode {
 				}
 				return $html . '</ul>';
 
+			case 'email':
+				return '<a class="cfs-out-field cfs-out-email" href="' . esc_url( 'mailto:' . $value ) . '">' . esc_html( (string) $value ) . '</a>';
+
+			case 'url':
+				return '<a class="cfs-out-field cfs-out-url" href="' . esc_url( (string) $value ) . '">' . esc_html( (string) $value ) . '</a>';
+
+			case 'link':
+				$url = is_array( $value ) ? ( $value['url'] ?? '' ) : (string) $value;
+				if ( '' === $url ) {
+					return '';
+				}
+				$title  = is_array( $value ) && ! empty( $value['title'] ) ? $value['title'] : $url;
+				$target = ( is_array( $value ) && '_blank' === ( $value['target'] ?? '' ) ) ? ' target="_blank" rel="noopener"' : '';
+				return '<a class="cfs-out-field cfs-out-link" href="' . esc_url( $url ) . '"' . $target . '>' . esc_html( $title ) . '</a>';
+
+			case 'file':
+				$url   = is_array( $value ) ? ( $value['url'] ?? '' ) : ( is_numeric( $value ) ? wp_get_attachment_url( (int) $value ) : (string) $value );
+				$title = is_array( $value ) ? ( $value['filename'] ?? $url ) : wp_basename( (string) $url );
+				return $url ? '<a class="cfs-out-field cfs-out-file" href="' . esc_url( $url ) . '" download>' . esc_html( $title ) . '</a>' : '';
+
+			case 'color_picker':
+				return '<span class="cfs-out-field cfs-out-color"><span class="cfs-out-swatch" style="display:inline-block;width:1em;height:1em;vertical-align:middle;background:' . esc_attr( (string) $value ) . '"></span> ' . esc_html( (string) $value ) . '</span>';
+
+			case 'oembed':
+				return '<div class="cfs-out-field cfs-out-oembed">' . $value . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput -- core-filtered oEmbed HTML.
+
+			case 'checkbox':
+			case 'radio':
+			case 'button_group':
+				$items = array();
+				foreach ( (array) $value as $item ) {
+					$items[] = is_array( $item ) ? ( $item['label'] ?? $item['value'] ?? '' ) : (string) $item;
+				}
+				return '<span class="cfs-out-field cfs-out-choice">' . esc_html( implode( ', ', $items ) ) . '</span>';
+
 			case 'true_false':
 				return '<span class="cfs-out-field">' . ( $value ? esc_html__( 'Yes', 'cfs' ) : esc_html__( 'No', 'cfs' ) ) . '</span>';
 

@@ -321,6 +321,69 @@
 		} );
 	}
 
+
+	/** File, color, range, choice helpers (delegated; cloned rows just work). */
+	function bindPhase9Fields() {
+		var cfg = window.cfsMetaBox || {};
+		var i18n = cfg.i18n || {};
+
+		$( document ).on( 'click', '.cfs-field-values .cfs-file-select', function ( e ) {
+			e.preventDefault();
+			if ( typeof wp === 'undefined' || ! wp.media ) {
+				return;
+			}
+			var $wrap = $( this ).closest( '.cfs-file-field' );
+			var frame = wp.media( {
+				title: i18n.selectFile || 'Select file',
+				multiple: false,
+				button: { text: i18n.useFile || 'Use this file' },
+			} );
+			frame.on( 'select', function () {
+				var a = frame.state().get( 'selection' ).first().toJSON();
+				$wrap.find( '.cfs-file-value' ).val( a.id );
+				$wrap.find( '.cfs-file-name' ).attr( 'href', a.url ).text( a.filename || a.title );
+				$wrap.find( '.cfs-file-info' ).show();
+				$wrap.find( '.cfs-file-select' ).hide();
+				$wrap.find( '.cfs-file-remove' ).show();
+			} );
+			frame.open();
+		} );
+
+		$( document ).on( 'click', '.cfs-field-values .cfs-file-remove', function ( e ) {
+			e.preventDefault();
+			var $wrap = $( this ).closest( '.cfs-file-field' );
+			$wrap.find( '.cfs-file-value' ).val( '' );
+			$wrap.find( '.cfs-file-info' ).hide();
+			$wrap.find( '.cfs-file-select' ).show();
+			$( this ).hide();
+		} );
+
+		// Colour: the native swatch and the text box stay in sync.
+		$( document ).on( 'input change', '.cfs-color-field .cfs-color-pick', function () {
+			$( this ).siblings( '.cfs-color-text' ).val( this.value );
+		} );
+		$( document ).on( 'input change', '.cfs-color-field .cfs-color-text', function () {
+			if ( /^#[0-9a-f]{6}$/i.test( this.value ) ) {
+				$( this ).siblings( '.cfs-color-pick' ).val( this.value );
+			}
+		} );
+
+		$( document ).on( 'input change', '.cfs-range', function () {
+			$( this ).siblings( '.cfs-range-out' ).text( this.value );
+		} );
+
+		$( document ).on( 'click', '.cfs-choice-clear', function ( e ) {
+			e.preventDefault();
+			$( this ).closest( '.cfs-choice-list' ).find( 'input[type=radio]' ).prop( 'checked', false );
+		} );
+
+		$( document ).on( 'change', '.cfs-button-group input[type=radio]', function () {
+			var $g = $( this ).closest( '.cfs-button-group' );
+			$g.find( 'label' ).removeClass( 'cfs-active' );
+			$g.find( 'input:checked' ).closest( 'label' ).addClass( 'cfs-active' );
+		} );
+	}
+
 	/** Gallery + Relationship (delegated, so cloned rows just work). */
 	function bindGalleryAndRelationship() {
 		var cfg = window.cfsMetaBox || {};
@@ -432,6 +495,7 @@
 	$( function () {
 		bindGalleryAndRelationship();
 		bindImageField();
+		bindPhase9Fields();
 
 		$( document ).on( 'click', '.cfs-repeater-add', function ( e ) {
 			e.preventDefault();
