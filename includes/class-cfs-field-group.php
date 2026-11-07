@@ -536,8 +536,59 @@ class CFS_Field_Group {
 	public static function get_matching_groups( $post_type ) {
 		static $cache = array();
 
-		if ( isset( $cache[ $post_type ] ) ) {
-			return $cache[ $post_type ];
+		if ( ! isset( $cache[ $post_type ] ) ) {
+			$cache[ $post_type ] = array_values(
+				array_filter(
+					self::get_active_groups(),
+					function ( $group ) use ( $post_type ) {
+						return CFS_Location_Rules::matches_post_type( $group['location'], $post_type );
+					}
+				)
+			);
+		}
+
+		return $cache[ $post_type ];
+	}
+
+	/**
+	 * Active groups shown on one options page (or, with null, on any
+	 * registered options page — the 'option' context of the template API,
+	 * where every options page shares one storage namespace).
+	 *
+	 * @param string|null $slug Options page menu slug, or null for all.
+	 * @return array Same shape as get_matching_groups().
+	 */
+	public static function get_options_groups( $slug = null ) {
+		$slugs = ( null === $slug )
+			? wp_list_pluck( CFS_Options_Page::get_pages(), 'menu_slug' )
+			: array( $slug );
+
+		return array_values(
+			array_filter(
+				self::get_active_groups(),
+				function ( $group ) use ( $slugs ) {
+					foreach ( $slugs as $one ) {
+						if ( CFS_Location_Rules::matches_options_page( $group['location'], $one ) ) {
+							return true;
+						}
+					}
+					return false;
+				}
+			)
+		);
+	}
+
+	/**
+	 * All published, active field groups (menu-order sorted), each with its
+	 * location rules. Cached for the request.
+	 *
+	 * @return array List of array( id, title, fields, options, location ).
+	 */
+	protected static function get_active_groups() {
+		static $groups = null;
+
+		if ( null !== $groups ) {
+			return $groups;
 		}
 
 		$group_posts = get_posts(
@@ -548,7 +599,7 @@ class CFS_Field_Group {
 			)
 		);
 
-		$matching = array();
+		$groups = array();
 
 		foreach ( $group_posts as $group_post ) {
 			$options = get_post_meta( $group_post->ID, '_cfs_options', true );
@@ -568,32 +619,25 @@ class CFS_Field_Group {
 			}
 
 			$location = get_post_meta( $group_post->ID, '_cfs_location', true );
-			$location = is_array( $location ) ? $location : array();
+			$fields   = get_post_meta( $group_post->ID, '_cfs_fields', true );
 
-			if ( ! CFS_Location_Rules::matches_post_type( $location, $post_type ) ) {
-				continue;
-			}
-
-			$fields = get_post_meta( $group_post->ID, '_cfs_fields', true );
-
-			$matching[] = array(
-				'id'      => $group_post->ID,
-				'title'   => $group_post->post_title,
-				'fields'  => is_array( $fields ) ? $fields : array(),
-				'options' => $options,
+			$groups[] = array(
+				'id'       => $group_post->ID,
+				'title'    => $group_post->post_title,
+				'fields'   => is_array( $fields ) ? $fields : array(),
+				'options'  => $options,
+				'location' => is_array( $location ) ? $location : array(),
 			);
 		}
 
 		usort(
-			$matching,
+			$groups,
 			function ( $a, $b ) {
 				return $a['options']['menu_order'] <=> $b['options']['menu_order'];
 			}
 		);
 
-		$cache[ $post_type ] = $matching;
-
-		return $matching;
+		return $groups;
 	}
 
 	/**

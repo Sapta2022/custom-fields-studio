@@ -23,6 +23,8 @@ class CFS_Loader {
 		$meta_box = new CFS_Meta_Box();
 		$meta_box->hooks();
 
+		CFS_Options_Page::hooks();
+
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 	}
 
@@ -66,7 +68,11 @@ class CFS_Loader {
 				'i18n' => array(
 					'confirmRemove' => __( 'Remove this field?', 'cfs' ),
 					'newFieldLabel' => __( 'New Field', 'cfs' ),
+					'noValues'      => __( '— none available —', 'cfs' ),
 				),
+				// Every location param's values, to refill the value dropdown
+				// when a rule's param changes.
+				'locationValues' => CFS_Location_Rules::get_all_values(),
 			)
 		);
 	}
