@@ -6,6 +6,7 @@
  *
  *   [cfs field="sections"]                 Current post's field.
  *   [cfs field="sections" post_id="21"]    A specific post.
+ *   [cfs field="phone" post_id="option"]   A value from an Options Page.
  *
  * Output is plain, class-hooked HTML (cfs-out-*) so a theme can style it.
  *
@@ -42,13 +43,16 @@ class CFS_Shortcode {
 		}
 
 		// Respect post visibility: don't leak fields of drafts/private posts.
-		$post = get_post( $post_id );
-		if ( ! $post || ( 'publish' !== $post->post_status && ! current_user_can( 'read_post', $post_id ) ) ) {
-			return '';
+		// (Options page values are site-wide and always public.)
+		if ( 'option' !== $post_id ) {
+			$post = get_post( $post_id );
+			if ( ! $post || ( 'publish' !== $post->post_status && ! current_user_can( 'read_post', $post_id ) ) ) {
+				return '';
+			}
 		}
 
 		$field = CFS_Field_Group::find_field(
-			CFS_Field_Group::get_matching_groups( get_post_type( $post_id ) ),
+			cfs_groups_for_context( $post_id ),
 			sanitize_key( $atts['field'] )
 		);
 		if ( ! $field ) {

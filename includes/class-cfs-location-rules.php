@@ -15,7 +15,9 @@
  *   ),
  * )
  *
- * Phase 1 only supports the `post_type` param.
+ * Supported params: `post_type` (post edit screens) and `options_page`
+ * (Options Pages, Phase 5). A group whose rules mix the two never matches
+ * anywhere: a screen is either a post edit screen or an options page.
  *
  * @package CustomFieldsStudio
  */
@@ -34,7 +36,8 @@ class CFS_Location_Rules {
 	 */
 	public static function get_params() {
 		return array(
-			'post_type' => __( 'Post Type', 'cfs' ),
+			'post_type'    => __( 'Post Type', 'cfs' ),
+			'options_page' => __( 'Options Page', 'cfs' ),
 		);
 	}
 
@@ -58,7 +61,29 @@ class CFS_Location_Rules {
 			return $values;
 		}
 
+		if ( 'options_page' === $param ) {
+			$values = array();
+			foreach ( CFS_Options_Page::get_pages() as $page ) {
+				$values[ $page['menu_slug'] ] = $page['menu_title'];
+			}
+			return $values;
+		}
+
 		return array();
+	}
+
+	/**
+	 * Every param's values, for the builder's JS (to refill the value
+	 * dropdown when a rule's param changes).
+	 *
+	 * @return array param => ( value => label )
+	 */
+	public static function get_all_values() {
+		$all = array();
+		foreach ( array_keys( self::get_params() ) as $param ) {
+			$all[ $param ] = self::get_values_for_param( $param );
+		}
+		return $all;
 	}
 
 	/**
@@ -204,7 +229,10 @@ class CFS_Location_Rules {
 			$group_matches = true;
 			foreach ( $rules as $rule ) {
 				if ( 'post_type' !== $rule['param'] ) {
-					continue;
+					// Any other param (e.g. options_page) means this group
+					// is not for post edit screens.
+					$group_matches = false;
+					break;
 				}
 				$is_equal = ( $rule['value'] === $post_type );
 				$passes   = ( '==' === $rule['operator'] ) ? $is_equal : ! $is_equal;
@@ -215,6 +243,42 @@ class CFS_Location_Rules {
 			}
 			if ( $group_matches ) {
 				return true; // Any matching OR-group is enough.
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether a set of location rule groups matches the given options page.
+	 * A group matches when every rule is an options_page rule that passes;
+	 * post_type rules (or anything else) never match an options page.
+	 *
+	 * @param array  $groups Saved rule groups.
+	 * @param string $slug   Options page menu slug.
+	 * @return bool
+	 */
+	public static function matches_options_page( $groups, $slug ) {
+		if ( empty( $groups ) ) {
+			return false;
+		}
+
+		foreach ( $groups as $rules ) {
+			$group_matches = ! empty( $rules );
+			foreach ( $rules as $rule ) {
+				if ( 'options_page' !== ( $rule['param'] ?? '' ) ) {
+					$group_matches = false;
+					break;
+				}
+				$is_equal = ( $rule['value'] === $slug );
+				$passes   = ( '==' === $rule['operator'] ) ? $is_equal : ! $is_equal;
+				if ( ! $passes ) {
+					$group_matches = false;
+					break;
+				}
+			}
+			if ( $group_matches ) {
+				return true;
 			}
 		}
 

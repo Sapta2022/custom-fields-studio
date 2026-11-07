@@ -80,12 +80,23 @@ class CFS_Meta_Box {
 			return;
 		}
 
+		self::render_group_fields( $group, $post->ID );
+	}
+
+	/**
+	 * Print every field of a group, loaded from the given context.
+	 * Shared by post meta boxes and Options Pages.
+	 *
+	 * @param array      $group Group from CFS_Field_Group.
+	 * @param int|string $ctx   Post ID or 'option'.
+	 */
+	public static function render_group_fields( $group, $ctx ) {
 		$seamless = 'seamless' === ( $group['options']['style'] ?? 'default' );
 
 		echo '<div class="cfs-field-values' . ( $seamless ? ' cfs-seamless' : '' ) . '">'; // phpcs:ignore WordPress.Security.EscapeOutput -- fixed strings only.
 
 		foreach ( $group['fields'] as $field ) {
-			$this->render_one_field( $post->ID, $field );
+			self::render_one_field( $ctx, $field );
 		}
 
 		echo '</div>';
@@ -94,10 +105,10 @@ class CFS_Meta_Box {
 	/**
 	 * Render one field's label, instructions, and input.
 	 *
-	 * @param int   $post_id Current post ID.
-	 * @param array $field   Field config.
+	 * @param int|string $ctx   Post ID or 'option'.
+	 * @param array      $field Field config.
 	 */
-	protected function render_one_field( $post_id, $field ) {
+	protected static function render_one_field( $ctx, $field ) {
 		$type_class = CFS_Field_Registry::get_class( $field['type'] );
 		if ( ! $type_class ) {
 			return;
@@ -105,7 +116,7 @@ class CFS_Meta_Box {
 
 		// load_value() lets composite fields (repeater) reassemble their
 		// value from several keys; simple fields just read one.
-		$value = $type_class::load_value( $field, $post_id );
+		$value = $type_class::load_value( $field, $ctx );
 		// An empty string means "no value saved yet" for most meta reads;
 		// pass null through so each field type can apply its own default
 		// rather than every type having to special-case ''.
@@ -232,6 +243,16 @@ class CFS_Meta_Box {
 			return;
 		}
 
+		self::enqueue_assets( $groups );
+	}
+
+	/**
+	 * Load the field-editing CSS/JS for these groups. Used by post edit
+	 * screens and Options Pages alike.
+	 *
+	 * @param array $groups Groups that will be rendered on the screen.
+	 */
+	public static function enqueue_assets( $groups ) {
 		wp_enqueue_style( 'cfs-admin', CFS_URL . 'admin/css/admin.css', array(), CFS_VERSION );
 
 		// Needed for the Image field's "Select Image" button (wp.media()).

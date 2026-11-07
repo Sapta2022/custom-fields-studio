@@ -29,12 +29,7 @@ function cfs_get_field( $selector, $post_id = null, $format = true ) {
 		return null;
 	}
 
-	$post_type = get_post_type( $post_id );
-	if ( ! $post_type ) {
-		return null;
-	}
-
-	$groups = CFS_Field_Group::get_matching_groups( $post_type );
+	$groups = cfs_groups_for_context( $post_id );
 	$field  = CFS_Field_Group::find_field( $groups, $selector );
 	if ( ! $field ) {
 		return null;
@@ -99,12 +94,7 @@ function cfs_get_fields( $post_id = null ) {
 		return array();
 	}
 
-	$post_type = get_post_type( $post_id );
-	if ( ! $post_type ) {
-		return array();
-	}
-
-	$groups = CFS_Field_Group::get_matching_groups( $post_type );
+	$groups = cfs_groups_for_context( $post_id );
 	$values = array();
 
 	foreach ( $groups as $group ) {
@@ -118,18 +108,44 @@ function cfs_get_fields( $post_id = null ) {
 
 /**
  * Resolve a $post_id argument the way ACF's functions do: an explicit ID
- * is used as-is, and null falls back to the current post in The Loop.
+ * is used as-is, 'option' / 'options' means the Options Pages values, and
+ * null falls back to the current post in The Loop.
  *
- * @param int|null $post_id Explicit post ID, or null.
- * @return int 0 if no post could be resolved.
+ * Every function below that takes $post_id accepts 'option' — the same
+ * value is the storage "context" ($ctx) used by CFS_Storage.
+ *
+ * @param int|string|null $post_id Explicit post ID, 'option', or null.
+ * @return int|string A post ID, the string 'option', or 0 if nothing could be resolved.
  */
 function cfs_resolve_post_id( $post_id ) {
+	if ( is_string( $post_id ) && in_array( strtolower( $post_id ), array( 'option', 'options' ), true ) ) {
+		return 'option';
+	}
+
 	if ( null !== $post_id ) {
 		return absint( $post_id );
 	}
 
 	$current = get_post();
 	return $current ? $current->ID : 0;
+}
+
+/**
+ * The field groups that apply to a resolved context: for a post, the
+ * groups matching its post type; for 'option', the groups on any options
+ * page.
+ *
+ * @param int|string $ctx Post ID or 'option' (from cfs_resolve_post_id()).
+ * @return array
+ */
+function cfs_groups_for_context( $ctx ) {
+	if ( 'option' === $ctx ) {
+		return CFS_Field_Group::get_options_groups();
+	}
+
+	$post_type = get_post_type( $ctx );
+
+	return $post_type ? CFS_Field_Group::get_matching_groups( $post_type ) : array();
 }
 
 /* ----------------------------------------------------------------------
@@ -208,7 +224,7 @@ function cfs_have_rows( $selector, $post_id = null ) {
 
 		$stack[] = array(
 			'selector' => $selector,
-			'post_id'  => (int) $post_id,
+			'post_id'  => $post_id,
 			'rows'     => array_values( $rows ),
 			'index'    => -1,
 		);
@@ -332,4 +348,54 @@ function cfs_get_row_index() {
 function cfs_reset_rows() {
 	$stack = &cfs_loop_stack();
 	$stack = array();
+}
+
+/* ----------------------------------------------------------------------
+ * Options Pages
+ * -------------------------------------------------------------------- */
+
+/**
+ * Register an Options Page from code (theme functions.php, client plugin).
+ * Pages can also be created in the UI under Field Groups → Options Pages.
+ *
+ *   cfs_add_options_page( array(
+ *       'page_title' => 'Site Options',
+ *       'menu_title' => 'Site Options',   // defaults to page_title
+ *       'menu_slug'  => 'site-options',   // defaults to the menu title
+ *       'capability' => 'manage_options', // default
+ *       'parent_slug'=> '',               // '' = top level menu
+ *       'icon_url'   => 'dashicons-admin-generic',
+ *       'position'   => 59,
+ *   ) );
+ *
+ * Then give a field group the location "Options Page is equal to Site
+ * Options" and read values with cfs_get_field( 'phone', 'option' ).
+ *
+ * @param array $args Page args (all optional except a title or slug).
+ * @return string|false The menu slug, or false if the args were unusable.
+ */
+function cfs_add_options_page( $args = array() ) {
+	if ( empty( $args ) ) {
+		$args = array(
+			'page_title' => __( 'Site Options', 'cfs' ),
+			'menu_slug'  => 'cfs-site-options',
+		);
+	}
+
+	return CFS_Options_Page::add( $args );
+}
+
+/**
+ * Register an Options Page under an existing admin menu — a core one such
+ * as 'options-general.php' (Settings), or another options page's slug.
+ *
+ * @param array $args Same as cfs_add_options_page(); 'parent_slug' is required.
+ * @return string|false
+ */
+function cfs_add_options_sub_page( $args = array() ) {
+	if ( empty( $args['parent_slug'] ) ) {
+		return false;
+	}
+
+	return CFS_Options_Page::add( $args );
 }
