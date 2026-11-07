@@ -126,6 +126,18 @@ function cfs_resolve_post_id( $post_id ) {
 		return 'option';
 	}
 
+	// 'user_5' / 'term_3' address user meta / term meta; a WP_User or
+	// WP_Term object works too.
+	if ( $post_id instanceof WP_User ) {
+		return 'user_' . $post_id->ID;
+	}
+	if ( $post_id instanceof WP_Term ) {
+		return 'term_' . $post_id->term_id;
+	}
+	if ( is_string( $post_id ) && preg_match( '/^(user|term)_(\d+)$/', $post_id ) ) {
+		return strtolower( $post_id );
+	}
+
 	if ( null !== $post_id ) {
 		return absint( $post_id );
 	}
@@ -139,7 +151,7 @@ function cfs_resolve_post_id( $post_id ) {
  * groups matching its post type; for 'option', the groups on any options
  * page.
  *
- * @param int|string $ctx Post ID or 'option' (from cfs_resolve_post_id()).
+ * @param int|string $ctx Post ID, 'option', 'user_N' or 'term_N' (from cfs_resolve_post_id()).
  * @return array
  */
 function cfs_groups_for_context( $ctx ) {
@@ -147,9 +159,15 @@ function cfs_groups_for_context( $ctx ) {
 		return CFS_Field_Group::get_options_groups();
 	}
 
-	$post_type = get_post_type( $ctx );
+	if ( is_string( $ctx ) && preg_match( '/^user_(\d+)$/', $ctx, $m ) ) {
+		return CFS_Field_Group::get_groups_for_user( (int) $m[1] );
+	}
 
-	return $post_type ? CFS_Field_Group::get_matching_groups( $post_type ) : array();
+	if ( is_string( $ctx ) && preg_match( '/^term_(\d+)$/', $ctx, $m ) ) {
+		return CFS_Field_Group::get_groups_for_term( (int) $m[1] );
+	}
+
+	return get_post_type( $ctx ) ? CFS_Field_Group::get_groups_for_post( $ctx ) : array();
 }
 
 /* ----------------------------------------------------------------------

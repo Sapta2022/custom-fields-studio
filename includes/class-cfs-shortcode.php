@@ -44,7 +44,11 @@ class CFS_Shortcode {
 
 		// Respect post visibility: don't leak fields of drafts/private posts.
 		// (Options page values are site-wide and always public.)
-		if ( 'option' !== $post_id ) {
+		if ( is_string( $post_id ) && 0 === strpos( $post_id, 'user_' ) && ! current_user_can( 'edit_user', (int) substr( $post_id, 5 ) ) ) {
+			return ''; // User meta is private unless you may edit that user.
+		}
+
+		if ( is_int( $post_id ) ) {
 			$post = get_post( $post_id );
 			if ( ! $post || ( 'publish' !== $post->post_status && ! current_user_can( 'read_post', $post_id ) ) ) {
 				return '';

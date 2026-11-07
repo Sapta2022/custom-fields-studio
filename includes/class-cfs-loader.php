@@ -24,6 +24,8 @@ class CFS_Loader {
 		$meta_box->hooks();
 
 		CFS_Options_Page::hooks();
+		CFS_JSON::hooks();
+		CFS_REST::hooks();
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 	}
