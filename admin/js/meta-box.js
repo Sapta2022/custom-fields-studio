@@ -735,5 +735,129 @@
 		} );
 
 		initRepeaters( $( '.cfs-field-values' ) );
+		bindGoogleMap();
+
+		// For fields injected after load (custom blocks).
+		window.cfsInit = function ( $scope ) {
+			initRepeaters( $scope );
+		};
 	} );
+
+	/* ------------------------------------------------------------------
+	 * Google Map field. Works without an API key (plain latitude /
+	 * longitude inputs); with a key it adds a searchable, draggable map.
+	 * ---------------------------------------------------------------- */
+	function bindGoogleMap() {
+		function loadApi( key, cb ) {
+			if ( window.google && window.google.maps && window.google.maps.places ) {
+				cb();
+				return;
+			}
+			window.__cfsGmapQueue = window.__cfsGmapQueue || [];
+			window.__cfsGmapQueue.push( cb );
+			if ( window.__cfsGmapLoading ) {
+				return;
+			}
+			window.__cfsGmapLoading = true;
+			window.__cfsGmapReady = function () {
+				( window.__cfsGmapQueue || [] ).forEach( function ( fn ) {
+					fn();
+				} );
+			};
+			var s = document.createElement( 'script' );
+			s.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent( key ) + '&libraries=places&callback=__cfsGmapReady';
+			s.async = true;
+			document.head.appendChild( s );
+		}
+
+		function initMap( $w ) {
+			if ( $w.data( 'cfsMapInit' ) ) {
+				return;
+			}
+			$w.data( 'cfsMapInit', true );
+			var key = $w.attr( 'data-key' );
+			if ( ! key ) {
+				return;
+			}
+
+			loadApi( key, function () {
+				var g = window.google.maps;
+				var $lat = $w.find( '.cfs-gmap-lat' ), $lng = $w.find( '.cfs-gmap-lng' ), $zoom = $w.find( '.cfs-gmap-zoom' ), $addr = $w.find( '.cfs-gmap-address' );
+				var $canvas = $w.find( '.cfs-gmap-canvas' ).show();
+				var hasValue = $lat.val() !== '' && $lng.val() !== '';
+				var cLat = parseFloat( hasValue ? $lat.val() : $w.attr( 'data-center-lat' ) );
+				var cLng = parseFloat( hasValue ? $lng.val() : $w.attr( 'data-center-lng' ) );
+				var center = isNaN( cLat ) || isNaN( cLng ) ? { lat: 20.5937, lng: 78.9629 } : { lat: cLat, lng: cLng };
+				var map = new g.Map( $canvas[ 0 ], { center: center, zoom: parseInt( $zoom.val(), 10 ) || 14 } );
+				var marker = new g.Marker( { map: map, position: center, draggable: true, visible: hasValue } );
+
+				function set( latLng, address ) {
+					$lat.val( latLng.lat().toFixed( 7 ) ).trigger( 'change' );
+					$lng.val( latLng.lng().toFixed( 7 ) ).trigger( 'change' );
+					if ( typeof address === 'string' ) {
+						$addr.val( address ).trigger( 'change' );
+					}
+					marker.setPosition( latLng );
+					marker.setVisible( true );
+				}
+
+				map.addListener( 'click', function ( e ) {
+					set( e.latLng );
+				} );
+				marker.addListener( 'dragend', function () {
+					set( marker.getPosition() );
+				} );
+				map.addListener( 'zoom_changed', function () {
+					$zoom.val( map.getZoom() ).trigger( 'change' );
+				} );
+
+				var ac = new g.places.Autocomplete( $addr[ 0 ] );
+				ac.addListener( 'place_changed', function () {
+					var place = ac.getPlace();
+					if ( place && place.geometry ) {
+						map.setCenter( place.geometry.location );
+						set( place.geometry.location, place.formatted_address || $addr.val() );
+					}
+				} );
+				$addr.on( 'keydown', function ( e ) {
+					if ( e.which === 13 ) {
+						e.preventDefault();
+					}
+				} );
+
+				$lat.add( $lng ).on( 'change', function () {
+					var la = parseFloat( $lat.val() ), ln = parseFloat( $lng.val() );
+					if ( ! isNaN( la ) && ! isNaN( ln ) ) {
+						var p = new g.LatLng( la, ln );
+						marker.setPosition( p );
+						marker.setVisible( true );
+						map.setCenter( p );
+					}
+				} );
+
+				$w.on( 'cfs-gmap-clear', function () {
+					marker.setVisible( false );
+				} );
+			} );
+		}
+
+		$( document ).on( 'click', '.cfs-gmap-clear', function ( e ) {
+			e.preventDefault();
+			var $w = $( this ).closest( '.cfs-gmap' );
+			$w.find( '.cfs-gmap-address, .cfs-gmap-lat, .cfs-gmap-lng' ).val( '' ).trigger( 'change' );
+			$w.trigger( 'cfs-gmap-clear' );
+		} );
+
+		// Lazy: set a map up the first time it is hovered or focused (works for
+		// fields in repeater rows and custom blocks, which appear after load).
+		$( document ).on( 'mouseenter focusin', '.cfs-gmap', function () {
+			initMap( $( this ) );
+		} );
+		$( '.cfs-gmap' ).each( function () {
+			var $w = $( this );
+			if ( $w.is( ':visible' ) ) {
+				initMap( $w );
+			}
+		} );
+	}
 } )( jQuery );

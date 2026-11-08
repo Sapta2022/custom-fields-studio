@@ -14,4 +14,4 @@ elseif ($cmd === 'pmeta') { echo json_encode(get_post_meta((int)$argv[3], $argv[
 elseif ($cmd === 'opt') { echo json_encode(get_option($argv[3], null)); }
 elseif ($cmd === 'findgroup') { $q = get_posts(array('post_type'=>'cfs_field_group','post_status'=>'any','numberposts'=>1,'title'=>$argv[3])); echo $q ? $q[0]->ID : 0; }
 elseif ($cmd === 'groupcount') { echo count(get_posts(array('post_type'=>'cfs_field_group','post_status'=>'any','numberposts'=>-1,'fields'=>'ids'))); }
-
+elseif ($cmd === 'content') { echo json_encode(get_post((int)$argv[3])->post_content); }

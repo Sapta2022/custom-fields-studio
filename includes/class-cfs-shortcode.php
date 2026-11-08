@@ -195,6 +195,9 @@ class CFS_Shortcode {
 			case 'color_picker':
 				return '<span class="cfs-out-field cfs-out-color"><span class="cfs-out-swatch" style="display:inline-block;width:1em;height:1em;vertical-align:middle;background:' . esc_attr( (string) $value ) . '"></span> ' . esc_html( (string) $value ) . '</span>';
 
+			case 'google_map':
+				return is_array( $value ) && isset( $value['lat'], $value['lng'] ) ? CFS_Field_Google_Map::embed_html( $value, (int) ( $field['height'] ?? 300 ) ) : '';
+
 			case 'oembed':
 				return '<div class="cfs-out-field cfs-out-oembed">' . $value . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput -- core-filtered oEmbed HTML.
 

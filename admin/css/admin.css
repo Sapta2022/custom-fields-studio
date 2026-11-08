@@ -465,3 +465,13 @@
 .cfs-group-row > .cfs-field { flex: 1 1 200px; }
 .cfs-cond-rule { display: flex; gap: 6px; margin: 0 0 6px; align-items: center; }
 .cfs-cond-rule .cfs-cond-value { width: 140px; }
+
+/* Phase 12: custom blocks + Google Map */
+.cfs-block-editor-panel { border: 1px solid #ddd; border-radius: 2px; padding: 12px 16px; background: #fff; }
+.cfs-block-editor-title { display: block; margin-bottom: 8px; font-size: 13px; }
+.cfs-block-form .cfs-field-values { margin: 0; }
+.cfs-block-empty, .cfs-block-loading { color: #757575; font-style: italic; }
+.cfs-gmap input.cfs-gmap-address { width: 100%; max-width: 640px; }
+.cfs-gmap-coords label { margin-right: 12px; }
+.cfs-gmap-canvas { width: 100%; max-width: 640px; margin-top: 8px; border: 1px solid #ccd0d4; }
+.cfs-translate-setting select { max-width: 100%; }

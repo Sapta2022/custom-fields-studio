@@ -18,6 +18,7 @@ require_once CFS_QA_PATH . 'inc/tests.php';
 require_once CFS_QA_PATH . 'inc/tests-p9.php';
 require_once CFS_QA_PATH . 'inc/tests-p10.php';
 require_once CFS_QA_PATH . 'inc/tests-p11.php';
+require_once CFS_QA_PATH . 'inc/tests-p12.php';
 
 // Options pages used by the QA group (registered in code on every request).
 add_action(

@@ -536,6 +536,7 @@ function cfs_qa_run_tests() {
 		cfs_qa_run_p9( $t, $phase, $module, $P1 );
 		cfs_qa_run_p10( $t, $phase, $module, $P1, $ids );
 		cfs_qa_run_p11( $t, $phase, $module, $P1, $ids );
+		cfs_qa_run_p12( $t, $phase, $module, $P1, $ids );
 		// The tests above change demo content on purpose; leave it pristine.
 		cfs_qa_seed();
 	} catch ( Throwable $e ) {

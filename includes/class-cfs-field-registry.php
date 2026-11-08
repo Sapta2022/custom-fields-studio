@@ -53,6 +53,7 @@ class CFS_Field_Registry {
 		self::register( 'CFS_Field_Accordion' );
 		self::register( 'CFS_Field_Group_Field' );
 		self::register( 'CFS_Field_Clone' );
+		self::register( 'CFS_Field_Google_Map' );
 		self::register( 'CFS_Field_Post_Object' );
 		self::register( 'CFS_Field_Page_Link' );
 		self::register( 'CFS_Field_User' );

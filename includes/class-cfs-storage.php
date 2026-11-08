@@ -9,6 +9,8 @@
  *    Options Pages)
  *  - the string 'user_N' → user meta of user N (user profile screens)
  *  - the string 'term_N' → term meta of term N (taxonomy term screens)
+ *  - the string 'block' → an in-memory array, filled while a custom block
+ *    renders (values live in the block's attributes, not the database)
  *
  * Composite fields (repeater, later flexible content) build compound keys
  * like "gallery_0_caption" and pass them in as $key, so this class stays
@@ -24,6 +26,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 class CFS_Storage {
 
 	const OPTION_PREFIX = 'options_';
+
+	/** @var array In-memory values of the 'block' context (see CFS_Blocks). */
+	protected static $block = array();
+
+	/** Replace the in-memory block values, returning the previous ones. */
+	public static function swap_block_values( $values ) {
+		$old         = self::$block;
+		self::$block = $values;
+
+		return $old;
+	}
+
+	/** The in-memory block values. */
+	public static function block_values() {
+		return self::$block;
+	}
+
+	/**
+	 * The wp_options key prefix: "options_", or "options_{lang}_" for a
+	 * non-default language when option values are stored per language.
+	 */
+	protected static function option_prefix() {
+		return self::OPTION_PREFIX . CFS_I18n::options_suffix();
+	}
 
 	/**
 	 * Split a non-option, non-post context into array( meta_type, object_id ).
@@ -49,8 +75,12 @@ class CFS_Storage {
 	 * @return mixed
 	 */
 	public static function get( $key, $ctx ) {
+		if ( 'block' === $ctx ) {
+			return self::$block[ $key ] ?? '';
+		}
+
 		if ( 'option' === $ctx ) {
-			return get_option( self::OPTION_PREFIX . $key, '' );
+			return get_option( self::option_prefix() . $key, '' );
 		}
 
 		list( $type, $id ) = self::target( $ctx );
@@ -68,8 +98,12 @@ class CFS_Storage {
 	 * @return bool
 	 */
 	public static function exists( $key, $ctx ) {
+		if ( 'block' === $ctx ) {
+			return array_key_exists( $key, self::$block );
+		}
+
 		if ( 'option' === $ctx ) {
-			return false !== get_option( self::OPTION_PREFIX . $key, false );
+			return false !== get_option( self::option_prefix() . $key, false );
 		}
 
 		list( $type, $id ) = self::target( $ctx );
@@ -90,8 +124,13 @@ class CFS_Storage {
 	 * @param int|string $ctx   Post ID or 'option'.
 	 */
 	public static function update( $key, $value, $ctx ) {
+		if ( 'block' === $ctx ) {
+			self::$block[ $key ] = $value;
+			return;
+		}
+
 		if ( 'option' === $ctx ) {
-			update_option( self::OPTION_PREFIX . $key, $value, false );
+			update_option( self::option_prefix() . $key, $value, false );
 			return;
 		}
 
@@ -107,8 +146,13 @@ class CFS_Storage {
 	 * @param int|string $ctx Post ID or 'option'.
 	 */
 	public static function delete( $key, $ctx ) {
+		if ( 'block' === $ctx ) {
+			unset( self::$block[ $key ] );
+			return;
+		}
+
 		if ( 'option' === $ctx ) {
-			delete_option( self::OPTION_PREFIX . $key );
+			delete_option( self::option_prefix() . $key );
 			return;
 		}
 
