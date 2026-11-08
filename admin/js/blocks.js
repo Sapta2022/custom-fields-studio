@@ -24,6 +24,32 @@
 		return $( root ).find( ':input[name^="cfs["]' ).serialize();
 	}
 
+	/*
+	 * When the editor canvas is an iframe, give it the field handlers and the
+	 * stylesheets the form needs (the iframe starts with neither).
+	 */
+	function prepareDocument( doc ) {
+		if ( ! doc || doc === document ) {
+			return;
+		}
+		if ( window.cfsBindDocument ) {
+			window.cfsBindDocument( doc );
+		}
+		if ( doc.__cfsStyled ) {
+			return;
+		}
+		doc.__cfsStyled = true;
+		$( 'link[rel="stylesheet"]' ).each( function () {
+			var id = this.id || '';
+			if ( /^(cfs-admin|buttons|forms|dashicons|wp-color-picker|media-views)-css$/.test( id ) ) {
+				var link = doc.createElement( 'link' );
+				link.rel = 'stylesheet';
+				link.href = this.href;
+				doc.head.appendChild( link );
+			}
+		} );
+	}
+
 	function FormPane( props ) {
 		var ref = useRef( null );
 		var last = useRef( props.form );
@@ -66,6 +92,7 @@
 					return;
 				}
 				ref.current.innerHTML = res.html;
+				prepareDocument( ref.current.ownerDocument );
 				$root = $( ref.current );
 				if ( window.cfsInit ) {
 					window.cfsInit( $root );

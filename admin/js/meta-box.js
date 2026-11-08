@@ -19,6 +19,27 @@
 	var rowKeyCounter = 0;
 	var editorCounter = 0;
 
+	/*
+	 * Delegated handlers are registered through onDoc() so they can be
+	 * replayed on another document. The block editor draws blocks inside
+	 * an iframe, and events inside it never reach this page's document.
+	 */
+	var delegated = [];
+	function onDoc() {
+		var args = Array.prototype.slice.call( arguments );
+		delegated.push( args );
+		$( document ).on.apply( $( document ), args );
+	}
+	window.cfsBindDocument = function ( doc ) {
+		if ( ! doc || doc === document || doc.__cfsBound ) {
+			return;
+		}
+		doc.__cfsBound = true;
+		delegated.forEach( function ( args ) {
+			$( doc ).on.apply( $( doc ), args );
+		} );
+	};
+
 	function nextRowKey() {
 		rowKeyCounter++;
 		return 'n' + rowKeyCounter;
@@ -278,7 +299,7 @@
 
 		// Delegated from the document so it also works for fields inside
 		// repeater rows that are cloned in after page load.
-		$( document ).on( 'click', '.cfs-field-values .cfs-image-select', function ( e ) {
+		onDoc( 'click', '.cfs-field-values .cfs-image-select', function ( e ) {
 			e.preventDefault();
 
 			var $wrap = $( this ).closest( '.cfs-image-field' );
@@ -309,7 +330,7 @@
 			frame.open();
 		} );
 
-		$( document ).on( 'click', '.cfs-field-values .cfs-image-remove', function ( e ) {
+		onDoc( 'click', '.cfs-field-values .cfs-image-remove', function ( e ) {
 			e.preventDefault();
 
 			var $wrap = $( this ).closest( '.cfs-image-field' );
@@ -327,7 +348,7 @@
 		var cfg = window.cfsMetaBox || {};
 		var i18n = cfg.i18n || {};
 
-		$( document ).on( 'click', '.cfs-field-values .cfs-file-select', function ( e ) {
+		onDoc( 'click', '.cfs-field-values .cfs-file-select', function ( e ) {
 			e.preventDefault();
 			if ( typeof wp === 'undefined' || ! wp.media ) {
 				return;
@@ -349,7 +370,7 @@
 			frame.open();
 		} );
 
-		$( document ).on( 'click', '.cfs-field-values .cfs-file-remove', function ( e ) {
+		onDoc( 'click', '.cfs-field-values .cfs-file-remove', function ( e ) {
 			e.preventDefault();
 			var $wrap = $( this ).closest( '.cfs-file-field' );
 			$wrap.find( '.cfs-file-value' ).val( '' );
@@ -359,25 +380,25 @@
 		} );
 
 		// Colour: the native swatch and the text box stay in sync.
-		$( document ).on( 'input change', '.cfs-color-field .cfs-color-pick', function () {
+		onDoc( 'input change', '.cfs-color-field .cfs-color-pick', function () {
 			$( this ).siblings( '.cfs-color-text' ).val( this.value );
 		} );
-		$( document ).on( 'input change', '.cfs-color-field .cfs-color-text', function () {
+		onDoc( 'input change', '.cfs-color-field .cfs-color-text', function () {
 			if ( /^#[0-9a-f]{6}$/i.test( this.value ) ) {
 				$( this ).siblings( '.cfs-color-pick' ).val( this.value );
 			}
 		} );
 
-		$( document ).on( 'input change', '.cfs-range', function () {
+		onDoc( 'input change', '.cfs-range', function () {
 			$( this ).siblings( '.cfs-range-out' ).text( this.value );
 		} );
 
-		$( document ).on( 'click', '.cfs-choice-clear', function ( e ) {
+		onDoc( 'click', '.cfs-choice-clear', function ( e ) {
 			e.preventDefault();
 			$( this ).closest( '.cfs-choice-list' ).find( 'input[type=radio]' ).prop( 'checked', false );
 		} );
 
-		$( document ).on( 'change', '.cfs-button-group input[type=radio]', function () {
+		onDoc( 'change', '.cfs-button-group input[type=radio]', function () {
 			var $g = $( this ).closest( '.cfs-button-group' );
 			$g.find( 'label' ).removeClass( 'cfs-active' );
 			$g.find( 'input:checked' ).closest( 'label' ).addClass( 'cfs-active' );
@@ -549,7 +570,7 @@
 			buildSections( $( this ) );
 		} );
 
-		$( document ).on( 'click', '.cfs-accordion-head', function () {
+		onDoc( 'click', '.cfs-accordion-head', function () {
 			var $acc = $( this ).closest( '.cfs-accordion' );
 			var open = ! $acc.hasClass( 'cfs-open' );
 			$acc.toggleClass( 'cfs-open', open );
@@ -559,7 +580,7 @@
 
 		// Evaluated right away (cheap), so a newly added row never flashes
 		// a field that should be hidden.
-		$( document ).on( 'change input click', '.cfs-field-values', applyConditions );
+		onDoc( 'change input click', '.cfs-field-values', applyConditions );
 		if ( window.MutationObserver ) {
 			// New repeater / flexible rows and picker changes re-evaluate too.
 			$( '.cfs-field-values' ).each( function () {
@@ -574,7 +595,7 @@
 		var cfg = window.cfsMetaBox || {};
 		var i18n = cfg.i18n || {};
 
-		$( document ).on( 'click', '.cfs-field-values .cfs-gallery-add', function ( e ) {
+		onDoc( 'click', '.cfs-field-values .cfs-gallery-add', function ( e ) {
 			e.preventDefault();
 			if ( typeof wp === 'undefined' || ! wp.media ) {
 				return;
@@ -610,7 +631,7 @@
 			frame.open();
 		} );
 
-		$( document ).on( 'click', '.cfs-field-values .cfs-gallery-remove', function ( e ) {
+		onDoc( 'click', '.cfs-field-values .cfs-gallery-remove', function ( e ) {
 			e.preventDefault();
 			$( this ).closest( '.cfs-gallery-item' ).remove();
 		} );
@@ -640,20 +661,20 @@
 			} );
 		}
 
-		$( document ).on( 'focus input', '.cfs-field-values .cfs-rel-search', function () {
+		onDoc( 'focus input', '.cfs-field-values .cfs-rel-search', function () {
 			var $rel = $( this ).closest( '.cfs-relationship' );
 			clearTimeout( timer );
 			timer = setTimeout( function () {
 				search( $rel );
 			}, 250 );
 		} );
-		$( document ).on( 'keydown', '.cfs-field-values .cfs-rel-search', function ( e ) {
+		onDoc( 'keydown', '.cfs-field-values .cfs-rel-search', function ( e ) {
 			if ( 13 === e.which ) {
 				e.preventDefault(); // Don't submit the post form.
 			}
 		} );
 
-		$( document ).on( 'click', '.cfs-field-values .cfs-rel-result', function () {
+		onDoc( 'click', '.cfs-field-values .cfs-rel-result', function () {
 			var $rel = $( this ).closest( '.cfs-relationship' );
 			var $sel = $rel.find( '.cfs-rel-selected' );
 			var id = $( this ).attr( 'data-id' );
@@ -674,11 +695,11 @@
 			$sel.append( $li );
 		} );
 
-		$( document ).on( 'click', '.cfs-field-values .cfs-rel-remove', function () {
+		onDoc( 'click', '.cfs-field-values .cfs-rel-remove', function () {
 			$( this ).closest( 'li' ).remove();
 		} );
 
-		$( document ).on( 'mouseenter', '.cfs-field-values .cfs-rel-selected:not(.ui-sortable)', function () {
+		onDoc( 'mouseenter', '.cfs-field-values .cfs-rel-selected:not(.ui-sortable)', function () {
 			$( this ).sortable( { tolerance: 'pointer' } );
 		} );
 	}
@@ -689,12 +710,12 @@
 		bindPhase9Fields();
 		bindPhase10();
 
-		$( document ).on( 'click', '.cfs-repeater-add', function ( e ) {
+		onDoc( 'click', '.cfs-repeater-add', function ( e ) {
 			e.preventDefault();
 			addRow( $( this ).closest( '.cfs-repeater' ) );
 		} );
 
-		$( document ).on( 'click', '.cfs-flex-add', function ( e ) {
+		onDoc( 'click', '.cfs-flex-add', function ( e ) {
 			e.preventDefault();
 			e.stopPropagation();
 
@@ -713,23 +734,23 @@
 			$menu.prop( 'hidden', ! wasHidden );
 		} );
 
-		$( document ).on( 'click', '.cfs-flex-add-layout', function ( e ) {
+		onDoc( 'click', '.cfs-flex-add-layout', function ( e ) {
 			e.preventDefault();
 
 			$( this ).parent().prop( 'hidden', true );
 			addFlexRow( $( this ).closest( '.cfs-flex' ), $( this ).attr( 'data-layout' ) );
 		} );
 
-		$( document ).on( 'click', function () {
+		onDoc( 'click', function () {
 			$( '.cfs-flex-menu' ).prop( 'hidden', true );
 		} );
 
-		$( document ).on( 'click', '.cfs-flex-remove', function ( e ) {
+		onDoc( 'click', '.cfs-flex-remove', function ( e ) {
 			e.preventDefault();
 			removeFlexRow( $( this ).closest( '.cfs-flex-row' ) );
 		} );
 
-		$( document ).on( 'click', '.cfs-repeater-remove', function ( e ) {
+		onDoc( 'click', '.cfs-repeater-remove', function ( e ) {
 			e.preventDefault();
 			removeRow( $( this ).closest( '.cfs-repeater-row' ) );
 		} );
@@ -841,7 +862,7 @@
 			} );
 		}
 
-		$( document ).on( 'click', '.cfs-gmap-clear', function ( e ) {
+		onDoc( 'click', '.cfs-gmap-clear', function ( e ) {
 			e.preventDefault();
 			var $w = $( this ).closest( '.cfs-gmap' );
 			$w.find( '.cfs-gmap-address, .cfs-gmap-lat, .cfs-gmap-lng' ).val( '' ).trigger( 'change' );
@@ -850,7 +871,7 @@
 
 		// Lazy: set a map up the first time it is hovered or focused (works for
 		// fields in repeater rows and custom blocks, which appear after load).
-		$( document ).on( 'mouseenter focusin', '.cfs-gmap', function () {
+		onDoc( 'mouseenter focusin', '.cfs-gmap', function () {
 			initMap( $( this ) );
 		} );
 		$( '.cfs-gmap' ).each( function () {
