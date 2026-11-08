@@ -40,6 +40,7 @@ class CFS_JSON {
 		add_action( 'admin_post_cfs_export', array( __CLASS__, 'handle_export' ) );
 		add_action( 'admin_post_cfs_import', array( __CLASS__, 'handle_import' ) );
 		add_action( 'admin_post_cfs_sync', array( __CLASS__, 'handle_sync' ) );
+		add_action( 'admin_post_cfs_settings', array( __CLASS__, 'handle_settings' ) );
 		add_action( 'save_post_' . CFS_Field_Group::POST_TYPE, array( __CLASS__, 'write_file_on_save' ), 100, 2 );
 		add_action( 'before_delete_post', array( __CLASS__, 'delete_file_on_delete' ) );
 		add_action( 'trashed_post', array( __CLASS__, 'delete_file_on_delete' ) );
@@ -454,6 +455,29 @@ class CFS_JSON {
 				<div class="notice notice-error"><p id="cfs-tools-err"><?php echo esc_html( $err ); ?></p></div>
 			<?php endif; ?>
 
+			<h2><?php esc_html_e( 'Settings', 'cfs' ); ?></h2>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="cfs-settings-form">
+				<input type="hidden" name="action" value="cfs_settings" />
+				<?php wp_nonce_field( 'cfs_settings' ); ?>
+				<p>
+					<label for="cfs-gmaps-key"><strong><?php esc_html_e( 'Google Maps API key', 'cfs' ); ?></strong></label><br />
+					<input type="text" id="cfs-gmaps-key" name="cfs_google_maps_api_key" class="regular-text" value="<?php echo esc_attr( (string) get_option( 'cfs_google_maps_api_key', '' ) ); ?>" autocomplete="off" />
+					<br /><span class="description"><?php esc_html_e( 'Used by the Google Map field to show a searchable map in the editor (Maps JavaScript API + Places API). Without a key the field still works with typed latitude / longitude.', 'cfs' ); ?></span>
+				</p>
+				<p>
+					<label>
+						<input type="checkbox" id="cfs-translate-options" name="cfs_translate_options" value="1" <?php checked( (bool) get_option( CFS_I18n::OPTION, false ) ); ?> />
+						<?php esc_html_e( 'Store Options Page values separately for each language (WPML / Polylang)', 'cfs' ); ?>
+					</label>
+					<br /><span class="description">
+						<?php
+						echo CFS_I18n::active() ? esc_html__( 'A multilingual plugin is active.', 'cfs' ) : esc_html__( 'No multilingual plugin is active, so this has no effect yet.', 'cfs' );
+						?>
+					</span>
+				</p>
+				<p><button type="submit" class="button"><?php esc_html_e( 'Save settings', 'cfs' ); ?></button></p>
+			</form>
+
 			<h2><?php esc_html_e( 'Export field groups', 'cfs' ); ?></h2>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="cfs-export-form">
 				<input type="hidden" name="action" value="cfs_export" />
@@ -526,6 +550,20 @@ class CFS_JSON {
 			<?php endif; ?>
 		</div>
 		<?php
+	}
+
+	/** admin-post: save the Tools page settings. */
+	public static function handle_settings() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to do that.', 'cfs' ), 403 );
+		}
+		check_admin_referer( 'cfs_settings' );
+
+		$key = isset( $_POST['cfs_google_maps_api_key'] ) ? preg_replace( '/[^A-Za-z0-9_\-]/', '', sanitize_text_field( wp_unslash( $_POST['cfs_google_maps_api_key'] ) ) ) : '';
+		update_option( 'cfs_google_maps_api_key', $key, false );
+		update_option( CFS_I18n::OPTION, ! empty( $_POST['cfs_translate_options'] ) ? 1 : 0, false );
+
+		self::back( array( 'cfs_msg' => __( 'Settings saved.', 'cfs' ) ) );
 	}
 
 	/** admin-post: download an export file. */

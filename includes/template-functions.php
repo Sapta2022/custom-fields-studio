@@ -138,6 +138,11 @@ function cfs_resolve_post_id( $post_id ) {
 		return strtolower( $post_id );
 	}
 
+	// Inside a custom block's template, fields default to the block's own values.
+	if ( null === $post_id && CFS_Blocks::in_block() ) {
+		return 'block';
+	}
+
 	if ( null !== $post_id ) {
 		return absint( $post_id );
 	}
@@ -157,6 +162,10 @@ function cfs_resolve_post_id( $post_id ) {
 function cfs_groups_for_context( $ctx ) {
 	if ( 'option' === $ctx ) {
 		return CFS_Field_Group::get_options_groups();
+	}
+
+	if ( 'block' === $ctx ) {
+		return CFS_Field_Group::get_groups_for_block( CFS_Blocks::current() );
 	}
 
 	if ( is_string( $ctx ) && preg_match( '/^user_(\d+)$/', $ctx, $m ) ) {
@@ -420,4 +429,14 @@ function cfs_add_options_sub_page( $args = array() ) {
 	}
 
 	return CFS_Options_Page::add( $args );
+}
+
+/**
+ * Register a custom block (see CFS_Blocks for the arguments).
+ *
+ * @param array $args Block settings.
+ * @return string|WP_Error The block name ("cfs/slug").
+ */
+function cfs_register_block( $args ) {
+	return CFS_Blocks::register( $args );
 }

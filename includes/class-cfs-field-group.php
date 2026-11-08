@@ -279,6 +279,14 @@ class CFS_Field_Group {
 							<?php esc_html_e( 'Required', 'cfs' ); ?>
 						</label>
 					</div>
+					<div class="cfs-field-setting-generic cfs-translate-setting">
+						<label><?php esc_html_e( 'Translation (WPML / Polylang)', 'cfs' ); ?></label>
+						<select name="<?php echo esc_attr( $prefix ); ?>[translate]">
+							<option value="translate" <?php selected( $field['translate'] ?? 'translate', 'translate' ); ?>><?php esc_html_e( 'Translate (each language has its own value)', 'cfs' ); ?></option>
+							<option value="copy" <?php selected( $field['translate'] ?? 'translate', 'copy' ); ?>><?php esc_html_e( 'Copy (translations start with, and sync, the original value)', 'cfs' ); ?></option>
+							<option value="ignore" <?php selected( $field['translate'] ?? 'translate', 'ignore' ); ?>><?php esc_html_e( 'Ignore (never copied to translations)', 'cfs' ); ?></option>
+						</select>
+					</div>
 					<?php CFS_Conditional::render_builder( $field, $prefix ); ?>
 					<?php
 					// Render every registered type's settings; JS shows only the
@@ -420,6 +428,11 @@ class CFS_Field_Group {
 				'instructions' => isset( $raw_field['instructions'] ) ? sanitize_textarea_field( $raw_field['instructions'] ) : '',
 				'required'     => ! empty( $raw_field['required'] ) ? 1 : 0,
 			);
+
+			$translate = isset( $raw_field['translate'] ) ? sanitize_key( $raw_field['translate'] ) : 'translate';
+			if ( in_array( $translate, array( 'copy', 'ignore' ), true ) ) {
+				$field['translate'] = $translate; // 'translate' is the default and is not stored.
+			}
 
 			$logic = CFS_Conditional::sanitize( $raw_field['conditional_logic'] ?? array() );
 			if ( $logic ) {
@@ -676,6 +689,25 @@ class CFS_Field_Group {
 		}
 
 		return $groups;
+	}
+
+	/**
+	 * Active groups for a custom block.
+	 *
+	 * @param string $block_name Block name, e.g. "cfs/testimonial".
+	 * @return array
+	 */
+	public static function get_groups_for_block( $block_name ) {
+		$context = array( 'block' => $block_name );
+
+		return array_values(
+			array_filter(
+				self::get_active_groups(),
+				function ( $group ) use ( $context ) {
+					return CFS_Location_Rules::matches( $group['location'], 'block', $context );
+				}
+			)
+		);
 	}
 
 	/**
