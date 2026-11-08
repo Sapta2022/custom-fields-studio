@@ -21,6 +21,7 @@
  *  - user profiles:  user_role (the role of the user being edited)
  *  - term screens:   taxonomy
  *  - options pages:  options_page
+ *  - custom blocks:  block
  *  - any screen:     current_user_role (the role of whoever is editing)
  *
  * A group whose rules mix params of different screens never matches
@@ -54,6 +55,7 @@ class CFS_Location_Rules {
 			'user_role'         => __( 'User Form (edited user role)', 'cfs' ),
 			'taxonomy'          => __( 'Taxonomy Term Screen', 'cfs' ),
 			'options_page'      => __( 'Options Page', 'cfs' ),
+			'block'             => __( 'Block', 'cfs' ),
 		);
 	}
 
@@ -63,6 +65,7 @@ class CFS_Location_Rules {
 		'user'    => array( 'user_role' ),
 		'term'    => array( 'taxonomy' ),
 		'options' => array( 'options_page' ),
+		'block'   => array( 'block' ),
 	);
 
 	/** Params that apply on any screen. */
@@ -167,6 +170,14 @@ class CFS_Location_Rules {
 			}
 			foreach ( wp_roles()->get_names() as $slug => $name ) {
 				$values[ $slug ] = translate_user_role( $name );
+			}
+			return $values;
+		}
+
+		if ( 'block' === $param ) {
+			$values = array();
+			foreach ( CFS_Blocks::get_blocks() as $name => $block ) {
+				$values[ $name ] = $block['title'];
 			}
 			return $values;
 		}

@@ -37,7 +37,7 @@ const BASE = 'http://127.0.0.1:8099';
 
   const param0 = p.locator('.cfs-location-rule').first().locator('.cfs-location-param');
   const opts = await param0.locator('option').evaluateAll(o => o.map(x => x.value));
-  t('Builder offers all 10 location params', opts.length === 10 && ['post_status','page_template','post_category','post_taxonomy','current_user_role','user_role','taxonomy','post_id'].every(k => opts.includes(k)), opts);
+  t('Builder offers all 11 location params', opts.length === 11 && ['post_status','page_template','post_category','post_taxonomy','current_user_role','user_role','taxonomy','post_id'].every(k => opts.includes(k)), opts);
   await param0.selectOption('page_template');
   const tv = await p.locator('.cfs-location-rule').first().locator('.cfs-location-value option').evaluateAll(o => o.map(x => x.value));
   t('Changing the param refills the value list (page templates)', tv.includes('default'), tv);

@@ -29,7 +29,7 @@ well-documented WordPress plugin patterns.
 - [x] **Phase 9** — More field types: number, range, email, URL, password, checkbox, radio, button group, file, color picker, time picker, date-time picker, link, oEmbed
 - [x] **Phase 10** — Layout fields (group, tab, accordion, message), conditional logic, post object / page link / user fields
 - [x] **Phase 11** — JSON import/export + local JSON sync, REST API exposure, extra location rules, clone field
-- [ ] **Phase 12** — Custom Gutenberg blocks, Google Map, WPML / Polylang
+- [x] **Phase 12** — Custom Gutenberg blocks, Google Map, WPML / Polylang
 
 ## Storage approach
 
@@ -140,6 +140,35 @@ or newer than the database copy are offered on the Tools page as *Sync changes*.
   edit capability; `?cfs_format=1` on a read returns formatted values instead of raw ones)
 - `GET`/`POST /wp-json/cfs/v1/options` (reading is public like the front end; writing needs `manage_options`)
 - `GET /wp-json/cfs/v1/groups` — field schema of the exposed groups (needs `edit_posts`)
+
+### Phase 12: blocks, Google Map, multilingual
+
+**Custom Gutenberg blocks.** Register a block, then give it fields with a field group whose location rule is
+*Block == your block*:
+
+```php
+cfs_register_block( array(
+    'name'            => 'testimonial',          // becomes cfs/testimonial
+    'title'           => 'Testimonial',
+    'icon'            => 'format-quote',
+    'render_template' => get_theme_file_path( 'blocks/testimonial.php' ),
+) );
+```
+
+or drop `cfs-blocks/{slug}/block.json` + `render.php` into the theme. In the template, `cfs_get_field( 'quote' )`,
+`cfs_have_rows()` and the other template functions read the block's own values. In the editor the block shows a live
+preview; the toolbar button switches to the field form. Values are stored in the block's attributes (inside the post
+content), not in post meta, and are re-sanitised by the field types every time the block renders. WYSIWYG fields show
+as plain textareas inside blocks.
+
+**Google Map field.** Address, latitude, longitude and zoom. Works with typed coordinates; add a Google Maps API key
+(*Field Groups → Tools*, or the `cfs/google_maps_api_key` filter) for a searchable, draggable map in the editor. The
+`[cfs]` shortcode renders a keyless Google embed.
+
+**WPML / Polylang.** *Tools → Store Options Page values separately for each language* keeps `options_fr_…` values per
+language (the default language keeps the plain keys). Each field has a *Translation* setting (translate / copy /
+ignore); with Polylang, *copy* fields — including repeater and group sub values — are copied to translations, and
+*ignore* fields never are. For WPML, use WPML's own custom-field translation settings.
 
 ### Phase 6 field types
 
