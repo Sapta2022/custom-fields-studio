@@ -25,6 +25,18 @@
 	--cfs-focus: 0 0 0 3px rgba(15, 110, 110, 0.22);
 }
 
+/* WordPress draws its own checkboxes and radios from this variable, so
+ * pointing it at our accent recolours them inside our screens only. */
+#cfs-tools,
+.cfs-options-page,
+.cfs-field-values,
+.cfs-fields-editor,
+.cfs-block-editor-panel {
+	--wp-admin-theme-color: var(--cfs-accent);
+	--wp-admin-theme-color--rgb: 15, 110, 110;
+	--wp-admin-theme-color-darker-10: var(--cfs-accent-hover);
+}
+
 /* ------------------------------------------------------------------
  * Inputs shared by every Custom Fields Studio screen
  * ---------------------------------------------------------------- */
