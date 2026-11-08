@@ -774,6 +774,13 @@
 	color: var(--cfs-slate);
 }
 
+#cfs-tools input[type='checkbox'],
+#cfs-tools input[type='radio'],
+.cfs-options-page input[type='checkbox'],
+.cfs-options-page input[type='radio'] {
+	accent-color: var(--cfs-accent);
+}
+
 #cfs-tools .cfs-inline-check {
 	display: inline-block;
 	padding: 3px 0;
