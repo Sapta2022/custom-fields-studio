@@ -35,8 +35,17 @@ class CFS_JSON {
 	/** @var bool While true, saves are not mirrored back to the JSON folder. */
 	protected static $silent = false;
 
+	/** Style the Tools page like the rest of the plugin. */
+	public static function enqueue_styles() {
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
+		if ( self::MENU_SLUG === $page ) {
+			wp_enqueue_style( 'cfs-admin', CFS_URL . 'admin/css/admin.css', array(), CFS_VERSION );
+		}
+	}
+
 	public static function hooks() {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_styles' ) );
 		add_action( 'admin_post_cfs_export', array( __CLASS__, 'handle_export' ) );
 		add_action( 'admin_post_cfs_import', array( __CLASS__, 'handle_import' ) );
 		add_action( 'admin_post_cfs_sync', array( __CLASS__, 'handle_sync' ) );
@@ -475,7 +484,7 @@ class CFS_JSON {
 						?>
 					</span>
 				</p>
-				<p><button type="submit" class="button"><?php esc_html_e( 'Save settings', 'cfs' ); ?></button></p>
+				<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Save settings', 'cfs' ); ?></button></p>
 			</form>
 
 			<h2><?php esc_html_e( 'Export field groups', 'cfs' ); ?></h2>
