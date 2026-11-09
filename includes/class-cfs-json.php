@@ -138,7 +138,7 @@ class CFS_JSON {
 	 */
 	public static function import_data( $data ) {
 		if ( ! is_array( $data ) ) {
-			return new WP_Error( 'cfs_json', __( 'That is not valid JSON.', 'cfs' ) );
+			return new WP_Error( 'cfs_json', __( 'That is not valid JSON.', 'custom-fields-studio' ) );
 		}
 
 		if ( isset( $data['groups'] ) && is_array( $data['groups'] ) ) {
@@ -148,7 +148,7 @@ class CFS_JSON {
 		} elseif ( isset( $data[0] ) && is_array( $data[0] ) ) {
 			$groups = $data; // A bare list of groups.
 		} else {
-			return new WP_Error( 'cfs_json', __( 'No field groups were found in that file.', 'cfs' ) );
+			return new WP_Error( 'cfs_json', __( 'No field groups were found in that file.', 'custom-fields-studio' ) );
 		}
 
 		$result = array(
@@ -172,7 +172,7 @@ class CFS_JSON {
 		}
 
 		if ( ! $result['ids'] ) {
-			return new WP_Error( 'cfs_json', __( 'No field groups were found in that file.', 'cfs' ) );
+			return new WP_Error( 'cfs_json', __( 'No field groups were found in that file.', 'custom-fields-studio' ) );
 		}
 
 		return $result;
@@ -268,7 +268,7 @@ class CFS_JSON {
 		$dir = (string) apply_filters( 'cfs/json_dir', trailingslashit( get_stylesheet_directory() ) . 'cfs-json' );
 		$dir = untrailingslashit( $dir );
 
-		return ( '' !== $dir && is_dir( $dir ) && is_writable( $dir ) ) ? $dir : '';
+		return ( '' !== $dir && is_dir( $dir ) && is_writable( $dir ) ) ? $dir : ''; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- only checks that the optional local JSON folder is usable.
 	}
 
 	/** File path for a group key (keys are sanitize_key()ed, so safe in a path). */
@@ -413,8 +413,8 @@ class CFS_JSON {
 	public static function register_menu() {
 		add_submenu_page(
 			'edit.php?post_type=' . CFS_Field_Group::POST_TYPE,
-			__( 'Tools — Import / Export', 'cfs' ),
-			__( 'Tools', 'cfs' ),
+			__( 'Tools — Import / Export', 'custom-fields-studio' ),
+			__( 'Tools', 'custom-fields-studio' ),
 			'manage_options',
 			self::MENU_SLUG,
 			array( __CLASS__, 'render_page' )
@@ -455,7 +455,7 @@ class CFS_JSON {
 		$err     = isset( $_GET['cfs_err'] ) ? sanitize_text_field( wp_unslash( $_GET['cfs_err'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
 		?>
 		<div class="wrap" id="cfs-tools">
-			<h1><?php esc_html_e( 'Custom Fields Studio — Tools', 'cfs' ); ?></h1>
+			<h1><?php esc_html_e( 'Custom Fields Studio — Tools', 'custom-fields-studio' ); ?></h1>
 
 			<?php if ( '' !== $msg ) : ?>
 				<div class="notice notice-success"><p id="cfs-tools-msg"><?php echo esc_html( $msg ); ?></p></div>
@@ -464,30 +464,30 @@ class CFS_JSON {
 				<div class="notice notice-error"><p id="cfs-tools-err"><?php echo esc_html( $err ); ?></p></div>
 			<?php endif; ?>
 
-			<h2><?php esc_html_e( 'Settings', 'cfs' ); ?></h2>
+			<h2><?php esc_html_e( 'Settings', 'custom-fields-studio' ); ?></h2>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="cfs-settings-form">
 				<input type="hidden" name="action" value="cfs_settings" />
 				<?php wp_nonce_field( 'cfs_settings' ); ?>
 				<p>
-					<label for="cfs-gmaps-key"><strong><?php esc_html_e( 'Google Maps API key', 'cfs' ); ?></strong></label><br />
+					<label for="cfs-gmaps-key"><strong><?php esc_html_e( 'Google Maps API key', 'custom-fields-studio' ); ?></strong></label><br />
 					<input type="text" id="cfs-gmaps-key" name="cfs_google_maps_api_key" class="regular-text" value="<?php echo esc_attr( (string) get_option( 'cfs_google_maps_api_key', '' ) ); ?>" autocomplete="off" />
-					<br /><span class="description"><?php esc_html_e( 'Used by the Google Map field to show a searchable map in the editor (Maps JavaScript API + Places API). Without a key the field still works with typed latitude / longitude.', 'cfs' ); ?></span>
+					<br /><span class="description"><?php esc_html_e( 'Used by the Google Map field to show a searchable map in the editor (Maps JavaScript API + Places API). Without a key the field still works with typed latitude / longitude.', 'custom-fields-studio' ); ?></span>
 				</p>
 				<p>
 					<label>
 						<input type="checkbox" id="cfs-translate-options" name="cfs_translate_options" value="1" <?php checked( (bool) get_option( CFS_I18n::OPTION, false ) ); ?> />
-						<?php esc_html_e( 'Store Options Page values separately for each language (WPML / Polylang)', 'cfs' ); ?>
+						<?php esc_html_e( 'Store Options Page values separately for each language (WPML / Polylang)', 'custom-fields-studio' ); ?>
 					</label>
 					<br /><span class="description">
 						<?php
-						echo CFS_I18n::active() ? esc_html__( 'A multilingual plugin is active.', 'cfs' ) : esc_html__( 'No multilingual plugin is active, so this has no effect yet.', 'cfs' );
+						echo CFS_I18n::active() ? esc_html__( 'A multilingual plugin is active.', 'custom-fields-studio' ) : esc_html__( 'No multilingual plugin is active, so this has no effect yet.', 'custom-fields-studio' );
 						?>
 					</span>
 				</p>
-				<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Save settings', 'cfs' ); ?></button></p>
+				<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Save settings', 'custom-fields-studio' ); ?></button></p>
 			</form>
 
-			<h2><?php esc_html_e( 'Export field groups', 'cfs' ); ?></h2>
+			<h2><?php esc_html_e( 'Export field groups', 'custom-fields-studio' ); ?></h2>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="cfs-export-form">
 				<input type="hidden" name="action" value="cfs_export" />
 				<?php wp_nonce_field( 'cfs_export' ); ?>
@@ -500,28 +500,28 @@ class CFS_JSON {
 							</label><br />
 						<?php endforeach; ?>
 					</p>
-					<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Download export file (.json)', 'cfs' ); ?></button></p>
+					<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Download export file (.json)', 'custom-fields-studio' ); ?></button></p>
 				<?php else : ?>
-					<p><?php esc_html_e( 'There are no field groups to export yet.', 'cfs' ); ?></p>
+					<p><?php esc_html_e( 'There are no field groups to export yet.', 'custom-fields-studio' ); ?></p>
 				<?php endif; ?>
 			</form>
 
-			<h2><?php esc_html_e( 'Import field groups', 'cfs' ); ?></h2>
+			<h2><?php esc_html_e( 'Import field groups', 'custom-fields-studio' ); ?></h2>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data" id="cfs-import-form">
 				<input type="hidden" name="action" value="cfs_import" />
 				<?php wp_nonce_field( 'cfs_import' ); ?>
 				<p><input type="file" name="cfs_import_file" accept=".json,application/json" /></p>
-				<p class="description"><?php esc_html_e( 'Groups are matched by their key: a group that already exists is updated, anything else is created.', 'cfs' ); ?></p>
-				<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Import', 'cfs' ); ?></button></p>
+				<p class="description"><?php esc_html_e( 'Groups are matched by their key: a group that already exists is updated, anything else is created.', 'custom-fields-studio' ); ?></p>
+				<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Import', 'custom-fields-studio' ); ?></button></p>
 			</form>
 
-			<h2><?php esc_html_e( 'Local JSON', 'cfs' ); ?></h2>
+			<h2><?php esc_html_e( 'Local JSON', 'custom-fields-studio' ); ?></h2>
 			<?php if ( '' === $dir ) : ?>
 				<p id="cfs-json-off">
 					<?php
 					printf(
 						/* translators: %s: folder path */
-						esc_html__( 'Local JSON is off. Create the folder %s (writable) to save every field group as a JSON file there, so field groups can be kept in version control.', 'cfs' ),
+						esc_html__( 'Local JSON is off. Create the folder %s (writable) to save every field group as a JSON file there, so field groups can be kept in version control.', 'custom-fields-studio' ),
 						'<code>' . esc_html( trailingslashit( get_stylesheet_directory() ) . 'cfs-json' ) . '</code>'
 					);
 					?>
@@ -531,19 +531,19 @@ class CFS_JSON {
 					<?php
 					printf(
 						/* translators: %s: folder path */
-						esc_html__( 'Local JSON is on. Field groups are saved to %s.', 'cfs' ),
+						esc_html__( 'Local JSON is on. Field groups are saved to %s.', 'custom-fields-studio' ),
 						'<code>' . esc_html( $dir ) . '</code>'
 					);
 					?>
 				</p>
 				<?php if ( $pending ) : ?>
 					<table class="widefat striped" id="cfs-sync-table" style="max-width:700px">
-						<thead><tr><th><?php esc_html_e( 'Field group', 'cfs' ); ?></th><th><?php esc_html_e( 'Status', 'cfs' ); ?></th></tr></thead>
+						<thead><tr><th><?php esc_html_e( 'Field group', 'custom-fields-studio' ); ?></th><th><?php esc_html_e( 'Status', 'custom-fields-studio' ); ?></th></tr></thead>
 						<tbody>
 						<?php foreach ( $pending as $item ) : ?>
 							<tr>
 								<td><?php echo esc_html( $item['title'] ); ?></td>
-								<td><?php echo 'new' === $item['status'] ? esc_html__( 'New (not in the database)', 'cfs' ) : esc_html__( 'File is newer than the database', 'cfs' ); ?></td>
+								<td><?php echo 'new' === $item['status'] ? esc_html__( 'New (not in the database)', 'custom-fields-studio' ) : esc_html__( 'File is newer than the database', 'custom-fields-studio' ); ?></td>
 							</tr>
 						<?php endforeach; ?>
 						</tbody>
@@ -551,10 +551,10 @@ class CFS_JSON {
 					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="cfs-sync-form">
 						<input type="hidden" name="action" value="cfs_sync" />
 						<?php wp_nonce_field( 'cfs_sync' ); ?>
-						<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Sync changes', 'cfs' ); ?></button></p>
+						<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Sync changes', 'custom-fields-studio' ); ?></button></p>
 					</form>
 				<?php else : ?>
-					<p id="cfs-sync-clean"><?php esc_html_e( 'Everything is in sync.', 'cfs' ); ?></p>
+					<p id="cfs-sync-clean"><?php esc_html_e( 'Everything is in sync.', 'custom-fields-studio' ); ?></p>
 				<?php endif; ?>
 			<?php endif; ?>
 		</div>
@@ -564,7 +564,7 @@ class CFS_JSON {
 	/** admin-post: save the Tools page settings. */
 	public static function handle_settings() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'cfs' ), 403 );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'custom-fields-studio' ), 403 );
 		}
 		check_admin_referer( 'cfs_settings' );
 
@@ -572,13 +572,13 @@ class CFS_JSON {
 		update_option( 'cfs_google_maps_api_key', $key, false );
 		update_option( CFS_I18n::OPTION, ! empty( $_POST['cfs_translate_options'] ) ? 1 : 0, false );
 
-		self::back( array( 'cfs_msg' => __( 'Settings saved.', 'cfs' ) ) );
+		self::back( array( 'cfs_msg' => __( 'Settings saved.', 'custom-fields-studio' ) ) );
 	}
 
 	/** admin-post: download an export file. */
 	public static function handle_export() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'cfs' ), 403 );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'custom-fields-studio' ), 403 );
 		}
 		check_admin_referer( 'cfs_export' );
 
@@ -594,19 +594,19 @@ class CFS_JSON {
 	/** admin-post: import an uploaded file. */
 	public static function handle_import() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'cfs' ), 403 );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'custom-fields-studio' ), 403 );
 		}
 		check_admin_referer( 'cfs_import' );
 
 		$file = isset( $_FILES['cfs_import_file'] ) ? $_FILES['cfs_import_file'] : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 		if ( empty( $file['tmp_name'] ) || ! is_uploaded_file( $file['tmp_name'] ) || ! empty( $file['error'] ) ) {
-			self::back( array( 'cfs_err' => __( 'Choose a .json file to import.', 'cfs' ) ) );
+			self::back( array( 'cfs_err' => __( 'Choose a .json file to import.', 'custom-fields-studio' ) ) );
 		}
 		if ( 'json' !== strtolower( pathinfo( (string) $file['name'], PATHINFO_EXTENSION ) ) ) {
-			self::back( array( 'cfs_err' => __( 'The file must be a .json file.', 'cfs' ) ) );
+			self::back( array( 'cfs_err' => __( 'The file must be a .json file.', 'custom-fields-studio' ) ) );
 		}
 		if ( (int) $file['size'] > 5 * MB_IN_BYTES ) {
-			self::back( array( 'cfs_err' => __( 'That file is too large.', 'cfs' ) ) );
+			self::back( array( 'cfs_err' => __( 'That file is too large.', 'custom-fields-studio' ) ) );
 		}
 
 		$data   = json_decode( (string) file_get_contents( $file['tmp_name'] ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions
@@ -620,7 +620,7 @@ class CFS_JSON {
 			array(
 				'cfs_msg' => sprintf(
 					/* translators: 1: created count, 2: updated count */
-					__( 'Import finished: %1$d created, %2$d updated.', 'cfs' ),
+					__( 'Import finished: %1$d created, %2$d updated.', 'custom-fields-studio' ),
 					$result['created'],
 					$result['updated']
 				),
@@ -631,7 +631,7 @@ class CFS_JSON {
 	/** admin-post: sync the JSON folder into the database. */
 	public static function handle_sync() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'cfs' ), 403 );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'custom-fields-studio' ), 403 );
 		}
 		check_admin_referer( 'cfs_sync' );
 
@@ -640,7 +640,7 @@ class CFS_JSON {
 		self::back(
 			array(
 				/* translators: %d: number of groups */
-				'cfs_msg' => sprintf( _n( 'Synced %d field group.', 'Synced %d field groups.', $count, 'cfs' ), $count ),
+				'cfs_msg' => sprintf( _n( 'Synced %d field group.', 'Synced %d field groups.', $count, 'custom-fields-studio' ), $count ),
 			)
 		);
 	}

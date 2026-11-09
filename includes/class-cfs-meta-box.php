@@ -123,7 +123,7 @@ class CFS_Meta_Box {
 	 */
 	public static function save_groups( $groups, $ctx, $posted = null ) {
 		if ( null === $posted ) {
-			$posted = isset( $_POST['cfs'] ) ? wp_unslash( $_POST['cfs'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- each field type sanitizes its own value.
+			$posted = isset( $_POST['cfs'] ) ? wp_unslash( $_POST['cfs'] ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- callers verify the nonce first; each field type sanitizes its own value.
 		}
 
 		foreach ( $groups as $group ) {
@@ -194,7 +194,7 @@ class CFS_Meta_Box {
 		echo '<input type="hidden" name="cfs_rendered[]" value="' . (int) $group['id'] . '" />';
 
 		if ( empty( $group['fields'] ) ) {
-			echo '<p>' . esc_html__( 'This field group has no fields yet.', 'cfs' ) . '</p>';
+			echo '<p>' . esc_html__( 'This field group has no fields yet.', 'custom-fields-studio' ) . '</p>';
 			return;
 		}
 
@@ -283,7 +283,7 @@ class CFS_Meta_Box {
 			<label class="cfs-field-label">
 				<?php echo esc_html( $field['label'] ); ?>
 				<?php if ( ! empty( $field['required'] ) ) : ?>
-					<span class="cfs-required" title="<?php esc_attr_e( 'Required', 'cfs' ); ?>">*</span>
+					<span class="cfs-required" title="<?php esc_attr_e( 'Required', 'custom-fields-studio' ); ?>">*</span>
 				<?php endif; ?>
 			</label>
 			<?php if ( ! empty( $field['instructions'] ) ) : ?>
@@ -417,12 +417,12 @@ class CFS_Meta_Box {
 				'ajaxUrl'           => admin_url( 'admin-ajax.php' ),
 				'relationshipNonce' => wp_create_nonce( CFS_Field_Relationship::NONCE ),
 				'i18n'              => array(
-					'addImages'   => __( 'Add images', 'cfs' ),
-					'noResults'   => __( 'No results', 'cfs' ),
-					'selectImage' => __( 'Select Image', 'cfs' ),
-					'useImage'    => __( 'Use this image', 'cfs' ),
-					'selectFile'  => __( 'Select File', 'cfs' ),
-					'useFile'     => __( 'Use this file', 'cfs' ),
+					'addImages'   => __( 'Add images', 'custom-fields-studio' ),
+					'noResults'   => __( 'No results', 'custom-fields-studio' ),
+					'selectImage' => __( 'Select Image', 'custom-fields-studio' ),
+					'useImage'    => __( 'Use this image', 'custom-fields-studio' ),
+					'selectFile'  => __( 'Select File', 'custom-fields-studio' ),
+					'useFile'     => __( 'Use this file', 'custom-fields-studio' ),
 				),
 			)
 		);

@@ -34,7 +34,7 @@ class CFS_Field_Taxonomy extends CFS_Field_Base {
 		$return     = $field['return_format'] ?? 'object';
 		?>
 		<div class="cfs-field-setting" data-type="taxonomy">
-			<label><?php esc_html_e( 'Taxonomy', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Taxonomy', 'custom-fields-studio' ); ?></label>
 			<select name="<?php echo esc_attr( $prefix ); ?>[taxonomy]">
 				<?php foreach ( self::taxonomies() as $slug => $obj ) : ?>
 					<option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $tax, $slug ); ?>><?php echo esc_html( $obj->labels->singular_name ); ?></option>
@@ -42,25 +42,25 @@ class CFS_Field_Taxonomy extends CFS_Field_Base {
 			</select>
 		</div>
 		<div class="cfs-field-setting" data-type="taxonomy">
-			<label><?php esc_html_e( 'Appearance', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Appearance', 'custom-fields-studio' ); ?></label>
 			<select name="<?php echo esc_attr( $prefix ); ?>[field_type]">
-				<option value="checkbox" <?php selected( $field_type, 'checkbox' ); ?>><?php esc_html_e( 'Checkboxes (multiple)', 'cfs' ); ?></option>
-				<option value="multi_select" <?php selected( $field_type, 'multi_select' ); ?>><?php esc_html_e( 'Multi Select', 'cfs' ); ?></option>
-				<option value="radio" <?php selected( $field_type, 'radio' ); ?>><?php esc_html_e( 'Radio (single)', 'cfs' ); ?></option>
-				<option value="select" <?php selected( $field_type, 'select' ); ?>><?php esc_html_e( 'Select (single)', 'cfs' ); ?></option>
+				<option value="checkbox" <?php selected( $field_type, 'checkbox' ); ?>><?php esc_html_e( 'Checkboxes (multiple)', 'custom-fields-studio' ); ?></option>
+				<option value="multi_select" <?php selected( $field_type, 'multi_select' ); ?>><?php esc_html_e( 'Multi Select', 'custom-fields-studio' ); ?></option>
+				<option value="radio" <?php selected( $field_type, 'radio' ); ?>><?php esc_html_e( 'Radio (single)', 'custom-fields-studio' ); ?></option>
+				<option value="select" <?php selected( $field_type, 'select' ); ?>><?php esc_html_e( 'Select (single)', 'custom-fields-studio' ); ?></option>
 			</select>
 		</div>
 		<div class="cfs-field-setting" data-type="taxonomy">
-			<label><?php esc_html_e( 'Return Format', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Return Format', 'custom-fields-studio' ); ?></label>
 			<select name="<?php echo esc_attr( $prefix ); ?>[return_format]">
-				<option value="object" <?php selected( $return, 'object' ); ?>><?php esc_html_e( 'Term Objects', 'cfs' ); ?></option>
-				<option value="id" <?php selected( $return, 'id' ); ?>><?php esc_html_e( 'Term IDs', 'cfs' ); ?></option>
+				<option value="object" <?php selected( $return, 'object' ); ?>><?php esc_html_e( 'Term Objects', 'custom-fields-studio' ); ?></option>
+				<option value="id" <?php selected( $return, 'id' ); ?>><?php esc_html_e( 'Term IDs', 'custom-fields-studio' ); ?></option>
 			</select>
 		</div>
 		<div class="cfs-field-setting" data-type="taxonomy">
 			<label>
 				<input type="checkbox" name="<?php echo esc_attr( $prefix ); ?>[save_terms]" value="1" <?php checked( ! empty( $field['save_terms'] ) ); ?> />
-				<?php esc_html_e( 'Also assign the selected terms to the post', 'cfs' ); ?>
+				<?php esc_html_e( 'Also assign the selected terms to the post', 'custom-fields-studio' ); ?>
 			</label>
 		</div>
 		<?php
@@ -97,7 +97,7 @@ class CFS_Field_Taxonomy extends CFS_Field_Base {
 			<?php if ( 'select' === $type || 'multi_select' === $type ) : ?>
 				<select name="<?php echo esc_attr( $name ); ?>[]" <?php echo 'multi_select' === $type ? 'multiple size="6"' : ''; ?>>
 					<?php if ( 'select' === $type ) : ?>
-						<option value=""><?php esc_html_e( '— None —', 'cfs' ); ?></option>
+						<option value=""><?php esc_html_e( '— None —', 'custom-fields-studio' ); ?></option>
 					<?php endif; ?>
 					<?php foreach ( $terms as $term ) : ?>
 						<option value="<?php echo esc_attr( $term->term_id ); ?>" <?php selected( in_array( $term->term_id, $selected, true ) ); ?>><?php echo esc_html( $term->name ); ?></option>

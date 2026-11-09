@@ -1,14 +1,16 @@
 <?php
 /**
  * Plugin Name:       Custom Fields Studio
- * Plugin URI:        https://techshu.digital
- * Description:       Internal custom fields framework — field groups, location rules, repeater & flexible content fields, options pages, and a template API.
+ * Plugin URI:        https://github.com/Sapta2022/custom-fields-studio
+ * Description:       Add custom fields to posts, pages, users, terms, options pages and Gutenberg blocks. Repeater, flexible content, clone, conditional logic, JSON import/export and a REST API.
  * Version:           0.12.4
  * Requires at least: 6.0
  * Requires PHP:      8.0
- * Author:            Saptarshi
- * Text Domain:       cfs
- * License:           Proprietary — internal agency use
+ * Author:            Sapatarshi Samanta
+ * Author URI:        https://github.com/Sapta2022
+ * License:           GPL-2.0-or-later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       custom-fields-studio
  *
  * @package CustomFieldsStudio
  */

@@ -70,11 +70,12 @@ class CFS_Loader {
 			'cfsBuilder',
 			array(
 				'i18n' => array(
-					'confirmRemove' => __( 'Remove this field?', 'cfs' ),
-					'newFieldLabel' => __( 'New Field', 'cfs' ),
-					'duplicateName' => __( 'Field names must be unique within a list. Duplicated: %s', 'cfs' ),
-					'copySuffix'    => __( ' (copy)', 'cfs' ),
-					'noValues'      => __( '— none available —', 'cfs' ),
+					'confirmRemove' => __( 'Remove this field?', 'custom-fields-studio' ),
+					'newFieldLabel' => __( 'New Field', 'custom-fields-studio' ),
+					/* translators: %s: the duplicated field name. */
+					'duplicateName' => __( 'Field names must be unique within a list. Duplicated: %s', 'custom-fields-studio' ),
+					'copySuffix'    => __( ' (copy)', 'custom-fields-studio' ),
+					'noValues'      => __( '— none available —', 'custom-fields-studio' ),
 				),
 				// Every location param's values, to refill the value dropdown
 				// when a rule's param changes.

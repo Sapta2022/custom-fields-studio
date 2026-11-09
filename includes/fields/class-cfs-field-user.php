@@ -27,7 +27,7 @@ class CFS_Field_User extends CFS_Field_Base {
 	}
 
 	protected static function roles() {
-		$roles = array( '' => __( 'All roles', 'cfs' ) );
+		$roles = array( '' => __( 'All roles', 'custom-fields-studio' ) );
 		foreach ( wp_roles()->get_names() as $slug => $name ) {
 			$roles[ $slug ] = translate_user_role( $name );
 		}
@@ -36,19 +36,19 @@ class CFS_Field_User extends CFS_Field_Base {
 	}
 
 	public static function render_settings( $field, $prefix ) {
-		self::setting_select( 'user', $prefix, 'role', __( 'Filter by Role', 'cfs' ), $field, self::roles(), '' );
-		self::setting_checkbox( 'user', $prefix, 'multiple', __( 'Select multiple values', 'cfs' ), $field );
-		self::setting_checkbox( 'user', $prefix, 'allow_null', __( 'Allow Null (adds an empty first choice)', 'cfs' ), $field );
+		self::setting_select( 'user', $prefix, 'role', __( 'Filter by Role', 'custom-fields-studio' ), $field, self::roles(), '' );
+		self::setting_checkbox( 'user', $prefix, 'multiple', __( 'Select multiple values', 'custom-fields-studio' ), $field );
+		self::setting_checkbox( 'user', $prefix, 'allow_null', __( 'Allow Null (adds an empty first choice)', 'custom-fields-studio' ), $field );
 		self::setting_select(
 			'user',
 			$prefix,
 			'return_format',
-			__( 'Return Format', 'cfs' ),
+			__( 'Return Format', 'custom-fields-studio' ),
 			$field,
 			array(
-				'array'  => __( 'User Array', 'cfs' ),
-				'object' => __( 'User Object', 'cfs' ),
-				'id'     => __( 'User ID', 'cfs' ),
+				'array'  => __( 'User Array', 'custom-fields-studio' ),
+				'object' => __( 'User Object', 'custom-fields-studio' ),
+				'id'     => __( 'User ID', 'custom-fields-studio' ),
 			),
 			'array'
 		);
@@ -82,7 +82,7 @@ class CFS_Field_User extends CFS_Field_Base {
 		}
 		printf( '<select name="%1$s"%2$s>', esc_attr( $multiple ? $name . '[]' : $name ), $multiple ? ' multiple="multiple" size="6"' : '' );
 		if ( ! $multiple && ! empty( $field['allow_null'] ) ) {
-			echo '<option value="">' . esc_html__( '— Select —', 'cfs' ) . '</option>';
+			echo '<option value="">' . esc_html__( '— Select —', 'custom-fields-studio' ) . '</option>';
 		}
 		foreach ( $users as $user ) {
 			printf(

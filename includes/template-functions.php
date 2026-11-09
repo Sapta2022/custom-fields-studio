@@ -408,7 +408,7 @@ function cfs_reset_rows() {
 function cfs_add_options_page( $args = array() ) {
 	if ( empty( $args ) ) {
 		$args = array(
-			'page_title' => __( 'Site Options', 'cfs' ),
+			'page_title' => __( 'Site Options', 'custom-fields-studio' ),
 			'menu_slug'  => 'cfs-site-options',
 		);
 	}

@@ -1,8 +1,8 @@
 # Custom Fields Studio (CFS)
 
-An internal WordPress plugin providing ACF Pro-style custom fields — field groups,
-location rules, repeater and flexible content fields, options pages, and a
-template API — built for agency use across client sites.
+A WordPress plugin for building custom fields — field groups, location rules,
+repeater and flexible content fields, options pages, clone fields, custom
+Gutenberg blocks, JSON import/export and a REST API. Licensed GPL-2.0-or-later.
 
 This is an original implementation, not a copy of ACF Pro's code. Concepts
 (field groups, location rules, repeater/flexible content patterns) are common,

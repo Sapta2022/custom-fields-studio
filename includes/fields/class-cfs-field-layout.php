@@ -51,7 +51,7 @@ class CFS_Field_Message extends CFS_Field_Layout_Base {
 	public static function render_settings( $field, $prefix ) {
 		?>
 		<div class="cfs-field-setting" data-type="message">
-			<label><?php esc_html_e( 'Message', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Message', 'custom-fields-studio' ); ?></label>
 			<textarea name="<?php echo esc_attr( $prefix ); ?>[message]" rows="4"><?php echo esc_textarea( $field['message'] ?? '' ); ?></textarea>
 		</div>
 		<?php
@@ -59,16 +59,16 @@ class CFS_Field_Message extends CFS_Field_Layout_Base {
 			'message',
 			$prefix,
 			'new_lines',
-			__( 'New Lines', 'cfs' ),
+			__( 'New Lines', 'custom-fields-studio' ),
 			$field,
 			array(
-				'wpautop' => __( 'Automatically add paragraphs', 'cfs' ),
-				'br'      => __( 'Automatically add <br>', 'cfs' ),
-				''        => __( 'No formatting', 'cfs' ),
+				'wpautop' => __( 'Automatically add paragraphs', 'custom-fields-studio' ),
+				'br'      => __( 'Automatically add <br>', 'custom-fields-studio' ),
+				''        => __( 'No formatting', 'custom-fields-studio' ),
 			),
 			'wpautop'
 		);
-		self::setting_checkbox( 'message', $prefix, 'esc_html', __( 'Show HTML as text (escape it)', 'cfs' ), $field );
+		self::setting_checkbox( 'message', $prefix, 'esc_html', __( 'Show HTML as text (escape it)', 'custom-fields-studio' ), $field );
 	}
 
 	public static function sanitize( $raw ) {
@@ -107,7 +107,7 @@ class CFS_Field_Tab extends CFS_Field_Layout_Base {
 	public static function render_settings( $field, $prefix ) {
 		?>
 		<div class="cfs-field-setting" data-type="tab">
-			<p class="description"><?php esc_html_e( 'The fields that follow this one are shown in this tab, until the next tab. Tabs work at the top level of a field group.', 'cfs' ); ?></p>
+			<p class="description"><?php esc_html_e( 'The fields that follow this one are shown in this tab, until the next tab. Tabs work at the top level of a field group.', 'custom-fields-studio' ); ?></p>
 		</div>
 		<?php
 	}
@@ -132,10 +132,10 @@ class CFS_Field_Accordion extends CFS_Field_Layout_Base {
 	}
 
 	public static function render_settings( $field, $prefix ) {
-		self::setting_checkbox( 'accordion', $prefix, 'open', __( 'Open by default', 'cfs' ), $field );
+		self::setting_checkbox( 'accordion', $prefix, 'open', __( 'Open by default', 'custom-fields-studio' ), $field );
 		?>
 		<div class="cfs-field-setting" data-type="accordion">
-			<p class="description"><?php esc_html_e( 'The fields that follow this one go inside it, until the next accordion or tab. Works at the top level of a field group.', 'cfs' ); ?></p>
+			<p class="description"><?php esc_html_e( 'The fields that follow this one go inside it, until the next accordion or tab. Works at the top level of a field group.', 'custom-fields-studio' ); ?></p>
 		</div>
 		<?php
 	}
@@ -174,11 +174,11 @@ class CFS_Field_Group_Field extends CFS_Field_Base {
 			'group',
 			$prefix,
 			'layout',
-			__( 'Layout', 'cfs' ),
+			__( 'Layout', 'custom-fields-studio' ),
 			$field,
 			array(
-				'block' => __( 'Block (sub fields stacked)', 'cfs' ),
-				'row'   => __( 'Row (sub fields side by side)', 'cfs' ),
+				'block' => __( 'Block (sub fields stacked)', 'custom-fields-studio' ),
+				'row'   => __( 'Row (sub fields side by side)', 'custom-fields-studio' ),
 			),
 			'block'
 		);
@@ -260,7 +260,7 @@ class CFS_Field_Group_Field extends CFS_Field_Base {
 	public static function render_input( $field, $value, $name ) {
 		$subs = self::usable_sub_fields( $field );
 		if ( ! $subs && empty( $field['sub_fields'] ) ) {
-			echo '<p class="description">' . esc_html__( 'This group has no sub fields yet. Add some in the field group editor.', 'cfs' ) . '</p>';
+			echo '<p class="description">' . esc_html__( 'This group has no sub fields yet. Add some in the field group editor.', 'custom-fields-studio' ) . '</p>';
 			return;
 		}
 		$value = is_array( $value ) ? $value : array();

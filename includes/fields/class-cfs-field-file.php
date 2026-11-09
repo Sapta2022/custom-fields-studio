@@ -26,16 +26,16 @@ class CFS_Field_File extends CFS_Field_Base {
 			'file',
 			$prefix,
 			'return_format',
-			__( 'Return Format', 'cfs' ),
+			__( 'Return Format', 'custom-fields-studio' ),
 			$field,
 			array(
-				'array' => __( 'File Array', 'cfs' ),
-				'url'   => __( 'File URL', 'cfs' ),
-				'id'    => __( 'Attachment ID', 'cfs' ),
+				'array' => __( 'File Array', 'custom-fields-studio' ),
+				'url'   => __( 'File URL', 'custom-fields-studio' ),
+				'id'    => __( 'Attachment ID', 'custom-fields-studio' ),
 			),
 			'array'
 		);
-		self::setting_input( 'file', $prefix, 'mime_types', __( 'Allowed File Types', 'cfs' ), $field, 'text', __( 'Comma-separated extensions, e.g. pdf, docx, zip. Blank allows any file type WordPress accepts.', 'cfs' ) );
+		self::setting_input( 'file', $prefix, 'mime_types', __( 'Allowed File Types', 'custom-fields-studio' ), $field, 'text', __( 'Comma-separated extensions, e.g. pdf, docx, zip. Blank allows any file type WordPress accepts.', 'custom-fields-studio' ) );
 	}
 
 	public static function sanitize( $raw ) {
@@ -70,8 +70,8 @@ class CFS_Field_File extends CFS_Field_Base {
 				<a class="cfs-file-name" href="<?php echo esc_url( $has_file ? wp_get_attachment_url( $id ) : '' ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $has_file ? wp_basename( (string) get_attached_file( $id ) ) : '' ); ?></a>
 			</p>
 			<p>
-				<button type="button" class="button cfs-file-select"<?php echo $has_file ? ' style="display:none;"' : ''; ?>><?php esc_html_e( 'Select File', 'cfs' ); ?></button>
-				<button type="button" class="button cfs-file-remove"<?php echo $has_file ? '' : ' style="display:none;"'; ?>><?php esc_html_e( 'Remove', 'cfs' ); ?></button>
+				<button type="button" class="button cfs-file-select"<?php echo $has_file ? ' style="display:none;"' : ''; ?>><?php esc_html_e( 'Select File', 'custom-fields-studio' ); ?></button>
+				<button type="button" class="button cfs-file-remove"<?php echo $has_file ? '' : ' style="display:none;"'; ?>><?php esc_html_e( 'Remove', 'custom-fields-studio' ); ?></button>
 			</p>
 		</div>
 		<?php

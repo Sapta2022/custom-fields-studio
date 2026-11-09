@@ -211,7 +211,7 @@ class CFS_Shortcode {
 				return '<span class="cfs-out-field cfs-out-choice">' . esc_html( implode( ', ', $items ) ) . '</span>';
 
 			case 'true_false':
-				return '<span class="cfs-out-field">' . ( $value ? esc_html__( 'Yes', 'cfs' ) : esc_html__( 'No', 'cfs' ) ) . '</span>';
+				return '<span class="cfs-out-field">' . ( $value ? esc_html__( 'Yes', 'custom-fields-studio' ) : esc_html__( 'No', 'custom-fields-studio' ) ) . '</span>';
 
 			case 'textarea':
 				return '<p class="cfs-out-field">' . nl2br( esc_html( (string) $value ) ) . '</p>';

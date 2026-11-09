@@ -49,7 +49,7 @@ class CFS_Field_Clone extends CFS_Field_Layout_Base {
 		);
 		?>
 		<div class="cfs-field-setting" data-type="clone">
-			<label><?php esc_html_e( 'Field groups to clone', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Field groups to clone', 'custom-fields-studio' ); ?></label>
 			<?php $shown = 0; ?>
 			<?php foreach ( $groups as $group ) : ?>
 				<?php
@@ -65,7 +65,7 @@ class CFS_Field_Clone extends CFS_Field_Layout_Base {
 				</label><br />
 			<?php endforeach; ?>
 			<?php if ( ! $shown ) : ?>
-				<p class="description"><?php esc_html_e( 'There are no other field groups to clone yet.', 'cfs' ); ?></p>
+				<p class="description"><?php esc_html_e( 'There are no other field groups to clone yet.', 'custom-fields-studio' ); ?></p>
 			<?php endif; ?>
 		</div>
 		<?php
@@ -73,15 +73,15 @@ class CFS_Field_Clone extends CFS_Field_Layout_Base {
 			'clone',
 			$prefix,
 			'display',
-			__( 'Display', 'cfs' ),
+			__( 'Display', 'custom-fields-studio' ),
 			$field,
 			array(
-				'group'    => __( 'Group (cloned fields are wrapped in one group)', 'cfs' ),
-				'seamless' => __( 'Seamless (cloned fields replace this field)', 'cfs' ),
+				'group'    => __( 'Group (cloned fields are wrapped in one group)', 'custom-fields-studio' ),
+				'seamless' => __( 'Seamless (cloned fields replace this field)', 'custom-fields-studio' ),
 			),
 			'group'
 		);
-		self::setting_checkbox( 'clone', $prefix, 'prefix_name', __( 'Prefix field names with this field\'s name (seamless display)', 'cfs' ), $field );
+		self::setting_checkbox( 'clone', $prefix, 'prefix_name', __( 'Prefix field names with this field\'s name (seamless display)', 'custom-fields-studio' ), $field );
 	}
 
 	public static function sanitize( $raw ) {
@@ -100,7 +100,7 @@ class CFS_Field_Clone extends CFS_Field_Layout_Base {
 	}
 
 	public static function render_input( $field, $value, $name ) {
-		echo '<p class="description">' . esc_html__( 'Clone field: its fields are shown in place of this one.', 'cfs' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Clone field: its fields are shown in place of this one.', 'custom-fields-studio' ) . '</p>';
 	}
 
 	/**

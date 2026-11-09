@@ -28,13 +28,13 @@ class CFS_Field_Number extends CFS_Field_Base {
 	}
 
 	public static function render_settings( $field, $prefix ) {
-		self::setting_input( 'number', $prefix, 'default_value', __( 'Default Value', 'cfs' ), $field, 'number' );
-		self::setting_input( 'number', $prefix, 'placeholder', __( 'Placeholder Text', 'cfs' ), $field );
-		self::setting_input( 'number', $prefix, 'min', __( 'Minimum Value', 'cfs' ), $field, 'number' );
-		self::setting_input( 'number', $prefix, 'max', __( 'Maximum Value', 'cfs' ), $field, 'number' );
-		self::setting_input( 'number', $prefix, 'step', __( 'Step Size', 'cfs' ), $field, 'number', __( 'Leave blank for 1 (use e.g. 0.01 for decimals).', 'cfs' ) );
-		self::setting_input( 'number', $prefix, 'prepend', __( 'Prepend', 'cfs' ), $field );
-		self::setting_input( 'number', $prefix, 'append', __( 'Append', 'cfs' ), $field );
+		self::setting_input( 'number', $prefix, 'default_value', __( 'Default Value', 'custom-fields-studio' ), $field, 'number' );
+		self::setting_input( 'number', $prefix, 'placeholder', __( 'Placeholder Text', 'custom-fields-studio' ), $field );
+		self::setting_input( 'number', $prefix, 'min', __( 'Minimum Value', 'custom-fields-studio' ), $field, 'number' );
+		self::setting_input( 'number', $prefix, 'max', __( 'Maximum Value', 'custom-fields-studio' ), $field, 'number' );
+		self::setting_input( 'number', $prefix, 'step', __( 'Step Size', 'custom-fields-studio' ), $field, 'number', __( 'Leave blank for 1 (use e.g. 0.01 for decimals).', 'custom-fields-studio' ) );
+		self::setting_input( 'number', $prefix, 'prepend', __( 'Prepend', 'custom-fields-studio' ), $field );
+		self::setting_input( 'number', $prefix, 'append', __( 'Append', 'custom-fields-studio' ), $field );
 	}
 
 	public static function sanitize( $raw ) {
@@ -112,11 +112,11 @@ class CFS_Field_Range extends CFS_Field_Base {
 	}
 
 	public static function render_settings( $field, $prefix ) {
-		self::setting_input( 'range', $prefix, 'default_value', __( 'Default Value', 'cfs' ), $field, 'number' );
-		self::setting_input( 'range', $prefix, 'min', __( 'Minimum Value', 'cfs' ), $field, 'number', '', 0 );
-		self::setting_input( 'range', $prefix, 'max', __( 'Maximum Value', 'cfs' ), $field, 'number', '', 100 );
-		self::setting_input( 'range', $prefix, 'step', __( 'Step Size', 'cfs' ), $field, 'number', '', 1 );
-		self::setting_input( 'range', $prefix, 'append', __( 'Append', 'cfs' ), $field );
+		self::setting_input( 'range', $prefix, 'default_value', __( 'Default Value', 'custom-fields-studio' ), $field, 'number' );
+		self::setting_input( 'range', $prefix, 'min', __( 'Minimum Value', 'custom-fields-studio' ), $field, 'number', '', 0 );
+		self::setting_input( 'range', $prefix, 'max', __( 'Maximum Value', 'custom-fields-studio' ), $field, 'number', '', 100 );
+		self::setting_input( 'range', $prefix, 'step', __( 'Step Size', 'custom-fields-studio' ), $field, 'number', '', 1 );
+		self::setting_input( 'range', $prefix, 'append', __( 'Append', 'custom-fields-studio' ), $field );
 	}
 
 	public static function sanitize( $raw ) {
@@ -179,8 +179,8 @@ class CFS_Field_Email extends CFS_Field_Base {
 	}
 
 	public static function render_settings( $field, $prefix ) {
-		self::setting_input( 'email', $prefix, 'default_value', __( 'Default Value', 'cfs' ), $field );
-		self::setting_input( 'email', $prefix, 'placeholder', __( 'Placeholder Text', 'cfs' ), $field );
+		self::setting_input( 'email', $prefix, 'default_value', __( 'Default Value', 'custom-fields-studio' ), $field );
+		self::setting_input( 'email', $prefix, 'placeholder', __( 'Placeholder Text', 'custom-fields-studio' ), $field );
 	}
 
 	public static function sanitize( $raw ) {
@@ -226,8 +226,8 @@ class CFS_Field_Url extends CFS_Field_Base {
 	}
 
 	public static function render_settings( $field, $prefix ) {
-		self::setting_input( 'url', $prefix, 'default_value', __( 'Default Value', 'cfs' ), $field );
-		self::setting_input( 'url', $prefix, 'placeholder', __( 'Placeholder Text', 'cfs' ), $field );
+		self::setting_input( 'url', $prefix, 'default_value', __( 'Default Value', 'custom-fields-studio' ), $field );
+		self::setting_input( 'url', $prefix, 'placeholder', __( 'Placeholder Text', 'custom-fields-studio' ), $field );
 	}
 
 	public static function sanitize( $raw ) {
@@ -269,7 +269,7 @@ class CFS_Field_Password extends CFS_Field_Base {
 	}
 
 	public static function render_settings( $field, $prefix ) {
-		self::setting_input( 'password', $prefix, 'placeholder', __( 'Placeholder Text', 'cfs' ), $field );
+		self::setting_input( 'password', $prefix, 'placeholder', __( 'Placeholder Text', 'custom-fields-studio' ), $field );
 	}
 
 	public static function sanitize( $raw ) {

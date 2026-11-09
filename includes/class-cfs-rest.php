@@ -37,7 +37,7 @@ class CFS_REST {
 			'get_callback'    => array( __CLASS__, 'get_callback' ),
 			'update_callback' => array( __CLASS__, 'update_callback' ),
 			'schema'          => array(
-				'description'          => __( 'Custom Fields Studio values, keyed by field name.', 'cfs' ),
+				'description'          => __( 'Custom Fields Studio values, keyed by field name.', 'custom-fields-studio' ),
 				'type'                 => 'object',
 				'additionalProperties' => true,
 				'context'              => array( 'view', 'edit' ),
@@ -124,7 +124,7 @@ class CFS_REST {
 
 	public static function update_callback( $value, $object, $field_name, $request, $object_type ) {
 		if ( ! is_array( $value ) ) {
-			return new WP_Error( 'cfs_rest_invalid', __( 'The cfs value must be an object of field values.', 'cfs' ), array( 'status' => 400 ) );
+			return new WP_Error( 'cfs_rest_invalid', __( 'The cfs value must be an object of field values.', 'custom-fields-studio' ), array( 'status' => 400 ) );
 		}
 
 		if ( 'user' === $object_type ) {
@@ -140,7 +140,7 @@ class CFS_REST {
 		}
 
 		if ( ! $ok ) {
-			return new WP_Error( 'cfs_rest_forbidden', __( 'You are not allowed to edit these fields.', 'cfs' ), array( 'status' => rest_authorization_required_code() ) );
+			return new WP_Error( 'cfs_rest_forbidden', __( 'You are not allowed to edit these fields.', 'custom-fields-studio' ), array( 'status' => rest_authorization_required_code() ) );
 		}
 
 		self::write( cfs_groups_for_context( $ctx ), $ctx, $value );
@@ -164,7 +164,7 @@ class CFS_REST {
 			$body = $request->get_body_params();
 		}
 		if ( ! is_array( $body ) ) {
-			return new WP_Error( 'cfs_rest_invalid', __( 'Send a JSON object of field values.', 'cfs' ), array( 'status' => 400 ) );
+			return new WP_Error( 'cfs_rest_invalid', __( 'Send a JSON object of field values.', 'custom-fields-studio' ), array( 'status' => 400 ) );
 		}
 
 		self::write( CFS_Field_Group::get_options_groups(), 'option', $body );

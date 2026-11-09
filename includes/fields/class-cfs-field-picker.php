@@ -23,8 +23,8 @@ class CFS_Field_Color_Picker extends CFS_Field_Base {
 	}
 
 	public static function render_settings( $field, $prefix ) {
-		self::setting_input( 'color_picker', $prefix, 'default_value', __( 'Default Value', 'cfs' ), $field, 'text', __( 'e.g. #ff6600', 'cfs' ) );
-		self::setting_checkbox( 'color_picker', $prefix, 'enable_alpha', __( 'Allow rgba() values (opacity)', 'cfs' ), $field );
+		self::setting_input( 'color_picker', $prefix, 'default_value', __( 'Default Value', 'custom-fields-studio' ), $field, 'text', __( 'e.g. #ff6600', 'custom-fields-studio' ) );
+		self::setting_checkbox( 'color_picker', $prefix, 'enable_alpha', __( 'Allow rgba() values (opacity)', 'custom-fields-studio' ), $field );
 	}
 
 	public static function sanitize( $raw ) {
@@ -77,7 +77,7 @@ class CFS_Field_Time_Picker extends CFS_Field_Base {
 	}
 
 	public static function render_settings( $field, $prefix ) {
-		self::setting_input( 'time_picker', $prefix, 'return_format', __( 'Return Format', 'cfs' ), $field, 'text', __( 'A PHP date format, e.g. g:i a or H:i. Use H:i:s for the raw stored value.', 'cfs' ), 'g:i a' );
+		self::setting_input( 'time_picker', $prefix, 'return_format', __( 'Return Format', 'custom-fields-studio' ), $field, 'text', __( 'A PHP date format, e.g. g:i a or H:i. Use H:i:s for the raw stored value.', 'custom-fields-studio' ), 'g:i a' );
 	}
 
 	public static function sanitize( $raw ) {
@@ -130,7 +130,7 @@ class CFS_Field_Date_Time_Picker extends CFS_Field_Base {
 	}
 
 	public static function render_settings( $field, $prefix ) {
-		self::setting_input( 'date_time_picker', $prefix, 'return_format', __( 'Return Format', 'cfs' ), $field, 'text', __( 'A PHP date format, e.g. d/m/Y g:i a. Use Y-m-d H:i:s for the raw stored value.', 'cfs' ), 'd/m/Y g:i a' );
+		self::setting_input( 'date_time_picker', $prefix, 'return_format', __( 'Return Format', 'custom-fields-studio' ), $field, 'text', __( 'A PHP date format, e.g. d/m/Y g:i a. Use Y-m-d H:i:s for the raw stored value.', 'custom-fields-studio' ), 'd/m/Y g:i a' );
 	}
 
 	public static function sanitize( $raw ) {

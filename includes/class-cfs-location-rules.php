@@ -45,17 +45,17 @@ class CFS_Location_Rules {
 	 */
 	public static function get_params() {
 		return array(
-			'post_type'         => __( 'Post Type', 'cfs' ),
-			'post_id'           => __( 'Post', 'cfs' ),
-			'post_status'       => __( 'Post Status', 'cfs' ),
-			'page_template'     => __( 'Page Template', 'cfs' ),
-			'post_category'     => __( 'Post Category', 'cfs' ),
-			'post_taxonomy'     => __( 'Post Taxonomy Term', 'cfs' ),
-			'current_user_role' => __( 'Current User Role', 'cfs' ),
-			'user_role'         => __( 'User Form (edited user role)', 'cfs' ),
-			'taxonomy'          => __( 'Taxonomy Term Screen', 'cfs' ),
-			'options_page'      => __( 'Options Page', 'cfs' ),
-			'block'             => __( 'Block', 'cfs' ),
+			'post_type'         => __( 'Post Type', 'custom-fields-studio' ),
+			'post_id'           => __( 'Post', 'custom-fields-studio' ),
+			'post_status'       => __( 'Post Status', 'custom-fields-studio' ),
+			'page_template'     => __( 'Page Template', 'custom-fields-studio' ),
+			'post_category'     => __( 'Post Category', 'custom-fields-studio' ),
+			'post_taxonomy'     => __( 'Post Taxonomy Term', 'custom-fields-studio' ),
+			'current_user_role' => __( 'Current User Role', 'custom-fields-studio' ),
+			'user_role'         => __( 'User Form (edited user role)', 'custom-fields-studio' ),
+			'taxonomy'          => __( 'Taxonomy Term Screen', 'custom-fields-studio' ),
+			'options_page'      => __( 'Options Page', 'custom-fields-studio' ),
+			'block'             => __( 'Block', 'custom-fields-studio' ),
 		);
 	}
 
@@ -111,23 +111,23 @@ class CFS_Location_Rules {
 				)
 			);
 			foreach ( $posts as $one ) {
-				$values[ (string) $one->ID ] = ( '' !== $one->post_title ? $one->post_title : __( '(no title)', 'cfs' ) ) . ' (#' . $one->ID . ')';
+				$values[ (string) $one->ID ] = ( '' !== $one->post_title ? $one->post_title : __( '(no title)', 'custom-fields-studio' ) ) . ' (#' . $one->ID . ')';
 			}
 			return $values;
 		}
 
 		if ( 'post_status' === $param ) {
 			return array(
-				'publish' => __( 'Published', 'cfs' ),
-				'draft'   => __( 'Draft', 'cfs' ),
-				'pending' => __( 'Pending Review', 'cfs' ),
-				'private' => __( 'Private', 'cfs' ),
-				'future'  => __( 'Scheduled', 'cfs' ),
+				'publish' => __( 'Published', 'custom-fields-studio' ),
+				'draft'   => __( 'Draft', 'custom-fields-studio' ),
+				'pending' => __( 'Pending Review', 'custom-fields-studio' ),
+				'private' => __( 'Private', 'custom-fields-studio' ),
+				'future'  => __( 'Scheduled', 'custom-fields-studio' ),
 			);
 		}
 
 		if ( 'page_template' === $param ) {
-			$values = array( 'default' => __( 'Default Template', 'cfs' ) );
+			$values = array( 'default' => __( 'Default Template', 'custom-fields-studio' ) );
 			if ( function_exists( 'wp_get_theme' ) ) {
 				foreach ( wp_get_theme()->get_page_templates( null, 'page' ) as $file => $name ) {
 					$values[ $file ] = $name;
@@ -164,9 +164,9 @@ class CFS_Location_Rules {
 		if ( 'current_user_role' === $param || 'user_role' === $param ) {
 			$values = array();
 			if ( 'current_user_role' === $param ) {
-				$values['super_admin'] = __( 'Super Admin', 'cfs' );
+				$values['super_admin'] = __( 'Super Admin', 'custom-fields-studio' );
 			} else {
-				$values['all'] = __( 'All roles', 'cfs' );
+				$values['all'] = __( 'All roles', 'custom-fields-studio' );
 			}
 			foreach ( wp_roles()->get_names() as $slug => $name ) {
 				$values[ $slug ] = translate_user_role( $name );
@@ -183,7 +183,7 @@ class CFS_Location_Rules {
 		}
 
 		if ( 'taxonomy' === $param ) {
-			$values = array( 'all' => __( 'All taxonomies', 'cfs' ) );
+			$values = array( 'all' => __( 'All taxonomies', 'custom-fields-studio' ) );
 			foreach ( get_taxonomies( array( 'public' => true ), 'objects' ) as $tax ) {
 				$values[ $tax->name ] = $tax->labels->singular_name;
 			}
@@ -229,7 +229,7 @@ class CFS_Location_Rules {
 		<div id="cfs-location-rules" class="cfs-location-rules">
 			<?php foreach ( $groups as $group_index => $rules ) : ?>
 				<?php if ( $group_index > 0 ) : ?>
-					<div class="cfs-location-or"><?php esc_html_e( 'OR', 'cfs' ); ?></div>
+					<div class="cfs-location-or"><?php esc_html_e( 'OR', 'custom-fields-studio' ); ?></div>
 				<?php endif; ?>
 				<div class="cfs-location-group" data-group="<?php echo esc_attr( $group_index ); ?>">
 					<table class="cfs-location-rules-table">
@@ -239,11 +239,11 @@ class CFS_Location_Rules {
 						<?php endforeach; ?>
 						</tbody>
 					</table>
-					<button type="button" class="button cfs-add-rule"><?php esc_html_e( '+ Add Rule (AND)', 'cfs' ); ?></button>
+					<button type="button" class="button cfs-add-rule"><?php esc_html_e( '+ Add Rule (AND)', 'custom-fields-studio' ); ?></button>
 				</div>
 			<?php endforeach; ?>
 			<p>
-				<button type="button" class="button cfs-add-rule-group"><?php esc_html_e( '+ Add Rule Group (OR)', 'cfs' ); ?></button>
+				<button type="button" class="button cfs-add-rule-group"><?php esc_html_e( '+ Add Rule Group (OR)', 'custom-fields-studio' ); ?></button>
 			</p>
 		</div>
 
@@ -278,8 +278,8 @@ class CFS_Location_Rules {
 			</td>
 			<td>
 				<select name="<?php echo esc_attr( $name_base ); ?>[operator]" class="cfs-location-operator">
-					<option value="==" <?php selected( $operator, '==' ); ?>><?php esc_html_e( 'is equal to', 'cfs' ); ?></option>
-					<option value="!=" <?php selected( $operator, '!=' ); ?>><?php esc_html_e( 'is not equal to', 'cfs' ); ?></option>
+					<option value="==" <?php selected( $operator, '==' ); ?>><?php esc_html_e( 'is equal to', 'custom-fields-studio' ); ?></option>
+					<option value="!=" <?php selected( $operator, '!=' ); ?>><?php esc_html_e( 'is not equal to', 'custom-fields-studio' ); ?></option>
 				</select>
 			</td>
 			<td>
@@ -290,7 +290,7 @@ class CFS_Location_Rules {
 				</select>
 			</td>
 			<td>
-				<button type="button" class="button-link cfs-remove-rule" aria-label="<?php esc_attr_e( 'Remove rule', 'cfs' ); ?>">&times;</button>
+				<button type="button" class="button-link cfs-remove-rule" aria-label="<?php esc_attr_e( 'Remove rule', 'custom-fields-studio' ); ?>">&times;</button>
 			</td>
 		</tr>
 		<?php

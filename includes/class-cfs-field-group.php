@@ -40,12 +40,12 @@ class CFS_Field_Group {
 			self::POST_TYPE,
 			array(
 				'labels'              => array(
-					'name'               => __( 'Field Groups', 'cfs' ),
-					'singular_name'      => __( 'Field Group', 'cfs' ),
-					'add_new_item'       => __( 'Add New Field Group', 'cfs' ),
-					'edit_item'          => __( 'Edit Field Group', 'cfs' ),
-					'all_items'          => __( 'Field Groups', 'cfs' ),
-					'not_found'          => __( 'No field groups found. Add your first one to get started.', 'cfs' ),
+					'name'               => __( 'Field Groups', 'custom-fields-studio' ),
+					'singular_name'      => __( 'Field Group', 'custom-fields-studio' ),
+					'add_new_item'       => __( 'Add New Field Group', 'custom-fields-studio' ),
+					'edit_item'          => __( 'Edit Field Group', 'custom-fields-studio' ),
+					'all_items'          => __( 'Field Groups', 'custom-fields-studio' ),
+					'not_found'          => __( 'No field groups found. Add your first one to get started.', 'custom-fields-studio' ),
 				),
 				'public'              => false,
 				'show_ui'             => true,
@@ -89,7 +89,7 @@ class CFS_Field_Group {
 	public function add_meta_boxes() {
 		add_meta_box(
 			'cfs_fields',
-			__( 'Fields', 'cfs' ),
+			__( 'Fields', 'custom-fields-studio' ),
 			array( $this, 'render_fields_meta_box' ),
 			self::POST_TYPE,
 			'normal',
@@ -98,7 +98,7 @@ class CFS_Field_Group {
 
 		add_meta_box(
 			'cfs_location',
-			__( 'Location Rules', 'cfs' ),
+			__( 'Location Rules', 'custom-fields-studio' ),
 			array( $this, 'render_location_meta_box' ),
 			self::POST_TYPE,
 			'normal',
@@ -107,7 +107,7 @@ class CFS_Field_Group {
 
 		add_meta_box(
 			'cfs_settings',
-			__( 'Settings', 'cfs' ),
+			__( 'Settings', 'custom-fields-studio' ),
 			array( $this, 'render_settings_meta_box' ),
 			self::POST_TYPE,
 			'side',
@@ -180,9 +180,9 @@ class CFS_Field_Group {
 		<div class="cfs-fields-editor<?php echo $top ? ' cfs-fields-editor-top' : ''; ?>">
 			<?php if ( $top ) : ?>
 				<p class="cfs-builder-toolbar">
-					<button type="button" class="button-link cfs-expand-all"><?php esc_html_e( 'Expand all', 'cfs' ); ?></button>
+					<button type="button" class="button-link cfs-expand-all"><?php esc_html_e( 'Expand all', 'custom-fields-studio' ); ?></button>
 					&middot;
-					<button type="button" class="button-link cfs-collapse-all"><?php esc_html_e( 'Collapse all', 'cfs' ); ?></button>
+					<button type="button" class="button-link cfs-collapse-all"><?php esc_html_e( 'Collapse all', 'custom-fields-studio' ); ?></button>
 				</p>
 				<div class="notice notice-error inline cfs-builder-errors" style="display:none;"><p></p></div>
 			<?php endif; ?>
@@ -191,7 +191,7 @@ class CFS_Field_Group {
 					<thead>
 						<tr>
 							<th class="cfs-col-handle"></th>
-							<th><?php esc_html_e( 'Label  /  Name  /  Type', 'cfs' ); ?></th>
+							<th><?php esc_html_e( 'Label  /  Name  /  Type', 'custom-fields-studio' ); ?></th>
 						</tr>
 					</thead>
 				<?php endif; ?>
@@ -205,7 +205,7 @@ class CFS_Field_Group {
 			</table>
 			<p>
 				<button type="button" class="button<?php echo $top ? ' button-primary' : ''; ?> cfs-add-field">
-					<?php echo $top ? esc_html__( '+ Add Field', 'cfs' ) : esc_html__( '+ Add Sub Field', 'cfs' ); ?>
+					<?php echo $top ? esc_html__( '+ Add Field', 'custom-fields-studio' ) : esc_html__( '+ Add Sub Field', 'custom-fields-studio' ); ?>
 				</button>
 			</p>
 		</div>
@@ -257,34 +257,34 @@ class CFS_Field_Group {
 			<td>
 				<div class="cfs-field-row-main">
 					<input type="hidden" name="<?php echo esc_attr( $prefix ); ?>[key]" value="<?php echo esc_attr( $field['key'] ?? '' ); ?>" class="cfs-field-key" />
-					<input type="text" name="<?php echo esc_attr( $prefix ); ?>[label]" value="<?php echo esc_attr( $field['label'] ?? '' ); ?>" class="cfs-field-label" placeholder="<?php esc_attr_e( 'Field Label', 'cfs' ); ?>" />
-					<input type="text" name="<?php echo esc_attr( $prefix ); ?>[name]" value="<?php echo esc_attr( $field['name'] ?? '' ); ?>" class="cfs-field-name" placeholder="<?php esc_attr_e( 'field_name', 'cfs' ); ?>" />
+					<input type="text" name="<?php echo esc_attr( $prefix ); ?>[label]" value="<?php echo esc_attr( $field['label'] ?? '' ); ?>" class="cfs-field-label" placeholder="<?php esc_attr_e( 'Field Label', 'custom-fields-studio' ); ?>" />
+					<input type="text" name="<?php echo esc_attr( $prefix ); ?>[name]" value="<?php echo esc_attr( $field['name'] ?? '' ); ?>" class="cfs-field-name" placeholder="<?php esc_attr_e( 'field_name', 'custom-fields-studio' ); ?>" />
 					<select name="<?php echo esc_attr( $prefix ); ?>[type]" class="cfs-field-type-select">
 						<?php foreach ( $types as $type_key => $type_label ) : ?>
 							<option value="<?php echo esc_attr( $type_key ); ?>" <?php selected( $type, $type_key ); ?>><?php echo esc_html( $type_label ); ?></option>
 						<?php endforeach; ?>
 					</select>
-					<button type="button" class="button-link cfs-toggle-field-settings" aria-expanded="false"><?php esc_html_e( 'Settings', 'cfs' ); ?></button>
-					<button type="button" class="button-link cfs-duplicate-field"><?php esc_html_e( 'Duplicate', 'cfs' ); ?></button>
-					<button type="button" class="button-link cfs-remove-field" aria-label="<?php esc_attr_e( 'Remove field', 'cfs' ); ?>">&times;</button>
+					<button type="button" class="button-link cfs-toggle-field-settings" aria-expanded="false"><?php esc_html_e( 'Settings', 'custom-fields-studio' ); ?></button>
+					<button type="button" class="button-link cfs-duplicate-field"><?php esc_html_e( 'Duplicate', 'custom-fields-studio' ); ?></button>
+					<button type="button" class="button-link cfs-remove-field" aria-label="<?php esc_attr_e( 'Remove field', 'custom-fields-studio' ); ?>">&times;</button>
 				</div>
 				<div class="cfs-field-settings-panel" style="display:none;">
 					<div class="cfs-field-setting-generic">
-						<label><?php esc_html_e( 'Instructions', 'cfs' ); ?></label>
+						<label><?php esc_html_e( 'Instructions', 'custom-fields-studio' ); ?></label>
 						<textarea name="<?php echo esc_attr( $prefix ); ?>[instructions]" rows="2"><?php echo esc_textarea( $field['instructions'] ?? '' ); ?></textarea>
 					</div>
 					<div class="cfs-field-setting-generic">
 						<label>
 							<input type="checkbox" name="<?php echo esc_attr( $prefix ); ?>[required]" value="1" <?php checked( ! empty( $field['required'] ) ); ?> />
-							<?php esc_html_e( 'Required', 'cfs' ); ?>
+							<?php esc_html_e( 'Required', 'custom-fields-studio' ); ?>
 						</label>
 					</div>
 					<div class="cfs-field-setting-generic cfs-translate-setting">
-						<label><?php esc_html_e( 'Translation (WPML / Polylang)', 'cfs' ); ?></label>
+						<label><?php esc_html_e( 'Translation (WPML / Polylang)', 'custom-fields-studio' ); ?></label>
 						<select name="<?php echo esc_attr( $prefix ); ?>[translate]">
-							<option value="translate" <?php selected( $field['translate'] ?? 'translate', 'translate' ); ?>><?php esc_html_e( 'Translate (each language has its own value)', 'cfs' ); ?></option>
-							<option value="copy" <?php selected( $field['translate'] ?? 'translate', 'copy' ); ?>><?php esc_html_e( 'Copy (translations start with, and sync, the original value)', 'cfs' ); ?></option>
-							<option value="ignore" <?php selected( $field['translate'] ?? 'translate', 'ignore' ); ?>><?php esc_html_e( 'Ignore (never copied to translations)', 'cfs' ); ?></option>
+							<option value="translate" <?php selected( $field['translate'] ?? 'translate', 'translate' ); ?>><?php esc_html_e( 'Translate (each language has its own value)', 'custom-fields-studio' ); ?></option>
+							<option value="copy" <?php selected( $field['translate'] ?? 'translate', 'copy' ); ?>><?php esc_html_e( 'Copy (translations start with, and sync, the original value)', 'custom-fields-studio' ); ?></option>
+							<option value="ignore" <?php selected( $field['translate'] ?? 'translate', 'ignore' ); ?>><?php esc_html_e( 'Ignore (never copied to translations)', 'custom-fields-studio' ); ?></option>
 						</select>
 					</div>
 					<?php CFS_Conditional::render_builder( $field, $prefix ); ?>
@@ -330,34 +330,34 @@ class CFS_Field_Group {
 		<p>
 			<label>
 				<input type="checkbox" name="cfs_options[active]" value="1" <?php checked( $active, 1 ); ?> />
-				<?php esc_html_e( 'Active', 'cfs' ); ?>
+				<?php esc_html_e( 'Active', 'custom-fields-studio' ); ?>
 			</label>
 		</p>
 		<p>
-			<label for="cfs-position"><?php esc_html_e( 'Position', 'cfs' ); ?></label><br />
+			<label for="cfs-position"><?php esc_html_e( 'Position', 'custom-fields-studio' ); ?></label><br />
 			<select id="cfs-position" name="cfs_options[position]">
-				<option value="normal" <?php selected( $position, 'normal' ); ?>><?php esc_html_e( 'Normal (after title)', 'cfs' ); ?></option>
-				<option value="side" <?php selected( $position, 'side' ); ?>><?php esc_html_e( 'Side', 'cfs' ); ?></option>
+				<option value="normal" <?php selected( $position, 'normal' ); ?>><?php esc_html_e( 'Normal (after title)', 'custom-fields-studio' ); ?></option>
+				<option value="side" <?php selected( $position, 'side' ); ?>><?php esc_html_e( 'Side', 'custom-fields-studio' ); ?></option>
 			</select>
 		</p>
 		<p>
-			<label for="cfs-style"><?php esc_html_e( 'Style', 'cfs' ); ?></label><br />
+			<label for="cfs-style"><?php esc_html_e( 'Style', 'custom-fields-studio' ); ?></label><br />
 			<select id="cfs-style" name="cfs_options[style]">
-				<option value="default" <?php selected( $style, 'default' ); ?>><?php esc_html_e( 'Standard (WP metabox)', 'cfs' ); ?></option>
-				<option value="seamless" <?php selected( $style, 'seamless' ); ?>><?php esc_html_e( 'Seamless (no metabox styling)', 'cfs' ); ?></option>
+				<option value="default" <?php selected( $style, 'default' ); ?>><?php esc_html_e( 'Standard (WP metabox)', 'custom-fields-studio' ); ?></option>
+				<option value="seamless" <?php selected( $style, 'seamless' ); ?>><?php esc_html_e( 'Seamless (no metabox styling)', 'custom-fields-studio' ); ?></option>
 			</select>
 		</p>
 		<p>
 			<label>
 				<input type="checkbox" name="cfs_options[show_in_rest]" value="1" <?php checked( $in_rest ); ?> />
-				<?php esc_html_e( 'Show in REST API', 'cfs' ); ?>
+				<?php esc_html_e( 'Show in REST API', 'custom-fields-studio' ); ?>
 			</label><br />
-			<span class="description"><?php esc_html_e( 'Exposes this group\'s values as the "cfs" field on posts and at /wp-json/cfs/v1/.', 'cfs' ); ?></span>
+			<span class="description"><?php esc_html_e( 'Exposes this group\'s values as the "cfs" field on posts and at /wp-json/cfs/v1/.', 'custom-fields-studio' ); ?></span>
 		</p>
 		<p>
-			<label for="cfs-menu-order"><?php esc_html_e( 'Order', 'cfs' ); ?></label><br />
+			<label for="cfs-menu-order"><?php esc_html_e( 'Order', 'custom-fields-studio' ); ?></label><br />
 			<input type="number" id="cfs-menu-order" name="cfs_options[menu_order]" value="<?php echo esc_attr( $order ); ?>" />
-			<span class="description"><?php esc_html_e( 'Lower numbers appear first when multiple groups target the same screen.', 'cfs' ); ?></span>
+			<span class="description"><?php esc_html_e( 'Lower numbers appear first when multiple groups target the same screen.', 'custom-fields-studio' ); ?></span>
 		</p>
 		<?php
 	}
@@ -546,8 +546,8 @@ class CFS_Field_Group {
 		foreach ( $columns as $key => $label ) {
 			$new[ $key ] = $label;
 			if ( 'title' === $key ) {
-				$new['cfs_fields_count'] = __( 'Fields', 'cfs' );
-				$new['cfs_location']     = __( 'Location', 'cfs' );
+				$new['cfs_fields_count'] = __( 'Fields', 'custom-fields-studio' );
+				$new['cfs_location']     = __( 'Location', 'custom-fields-studio' );
 			}
 		}
 		return $new;

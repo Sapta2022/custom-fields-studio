@@ -25,9 +25,9 @@ class CFS_Field_Date_Picker extends CFS_Field_Base {
 	public static function render_settings( $field, $prefix ) {
 		?>
 		<div class="cfs-field-setting" data-type="date_picker">
-			<label><?php esc_html_e( 'Return Format', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Return Format', 'custom-fields-studio' ); ?></label>
 			<input type="text" name="<?php echo esc_attr( $prefix ); ?>[return_format]" value="<?php echo esc_attr( $field['return_format'] ?? 'd/m/Y' ); ?>" />
-			<p class="description"><?php esc_html_e( 'A PHP date format, e.g. d/m/Y or F j, Y. Use Ymd for the raw stored value.', 'cfs' ); ?></p>
+			<p class="description"><?php esc_html_e( 'A PHP date format, e.g. d/m/Y or F j, Y. Use Ymd for the raw stored value.', 'custom-fields-studio' ); ?></p>
 		</div>
 		<?php
 	}

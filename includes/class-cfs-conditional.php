@@ -25,13 +25,13 @@ class CFS_Conditional {
 	/** operator => label. */
 	public static function operators() {
 		return array(
-			'=='       => __( 'is equal to', 'cfs' ),
-			'!='       => __( 'is not equal to', 'cfs' ),
-			'empty'    => __( 'is empty', 'cfs' ),
-			'!empty'   => __( 'is not empty', 'cfs' ),
-			'contains' => __( 'contains', 'cfs' ),
-			'>'        => __( 'is greater than', 'cfs' ),
-			'<'        => __( 'is less than', 'cfs' ),
+			'=='       => __( 'is equal to', 'custom-fields-studio' ),
+			'!='       => __( 'is not equal to', 'custom-fields-studio' ),
+			'empty'    => __( 'is empty', 'custom-fields-studio' ),
+			'!empty'   => __( 'is not empty', 'custom-fields-studio' ),
+			'contains' => __( 'contains', 'custom-fields-studio' ),
+			'>'        => __( 'is greater than', 'custom-fields-studio' ),
+			'<'        => __( 'is less than', 'custom-fields-studio' ),
 		);
 	}
 
@@ -94,23 +94,23 @@ class CFS_Conditional {
 		<div class="cfs-field-setting-generic cfs-cond" data-next="<?php echo esc_attr( count( $rules ) ); ?>">
 			<label>
 				<input type="checkbox" class="cfs-cond-enabled" name="<?php echo esc_attr( $name ); ?>[enabled]" value="1" <?php checked( ! empty( $logic['enabled'] ) ); ?> />
-				<?php esc_html_e( 'Conditional logic', 'cfs' ); ?>
+				<?php esc_html_e( 'Conditional logic', 'custom-fields-studio' ); ?>
 			</label>
 			<div class="cfs-cond-body"<?php echo ! empty( $logic['enabled'] ) ? '' : ' style="display:none;"'; ?>>
 				<p>
-					<?php esc_html_e( 'Show this field if', 'cfs' ); ?>
+					<?php esc_html_e( 'Show this field if', 'custom-fields-studio' ); ?>
 					<select name="<?php echo esc_attr( $name ); ?>[match]" class="cfs-cond-match">
-						<option value="all" <?php selected( $logic['match'] ?? 'all', 'all' ); ?>><?php esc_html_e( 'all', 'cfs' ); ?></option>
-						<option value="any" <?php selected( $logic['match'] ?? 'all', 'any' ); ?>><?php esc_html_e( 'any', 'cfs' ); ?></option>
+						<option value="all" <?php selected( $logic['match'] ?? 'all', 'all' ); ?>><?php esc_html_e( 'all', 'custom-fields-studio' ); ?></option>
+						<option value="any" <?php selected( $logic['match'] ?? 'all', 'any' ); ?>><?php esc_html_e( 'any', 'custom-fields-studio' ); ?></option>
 					</select>
-					<?php esc_html_e( 'of these rules match:', 'cfs' ); ?>
+					<?php esc_html_e( 'of these rules match:', 'custom-fields-studio' ); ?>
 				</p>
 				<div class="cfs-cond-rules">
 					<?php foreach ( $rules as $i => $rule ) : ?>
 						<?php self::render_rule( $name . '[rules][' . $i . ']', $rule ); ?>
 					<?php endforeach; ?>
 				</div>
-				<p><button type="button" class="button cfs-cond-add"><?php esc_html_e( 'Add rule', 'cfs' ); ?></button></p>
+				<p><button type="button" class="button cfs-cond-add"><?php esc_html_e( 'Add rule', 'custom-fields-studio' ); ?></button></p>
 			</div>
 		</div>
 		<?php
@@ -130,7 +130,7 @@ class CFS_Conditional {
 				<?php endforeach; ?>
 			</select>
 			<input type="text" class="cfs-cond-value" name="<?php echo esc_attr( $name ); ?>[value]" value="<?php echo esc_attr( $rule['value'] ?? '' ); ?>"<?php echo in_array( $op, array( 'empty', '!empty' ), true ) ? ' style="display:none;"' : ''; ?> />
-			<button type="button" class="button-link cfs-cond-remove" aria-label="<?php esc_attr_e( 'Remove rule', 'cfs' ); ?>">&times;</button>
+			<button type="button" class="button-link cfs-cond-remove" aria-label="<?php esc_attr_e( 'Remove rule', 'custom-fields-studio' ); ?>">&times;</button>
 		</div>
 		<?php
 	}

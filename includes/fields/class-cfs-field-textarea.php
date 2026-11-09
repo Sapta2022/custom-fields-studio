@@ -25,15 +25,15 @@ class CFS_Field_Textarea extends CFS_Field_Base {
 	public static function render_settings( $field, $prefix ) {
 		?>
 		<div class="cfs-field-setting" data-type="textarea">
-			<label><?php esc_html_e( 'Default Value', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Default Value', 'custom-fields-studio' ); ?></label>
 			<textarea name="<?php echo esc_attr( $prefix ); ?>[default_value]" rows="2"><?php echo esc_textarea( $field['default_value'] ?? '' ); ?></textarea>
 		</div>
 		<div class="cfs-field-setting" data-type="textarea">
-			<label><?php esc_html_e( 'Placeholder Text', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Placeholder Text', 'custom-fields-studio' ); ?></label>
 			<input type="text" name="<?php echo esc_attr( $prefix ); ?>[placeholder]" value="<?php echo esc_attr( $field['placeholder'] ?? '' ); ?>" />
 		</div>
 		<div class="cfs-field-setting" data-type="textarea">
-			<label><?php esc_html_e( 'Rows', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Rows', 'custom-fields-studio' ); ?></label>
 			<input type="number" min="1" name="<?php echo esc_attr( $prefix ); ?>[rows]" value="<?php echo esc_attr( $field['rows'] ?? 4 ); ?>" />
 		</div>
 		<?php

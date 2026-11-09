@@ -50,20 +50,20 @@ class CFS_Field_Flexible extends CFS_Field_Base {
 		$layouts = isset( $field['layouts'] ) && is_array( $field['layouts'] ) ? $field['layouts'] : array();
 		?>
 		<div class="cfs-field-setting" data-type="flexible_content">
-			<label><?php esc_html_e( 'Minimum Rows', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Minimum Rows', 'custom-fields-studio' ); ?></label>
 			<input type="number" min="0" name="<?php echo esc_attr( $prefix ); ?>[min]" value="<?php echo esc_attr( $field['min'] ?? 0 ); ?>" />
 		</div>
 		<div class="cfs-field-setting" data-type="flexible_content">
-			<label><?php esc_html_e( 'Maximum Rows', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Maximum Rows', 'custom-fields-studio' ); ?></label>
 			<input type="number" min="0" name="<?php echo esc_attr( $prefix ); ?>[max]" value="<?php echo esc_attr( $field['max'] ?? 0 ); ?>" />
-			<p class="description"><?php esc_html_e( '0 means no limit.', 'cfs' ); ?></p>
+			<p class="description"><?php esc_html_e( '0 means no limit.', 'custom-fields-studio' ); ?></p>
 		</div>
 		<div class="cfs-field-setting" data-type="flexible_content">
-			<label><?php esc_html_e( 'Add Row Button Label', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Add Row Button Label', 'custom-fields-studio' ); ?></label>
 			<input type="text" name="<?php echo esc_attr( $prefix ); ?>[button_label]" value="<?php echo esc_attr( $field['button_label'] ?? 'Add Row' ); ?>" />
 		</div>
 		<div class="cfs-field-setting" data-type="flexible_content">
-			<label><?php esc_html_e( 'Layouts', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Layouts', 'custom-fields-studio' ); ?></label>
 			<div class="cfs-layouts" data-base="<?php echo esc_attr( $prefix ); ?>[layouts]">
 				<div class="cfs-layouts-list">
 					<?php
@@ -72,7 +72,7 @@ class CFS_Field_Flexible extends CFS_Field_Base {
 					}
 					?>
 				</div>
-				<p><button type="button" class="button cfs-add-layout"><?php esc_html_e( '+ Add Layout', 'cfs' ); ?></button></p>
+				<p><button type="button" class="button cfs-add-layout"><?php esc_html_e( '+ Add Layout', 'custom-fields-studio' ); ?></button></p>
 			</div>
 		</div>
 		<?php
@@ -92,13 +92,13 @@ class CFS_Field_Flexible extends CFS_Field_Base {
 		?>
 		<div class="cfs-layout-block">
 			<div class="cfs-layout-block-head">
-				<input type="text" class="cfs-layout-label" name="<?php echo esc_attr( $prefix ); ?>[label]" value="<?php echo esc_attr( $layout['label'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'Layout Label', 'cfs' ); ?>" />
-				<input type="text" class="cfs-layout-name" name="<?php echo esc_attr( $prefix ); ?>[name]" value="<?php echo esc_attr( $layout['name'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'layout_name', 'cfs' ); ?>" />
+				<input type="text" class="cfs-layout-label" name="<?php echo esc_attr( $prefix ); ?>[label]" value="<?php echo esc_attr( $layout['label'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'Layout Label', 'custom-fields-studio' ); ?>" />
+				<input type="text" class="cfs-layout-name" name="<?php echo esc_attr( $prefix ); ?>[name]" value="<?php echo esc_attr( $layout['name'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'layout_name', 'custom-fields-studio' ); ?>" />
 				<select name="<?php echo esc_attr( $prefix ); ?>[display]">
-					<option value="block" <?php selected( $display, 'block' ); ?>><?php esc_html_e( 'Block', 'cfs' ); ?></option>
-					<option value="table" <?php selected( $display, 'table' ); ?>><?php esc_html_e( 'Row', 'cfs' ); ?></option>
+					<option value="block" <?php selected( $display, 'block' ); ?>><?php esc_html_e( 'Block', 'custom-fields-studio' ); ?></option>
+					<option value="table" <?php selected( $display, 'table' ); ?>><?php esc_html_e( 'Row', 'custom-fields-studio' ); ?></option>
 				</select>
-				<button type="button" class="button-link cfs-remove-layout" aria-label="<?php esc_attr_e( 'Remove layout', 'cfs' ); ?>">&times;</button>
+				<button type="button" class="button-link cfs-remove-layout" aria-label="<?php esc_attr_e( 'Remove layout', 'custom-fields-studio' ); ?>">&times;</button>
 			</div>
 			<div class="cfs-layout-block-body">
 				<?php CFS_Field_Group::render_fields_editor( $sub_fields, $prefix . '[sub_fields]' ); ?>
@@ -366,14 +366,14 @@ class CFS_Field_Flexible extends CFS_Field_Base {
 		}
 
 		if ( empty( $layouts ) ) {
-			echo '<p class="description">' . esc_html__( 'This flexible content field has no layouts yet. Add some in the field group editor.', 'cfs' ) . '</p>';
+			echo '<p class="description">' . esc_html__( 'This flexible content field has no layouts yet. Add some in the field group editor.', 'custom-fields-studio' ) . '</p>';
 			return;
 		}
 
 		$rows   = is_array( $value ) ? array_values( $value ) : array();
 		$min    = isset( $field['min'] ) ? (int) $field['min'] : 0;
 		$max    = isset( $field['max'] ) ? (int) $field['max'] : 0;
-		$button = ! empty( $field['button_label'] ) ? $field['button_label'] : __( 'Add Row', 'cfs' );
+		$button = ! empty( $field['button_label'] ) ? $field['button_label'] : __( 'Add Row', 'custom-fields-studio' );
 		$token  = '__ROW' . self::$row_depth . '__';
 
 		// Nested repeating fields in rows/templates use the next token level.
@@ -425,7 +425,7 @@ class CFS_Field_Flexible extends CFS_Field_Base {
 		?>
 		<div class="cfs-flex-row cfs-flex-display-<?php echo esc_attr( $display ); ?>" data-layout="<?php echo esc_attr( $layout['name'] ); ?>">
 			<div class="cfs-flex-row-handle">
-				<span class="cfs-drag-handle dashicons dashicons-menu" title="<?php esc_attr_e( 'Drag to reorder', 'cfs' ); ?>"></span>
+				<span class="cfs-drag-handle dashicons dashicons-menu" title="<?php esc_attr_e( 'Drag to reorder', 'custom-fields-studio' ); ?>"></span>
 				<span class="cfs-row-number"></span>
 			</div>
 			<div class="cfs-flex-row-body">
@@ -456,7 +456,7 @@ class CFS_Field_Flexible extends CFS_Field_Base {
 				</div>
 			</div>
 			<div class="cfs-flex-row-actions">
-				<button type="button" class="button-link cfs-flex-remove" aria-label="<?php esc_attr_e( 'Remove row', 'cfs' ); ?>">&times;</button>
+				<button type="button" class="button-link cfs-flex-remove" aria-label="<?php esc_attr_e( 'Remove row', 'custom-fields-studio' ); ?>">&times;</button>
 			</div>
 		</div>
 		<?php

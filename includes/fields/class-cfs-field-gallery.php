@@ -29,15 +29,15 @@ class CFS_Field_Gallery extends CFS_Field_Base {
 		$preview_size  = $field['preview_size'] ?? 'thumbnail';
 		?>
 		<div class="cfs-field-setting" data-type="gallery">
-			<label><?php esc_html_e( 'Return Format', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Return Format', 'custom-fields-studio' ); ?></label>
 			<select name="<?php echo esc_attr( $prefix ); ?>[return_format]">
-				<option value="array" <?php selected( $return_format, 'array' ); ?>><?php esc_html_e( 'Image Arrays', 'cfs' ); ?></option>
-				<option value="url" <?php selected( $return_format, 'url' ); ?>><?php esc_html_e( 'Image URLs', 'cfs' ); ?></option>
-				<option value="id" <?php selected( $return_format, 'id' ); ?>><?php esc_html_e( 'Attachment IDs', 'cfs' ); ?></option>
+				<option value="array" <?php selected( $return_format, 'array' ); ?>><?php esc_html_e( 'Image Arrays', 'custom-fields-studio' ); ?></option>
+				<option value="url" <?php selected( $return_format, 'url' ); ?>><?php esc_html_e( 'Image URLs', 'custom-fields-studio' ); ?></option>
+				<option value="id" <?php selected( $return_format, 'id' ); ?>><?php esc_html_e( 'Attachment IDs', 'custom-fields-studio' ); ?></option>
 			</select>
 		</div>
 		<div class="cfs-field-setting" data-type="gallery">
-			<label><?php esc_html_e( 'Preview Size', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Preview Size', 'custom-fields-studio' ); ?></label>
 			<select name="<?php echo esc_attr( $prefix ); ?>[preview_size]">
 				<?php foreach ( get_intermediate_image_sizes() as $size ) : ?>
 					<option value="<?php echo esc_attr( $size ); ?>" <?php selected( $preview_size, $size ); ?>><?php echo esc_html( $size ); ?></option>
@@ -45,7 +45,7 @@ class CFS_Field_Gallery extends CFS_Field_Base {
 			</select>
 		</div>
 		<div class="cfs-field-setting" data-type="gallery">
-			<label><?php esc_html_e( 'Minimum / Maximum Images (0 = no limit)', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Minimum / Maximum Images (0 = no limit)', 'custom-fields-studio' ); ?></label>
 			<input type="number" min="0" name="<?php echo esc_attr( $prefix ); ?>[min]" value="<?php echo esc_attr( (int) ( $field['min'] ?? 0 ) ); ?>" style="width:80px" />
 			<input type="number" min="0" name="<?php echo esc_attr( $prefix ); ?>[max]" value="<?php echo esc_attr( (int) ( $field['max'] ?? 0 ) ); ?>" style="width:80px" />
 		</div>
@@ -76,11 +76,11 @@ class CFS_Field_Gallery extends CFS_Field_Base {
 					<li class="cfs-gallery-item" data-id="<?php echo esc_attr( $id ); ?>">
 						<input type="hidden" name="<?php echo esc_attr( $name ); ?>[]" value="<?php echo esc_attr( $id ); ?>" />
 						<?php echo wp_get_attachment_image( $id, $preview_size ); // phpcs:ignore WordPress.Security.EscapeOutput -- core escapes. ?>
-						<button type="button" class="cfs-gallery-remove" aria-label="<?php esc_attr_e( 'Remove image', 'cfs' ); ?>">&times;</button>
+						<button type="button" class="cfs-gallery-remove" aria-label="<?php esc_attr_e( 'Remove image', 'custom-fields-studio' ); ?>">&times;</button>
 					</li>
 				<?php endforeach; ?>
 			</ul>
-			<p><button type="button" class="button cfs-gallery-add"><?php esc_html_e( 'Add Images', 'cfs' ); ?></button></p>
+			<p><button type="button" class="button cfs-gallery-add"><?php esc_html_e( 'Add Images', 'custom-fields-studio' ); ?></button></p>
 		</div>
 		<?php
 	}

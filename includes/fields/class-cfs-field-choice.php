@@ -31,29 +31,29 @@ abstract class CFS_Field_Choice_Base extends CFS_Field_Base {
 		$type = static::$type;
 		?>
 		<div class="cfs-field-setting" data-type="<?php echo esc_attr( $type ); ?>">
-			<label><?php esc_html_e( 'Choices', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Choices', 'custom-fields-studio' ); ?></label>
 			<textarea name="<?php echo esc_attr( $prefix ); ?>[choices]" rows="4" placeholder="red : Red&#10;blue : Blue"><?php echo esc_textarea( $field['choices'] ?? '' ); ?></textarea>
-			<p class="description"><?php esc_html_e( 'One choice per line. Format: value : Label', 'cfs' ); ?></p>
+			<p class="description"><?php esc_html_e( 'One choice per line. Format: value : Label', 'custom-fields-studio' ); ?></p>
 		</div>
 		<?php
 		self::setting_input(
 			$type,
 			$prefix,
 			'default_value',
-			static::$multi ? __( 'Default Values', 'cfs' ) : __( 'Default Value', 'cfs' ),
+			static::$multi ? __( 'Default Values', 'custom-fields-studio' ) : __( 'Default Value', 'custom-fields-studio' ),
 			$field,
 			'text',
-			static::$multi ? __( 'Comma-separated values.', 'cfs' ) : ''
+			static::$multi ? __( 'Comma-separated values.', 'custom-fields-studio' ) : ''
 		);
 		self::setting_select(
 			$type,
 			$prefix,
 			'layout',
-			__( 'Layout', 'cfs' ),
+			__( 'Layout', 'custom-fields-studio' ),
 			$field,
 			array(
-				'vertical'   => __( 'Vertical', 'cfs' ),
-				'horizontal' => __( 'Horizontal', 'cfs' ),
+				'vertical'   => __( 'Vertical', 'custom-fields-studio' ),
+				'horizontal' => __( 'Horizontal', 'custom-fields-studio' ),
 			),
 			'vertical'
 		);
@@ -61,17 +61,17 @@ abstract class CFS_Field_Choice_Base extends CFS_Field_Base {
 			$type,
 			$prefix,
 			'return_format',
-			__( 'Return Format', 'cfs' ),
+			__( 'Return Format', 'custom-fields-studio' ),
 			$field,
 			array(
-				'value' => __( 'Value', 'cfs' ),
-				'label' => __( 'Label', 'cfs' ),
-				'array' => __( 'Both (Array)', 'cfs' ),
+				'value' => __( 'Value', 'custom-fields-studio' ),
+				'label' => __( 'Label', 'custom-fields-studio' ),
+				'array' => __( 'Both (Array)', 'custom-fields-studio' ),
 			),
 			'value'
 		);
 		if ( ! static::$multi ) {
-			self::setting_checkbox( $type, $prefix, 'allow_null', __( 'Allow Null (lets the choice be cleared)', 'cfs' ), $field );
+			self::setting_checkbox( $type, $prefix, 'allow_null', __( 'Allow Null (lets the choice be cleared)', 'custom-fields-studio' ), $field );
 		}
 	}
 
@@ -181,7 +181,7 @@ class CFS_Field_Radio extends CFS_Field_Choice_Base {
 			);
 		}
 		if ( ! empty( $field['allow_null'] ) ) {
-			echo '<li><a href="#" class="cfs-choice-clear">' . esc_html__( 'Clear', 'cfs' ) . '</a></li>';
+			echo '<li><a href="#" class="cfs-choice-clear">' . esc_html__( 'Clear', 'custom-fields-studio' ) . '</a></li>';
 		}
 		echo '</ul>';
 	}

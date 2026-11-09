@@ -46,28 +46,28 @@ class CFS_Field_Repeater extends CFS_Field_Base {
 		$layout = $field['layout'] ?? 'table';
 		?>
 		<div class="cfs-field-setting" data-type="repeater">
-			<label><?php esc_html_e( 'Layout', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Layout', 'custom-fields-studio' ); ?></label>
 			<select name="<?php echo esc_attr( $prefix ); ?>[layout]">
-				<option value="table" <?php selected( $layout, 'table' ); ?>><?php esc_html_e( 'Row (sub fields side by side)', 'cfs' ); ?></option>
-				<option value="block" <?php selected( $layout, 'block' ); ?>><?php esc_html_e( 'Block (sub fields stacked)', 'cfs' ); ?></option>
+				<option value="table" <?php selected( $layout, 'table' ); ?>><?php esc_html_e( 'Row (sub fields side by side)', 'custom-fields-studio' ); ?></option>
+				<option value="block" <?php selected( $layout, 'block' ); ?>><?php esc_html_e( 'Block (sub fields stacked)', 'custom-fields-studio' ); ?></option>
 			</select>
 		</div>
 		<div class="cfs-field-setting" data-type="repeater">
-			<label><?php esc_html_e( 'Minimum Rows', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Minimum Rows', 'custom-fields-studio' ); ?></label>
 			<input type="number" min="0" name="<?php echo esc_attr( $prefix ); ?>[min]" value="<?php echo esc_attr( $field['min'] ?? 0 ); ?>" />
 		</div>
 		<div class="cfs-field-setting" data-type="repeater">
-			<label><?php esc_html_e( 'Maximum Rows', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Maximum Rows', 'custom-fields-studio' ); ?></label>
 			<input type="number" min="0" name="<?php echo esc_attr( $prefix ); ?>[max]" value="<?php echo esc_attr( $field['max'] ?? 0 ); ?>" />
-			<p class="description"><?php esc_html_e( '0 means no limit.', 'cfs' ); ?></p>
+			<p class="description"><?php esc_html_e( '0 means no limit.', 'custom-fields-studio' ); ?></p>
 		</div>
 		<div class="cfs-field-setting" data-type="repeater">
-			<label><?php esc_html_e( 'Add Row Button Label', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Add Row Button Label', 'custom-fields-studio' ); ?></label>
 			<input type="text" name="<?php echo esc_attr( $prefix ); ?>[button_label]" value="<?php echo esc_attr( $field['button_label'] ?? 'Add Row' ); ?>" />
 		</div>
 		<?php // One shared editor serves Repeater and Group (same input names), so it is rendered once. ?>
 		<div class="cfs-field-setting" data-type="repeater group">
-			<label><?php esc_html_e( 'Sub Fields', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Sub Fields', 'custom-fields-studio' ); ?></label>
 			<?php
 			$sub_fields = isset( $field['sub_fields'] ) && is_array( $field['sub_fields'] ) ? $field['sub_fields'] : array();
 			CFS_Field_Group::render_fields_editor( $sub_fields, $prefix . '[sub_fields]' );
@@ -256,7 +256,7 @@ class CFS_Field_Repeater extends CFS_Field_Base {
 		$subs = self::usable_sub_fields( $field );
 
 		if ( empty( $subs ) ) {
-			echo '<p class="description">' . esc_html__( 'This repeater has no sub fields yet. Add some in the field group editor.', 'cfs' ) . '</p>';
+			echo '<p class="description">' . esc_html__( 'This repeater has no sub fields yet. Add some in the field group editor.', 'custom-fields-studio' ) . '</p>';
 			return;
 		}
 
@@ -264,7 +264,7 @@ class CFS_Field_Repeater extends CFS_Field_Base {
 		$min    = isset( $field['min'] ) ? (int) $field['min'] : 0;
 		$max    = isset( $field['max'] ) ? (int) $field['max'] : 0;
 		$layout = ( isset( $field['layout'] ) && 'block' === $field['layout'] ) ? 'block' : 'table';
-		$button = ! empty( $field['button_label'] ) ? $field['button_label'] : __( 'Add Row', 'cfs' );
+		$button = ! empty( $field['button_label'] ) ? $field['button_label'] : __( 'Add Row', 'custom-fields-studio' );
 		$token  = '__ROW' . self::$row_depth . '__';
 
 		// Show at least "min" rows so the editor can fill them in.
@@ -319,7 +319,7 @@ class CFS_Field_Repeater extends CFS_Field_Base {
 		?>
 		<div class="cfs-repeater-row">
 			<div class="cfs-repeater-row-handle">
-				<span class="cfs-drag-handle dashicons dashicons-menu" title="<?php esc_attr_e( 'Drag to reorder', 'cfs' ); ?>"></span>
+				<span class="cfs-drag-handle dashicons dashicons-menu" title="<?php esc_attr_e( 'Drag to reorder', 'custom-fields-studio' ); ?>"></span>
 				<span class="cfs-row-number"></span>
 			</div>
 			<div class="cfs-repeater-fields">
@@ -345,7 +345,7 @@ class CFS_Field_Repeater extends CFS_Field_Base {
 				?>
 			</div>
 			<div class="cfs-repeater-row-actions">
-				<button type="button" class="button-link cfs-repeater-remove" aria-label="<?php esc_attr_e( 'Remove row', 'cfs' ); ?>">&times;</button>
+				<button type="button" class="button-link cfs-repeater-remove" aria-label="<?php esc_attr_e( 'Remove row', 'custom-fields-studio' ); ?>">&times;</button>
 			</div>
 		</div>
 		<?php

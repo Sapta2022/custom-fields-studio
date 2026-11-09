@@ -24,6 +24,6 @@ $field_groups = get_posts(
 	)
 );
 
-foreach ( $field_groups as $post_id ) {
-	wp_delete_post( $post_id, true );
+foreach ( $field_groups as $cfs_group_id ) {
+	wp_delete_post( $cfs_group_id, true );
 }

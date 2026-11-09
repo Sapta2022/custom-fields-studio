@@ -38,10 +38,10 @@ class CFS_Field_Google_Map extends CFS_Field_Base {
 	}
 
 	public static function render_settings( $field, $prefix ) {
-		self::setting_input( 'google_map', $prefix, 'center_lat', __( 'Default Center — Latitude', 'cfs' ), $field );
-		self::setting_input( 'google_map', $prefix, 'center_lng', __( 'Default Center — Longitude', 'cfs' ), $field );
-		self::number_input( 'google_map', $prefix, 'zoom', __( 'Default Zoom (1–21)', 'cfs' ), $field, 14 );
-		self::number_input( 'google_map', $prefix, 'height', __( 'Map Height (px)', 'cfs' ), $field, 300 );
+		self::setting_input( 'google_map', $prefix, 'center_lat', __( 'Default Center — Latitude', 'custom-fields-studio' ), $field );
+		self::setting_input( 'google_map', $prefix, 'center_lng', __( 'Default Center — Longitude', 'custom-fields-studio' ), $field );
+		self::number_input( 'google_map', $prefix, 'zoom', __( 'Default Zoom (1–21)', 'custom-fields-studio' ), $field, 14 );
+		self::number_input( 'google_map', $prefix, 'height', __( 'Map Height (px)', 'custom-fields-studio' ), $field, 300 );
 	}
 
 	/** A plain number input in a settings block of one type. */
@@ -93,12 +93,12 @@ class CFS_Field_Google_Map extends CFS_Field_Base {
 		// The default centre only positions the map view; it is never saved as a value.
 		?>
 		<div class="cfs-gmap" data-key="<?php echo esc_attr( self::api_key() ); ?>" data-center-lat="<?php echo esc_attr( $field['center_lat'] ?? '' ); ?>" data-center-lng="<?php echo esc_attr( $field['center_lng'] ?? '' ); ?>">
-			<input type="text" class="regular-text cfs-gmap-address" name="<?php echo esc_attr( $name ); ?>[address]" value="<?php echo esc_attr( $value['address'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'Address (search)', 'cfs' ); ?>" />
+			<input type="text" class="regular-text cfs-gmap-address" name="<?php echo esc_attr( $name ); ?>[address]" value="<?php echo esc_attr( $value['address'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'Address (search)', 'custom-fields-studio' ); ?>" />
 			<p class="cfs-gmap-coords">
-				<label><?php esc_html_e( 'Latitude', 'cfs' ); ?> <input type="text" class="cfs-gmap-lat" name="<?php echo esc_attr( $name ); ?>[lat]" value="<?php echo esc_attr( $lat ); ?>" size="12" /></label>
-				<label><?php esc_html_e( 'Longitude', 'cfs' ); ?> <input type="text" class="cfs-gmap-lng" name="<?php echo esc_attr( $name ); ?>[lng]" value="<?php echo esc_attr( $lng ); ?>" size="12" /></label>
-				<label><?php esc_html_e( 'Zoom', 'cfs' ); ?> <input type="number" min="1" max="21" class="cfs-gmap-zoom" name="<?php echo esc_attr( $name ); ?>[zoom]" value="<?php echo esc_attr( (int) $zoom ); ?>" style="width:5em" /></label>
-				<button type="button" class="button-link cfs-gmap-clear"><?php esc_html_e( 'Clear', 'cfs' ); ?></button>
+				<label><?php esc_html_e( 'Latitude', 'custom-fields-studio' ); ?> <input type="text" class="cfs-gmap-lat" name="<?php echo esc_attr( $name ); ?>[lat]" value="<?php echo esc_attr( $lat ); ?>" size="12" /></label>
+				<label><?php esc_html_e( 'Longitude', 'custom-fields-studio' ); ?> <input type="text" class="cfs-gmap-lng" name="<?php echo esc_attr( $name ); ?>[lng]" value="<?php echo esc_attr( $lng ); ?>" size="12" /></label>
+				<label><?php esc_html_e( 'Zoom', 'custom-fields-studio' ); ?> <input type="number" min="1" max="21" class="cfs-gmap-zoom" name="<?php echo esc_attr( $name ); ?>[zoom]" value="<?php echo esc_attr( (int) $zoom ); ?>" style="width:5em" /></label>
+				<button type="button" class="button-link cfs-gmap-clear"><?php esc_html_e( 'Clear', 'custom-fields-studio' ); ?></button>
 			</p>
 			<div class="cfs-gmap-canvas" style="height:<?php echo esc_attr( (int) ( $field['height'] ?? 300 ) ); ?>px;display:none"></div>
 		</div>
@@ -152,6 +152,6 @@ class CFS_Field_Google_Map extends CFS_Field_Base {
 			'https://www.google.com/maps'
 		);
 
-		return '<div class="cfs-out-field cfs-out-map"><iframe title="' . esc_attr( '' !== $map['address'] ? $map['address'] : __( 'Map', 'cfs' ) ) . '" src="' . esc_url( $src ) . '" width="100%" height="' . (int) $height . '" style="border:0" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>';
+		return '<div class="cfs-out-field cfs-out-map"><iframe title="' . esc_attr( '' !== $map['address'] ? $map['address'] : __( 'Map', 'custom-fields-studio' ) ) . '" src="' . esc_url( $src ) . '" width="100%" height="' . (int) $height . '" style="border:0" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>';
 	}
 }

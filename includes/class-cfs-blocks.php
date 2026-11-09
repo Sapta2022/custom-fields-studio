@@ -62,7 +62,7 @@ class CFS_Blocks {
 	public static function register( $args ) {
 		$slug = isset( $args['name'] ) ? sanitize_key( str_replace( 'cfs/', '', (string) $args['name'] ) ) : '';
 		if ( '' === $slug ) {
-			return new WP_Error( 'cfs_block', __( 'A block needs a name.', 'cfs' ) );
+			return new WP_Error( 'cfs_block', __( 'A block needs a name.', 'custom-fields-studio' ) );
 		}
 
 		$name = 'cfs/' . $slug;
@@ -291,10 +291,10 @@ class CFS_Blocks {
 			array(
 				'blocks' => array_values( self::$blocks ),
 				'i18n'   => array(
-					'editFields' => __( 'Edit fields', 'cfs' ),
-					'preview'    => __( 'Preview', 'cfs' ),
-					'loading'    => __( 'Loading fields…', 'cfs' ),
-					'noFields'   => __( 'No field group is assigned to this block yet. Create a field group with the location rule Block == this block.', 'cfs' ),
+					'editFields' => __( 'Edit fields', 'custom-fields-studio' ),
+					'preview'    => __( 'Preview', 'custom-fields-studio' ),
+					'loading'    => __( 'Loading fields…', 'custom-fields-studio' ),
+					'noFields'   => __( 'No field group is assigned to this block yet. Create a field group with the location rule Block == this block.', 'custom-fields-studio' ),
 				),
 			)
 		);
@@ -322,7 +322,7 @@ class CFS_Blocks {
 	public static function rest_form( $request ) {
 		$name = (string) $request->get_param( 'block' );
 		if ( ! isset( self::$blocks[ $name ] ) ) {
-			return new WP_Error( 'cfs_block', __( 'Unknown block.', 'cfs' ), array( 'status' => 404 ) );
+			return new WP_Error( 'cfs_block', __( 'Unknown block.', 'custom-fields-studio' ), array( 'status' => 404 ) );
 		}
 
 		$previous      = CFS_Storage::swap_block_values( array() );

@@ -33,7 +33,7 @@ class CFS_Field_Post_Object extends CFS_Field_Relationship {
 		$selected = (array) ( $field['post_types'] ?? static::defaults()['post_types'] );
 		?>
 		<div class="cfs-field-setting" data-type="<?php echo esc_attr( $type ); ?>">
-			<label><?php esc_html_e( 'Post Types', 'cfs' ); ?></label>
+			<label><?php esc_html_e( 'Post Types', 'custom-fields-studio' ); ?></label>
 			<?php foreach ( self::available_post_types() as $slug => $obj ) : ?>
 				<label style="display:inline-block;margin-right:12px;">
 					<input type="checkbox" name="<?php echo esc_attr( $prefix ); ?>[post_types][]" value="<?php echo esc_attr( $slug ); ?>" <?php checked( in_array( $slug, $selected, true ) ); ?> />
@@ -47,16 +47,16 @@ class CFS_Field_Post_Object extends CFS_Field_Relationship {
 				$type,
 				$prefix,
 				'return_format',
-				__( 'Return Format', 'cfs' ),
+				__( 'Return Format', 'custom-fields-studio' ),
 				$field,
 				array(
-					'object' => __( 'Post Object', 'cfs' ),
-					'id'     => __( 'Post ID', 'cfs' ),
+					'object' => __( 'Post Object', 'custom-fields-studio' ),
+					'id'     => __( 'Post ID', 'custom-fields-studio' ),
 				),
 				'object'
 			);
 		}
-		self::setting_checkbox( $type, $prefix, 'multiple', __( 'Allow multiple values', 'cfs' ), $field );
+		self::setting_checkbox( $type, $prefix, 'multiple', __( 'Allow multiple values', 'custom-fields-studio' ), $field );
 	}
 
 	public static function sanitize( $raw ) {
