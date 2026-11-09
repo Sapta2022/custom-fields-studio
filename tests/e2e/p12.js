@@ -12,18 +12,18 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 (async () => {
   setup('teardown');
   const fx = JSON.parse(setup('setup'));
-  setOpt('cfs_qa_block_editor', '1');
+  setOpt('cfstudio_qa_block_editor', '1');
   const { b, p, errs } = await launch(3800);
   await login(p);
   p.on('dialog', d => d.accept());
 
   // ------------------------------------------------------------ block editor
   await p.goto(`${BASE}/wp-admin/post-new.php?post_type=page`);
-  await p.waitForFunction(() => window.wp && wp.data && wp.data.select('core/editor') && wp.blocks.getBlockType('cfs/p12e-hero'), null, { timeout: 30000 });
+  await p.waitForFunction(() => window.wp && wp.data && wp.data.select('core/editor') && wp.blocks.getBlockType('cfstudio/p12e-hero'), null, { timeout: 30000 });
   await p.evaluate(() => { wp.data.dispatch('core/preferences').set('core/edit-post', 'welcomeGuide', false); wp.data.dispatch('core/preferences').set('core/edit-post', 'fullscreenMode', false); }).catch(() => {});
-  const bt = await p.evaluate(() => { const x = wp.blocks.getBlockType('cfs/p12e-hero'); return { title: x.title, category: x.category, form: !!x.attributes.form, save: x.save() }; });
+  const bt = await p.evaluate(() => { const x = wp.blocks.getBlockType('cfstudio/p12e-hero'); return { title: x.title, category: x.category, form: !!x.attributes.form, save: x.save() }; });
   t('Block is registered in the editor with its title, category and form attribute', bt.title === 'P12e Hero' && bt.category === 'text' && bt.form && bt.save === null, bt);
-  await p.evaluate(() => { wp.data.dispatch('core/editor').editPost({ title: 'P12e Block Page' }); wp.data.dispatch('core/block-editor').insertBlocks(wp.blocks.createBlock('cfs/p12e-hero')); });
+  await p.evaluate(() => { wp.data.dispatch('core/editor').editPost({ title: 'P12e Block Page' }); wp.data.dispatch('core/block-editor').insertBlocks(wp.blocks.createBlock('cfstudio/p12e-hero')); });
   await p.waitForSelector('.cfs-block-form input[name="cfs[heading]"]', { timeout: 20000 });
   t('A new block opens straight into its field form (all 3 fields, repeater included)', await p.locator('.cfs-block-form [name="cfs[badge]"]').count() >= 1 && await p.locator('.cfs-block-form .cfs-repeater').count() === 1);
   await p.fill('.cfs-block-form input[name="cfs[heading]"]', 'Hello <img src=x onerror=alert(1)> World');
@@ -48,12 +48,12 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   const pid = await p.evaluate(() => wp.data.select('core/editor').getCurrentPostId());
   const link = await p.evaluate(() => wp.data.select('core/editor').getPermalink());
   const content = JSON.parse(php('content', pid));
-  t('Saved post content holds the block comment with the form attribute', content.includes('<!-- wp:cfs/p12e-hero') && content.includes('"form":"cfs'), content.slice(0, 200));
+  t('Saved post content holds the block comment with the form attribute', content.includes('<!-- wp:cfstudio/p12e-hero') && content.includes('"form":"cfs'), content.slice(0, 200));
   t('Nothing is written to post meta (values live in the block)', JSON.parse(php('pmeta', pid, 'heading')) === '' && JSON.parse(php('pmeta', pid, 'items')) === '');
 
   const fp = await (await b.newContext()).newPage();
   await fp.goto(link);
-  t('Front end renders the block with its values', await fp.locator('.cfs-block.wp-block-cfs-p12e-hero').count() === 1 && (await fp.locator('.p12e-heading').innerText()).includes('Hello') && await fp.locator('.p12e-badge').count() === 1 && (await fp.locator('.p12e-items li').allInnerTexts()).join('|') === 'First item|Second item');
+  t('Front end renders the block with its values', await fp.locator('.cfs-block.wp-block-cfstudio-p12e-hero').count() === 1 && (await fp.locator('.p12e-heading').innerText()).includes('Hello') && await fp.locator('.p12e-badge').count() === 1 && (await fp.locator('.p12e-items li').allInnerTexts()).join('|') === 'First item|Second item');
   t('Front end: hostile markup in the heading is gone', !(await fp.content()).includes('onerror=alert'));
 
   await p.goto(`${BASE}/wp-admin/post.php?post=${pid}&action=edit`);
@@ -75,11 +75,11 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   t('Front end after editing: one item left', (await fp.locator('.p12e-items li').allInnerTexts()).join('|') === 'Second item');
 
   // -------------------------------------------- a block without a field group
-  const hint = await p.evaluate(async () => { const r = await wp.apiFetch({ path: '/cfs/v1/block-form', method: 'POST', data: { block: 'cfs/p12e-hero', form: '' } }); return r.groups; });
+  const hint = await p.evaluate(async () => { const r = await wp.apiFetch({ path: '/cfstudio/v1/block-form', method: 'POST', data: { block: 'cfstudio/p12e-hero', form: '' } }); return r.groups; });
   t('REST form endpoint works from the editor (nonce) and finds the group', hint === 1);
 
   // ------------------------------------------------------------- Google Map (classic editor)
-  setOpt('cfs_qa_block_editor', '0');
+  setOpt('cfstudio_qa_block_editor', '0');
   await p.goto(`${BASE}/wp-admin/post-new.php?post_type=page`);
   await p.fill('#title', 'P12e Map Page');
   t('Map field renders address, lat, lng, zoom and a Clear link (no API key: no canvas)', await p.locator('.cfs-gmap .cfs-gmap-address').count() === 1 && await p.locator('.cfs-gmap .cfs-gmap-lat').count() === 1 && await p.locator('.cfs-gmap .cfs-gmap-lng').count() === 1 && await p.locator('.cfs-gmap .cfs-gmap-zoom').count() === 1 && !(await p.locator('.cfs-gmap-canvas').isVisible()));
@@ -105,7 +105,7 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   await Promise.all([p.waitForNavigation(), p.click('#publish')]);
 
   // ------------------------------------------------------------------ builder
-  await p.goto(`${BASE}/wp-admin/post-new.php?post_type=cfs_field_group`);
+  await p.goto(`${BASE}/wp-admin/post-new.php?post_type=cfstudio_field_group`);
   await p.fill('#title', 'P12 UI Map Group');
   const row = p.locator('#cfs-fields-rows > tr.cfs-field-row').first();
   await row.locator('> td > .cfs-field-row-main .cfs-field-label').fill('Where');
@@ -123,8 +123,8 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   t('Location builder offers the Block param with the registered block', lt.includes('block'));
   await p.locator('.cfs-location-rule').first().locator('.cfs-location-param').selectOption('block');
   const bv = await p.locator('.cfs-location-rule').first().locator('.cfs-location-value option').evaluateAll(o => o.map(x => x.value));
-  t('Block values list the block registered in PHP', bv.includes('cfs/p12e-hero'), bv);
-  await p.locator('.cfs-location-rule').first().locator('.cfs-location-value').selectOption('cfs/p12e-hero');
+  t('Block values list the block registered in PHP', bv.includes('cfstudio/p12e-hero'), bv);
+  await p.locator('.cfs-location-rule').first().locator('.cfs-location-value').selectOption('cfstudio/p12e-hero');
   await Promise.all([p.waitForNavigation(), p.click('#publish')]);
   const gid = new URL(p.url()).searchParams.get('post');
   const fld = JSON.parse(php('group', gid))[0];
@@ -132,15 +132,15 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   const before = php('group', gid);
   await Promise.all([p.waitForNavigation(), p.click('#publish')]);
   t('Open + Update through the builder changes nothing', before === php('group', gid));
-  const loc = JSON.parse(php('gmeta', gid, '_cfs_location'));
-  t('Block location rule saved', loc[0][0].param === 'block' && loc[0][0].value === 'cfs/p12e-hero', loc);
+  const loc = JSON.parse(php('gmeta', gid, '_cfstudio_location'));
+  t('Block location rule saved', loc[0][0].param === 'block' && loc[0][0].value === 'cfstudio/p12e-hero', loc);
 
   // ----------------------------------------------------------- Tools settings
-  await p.goto(`${BASE}/wp-admin/edit.php?post_type=cfs_field_group&page=cfs-tools`);
+  await p.goto(`${BASE}/wp-admin/edit.php?post_type=cfstudio_field_group&page=cfs-tools`);
   await p.fill('#cfs-gmaps-key', 'AIzaSy-TEST_key<script>');
   await p.check('#cfs-translate-options');
   await Promise.all([p.waitForNavigation(), p.click('#cfs-settings-form button[type=submit]')]);
-  t('Settings saved: API key stored without markup, per-language options on', JSON.parse(php('opt', 'cfs_google_maps_api_key')) === 'AIzaSy-TEST_key' && Number(JSON.parse(php('opt', 'cfs_translate_options'))) === 1 && (await p.locator('#cfs-tools-msg').textContent()).includes('Settings saved'));
+  t('Settings saved: API key stored without markup, per-language options on', JSON.parse(php('opt', 'cfstudio_google_maps_api_key')) === 'AIzaSy-TEST_key' && Number(JSON.parse(php('opt', 'cfstudio_translate_options'))) === 1 && (await p.locator('#cfs-tools-msg').textContent()).includes('Settings saved'));
   t('Settings page shows the saved values', await p.inputValue('#cfs-gmaps-key') === 'AIzaSy-TEST_key' && await p.isChecked('#cfs-translate-options'));
   // With a key the map widget attaches a canvas and requests the Maps script (network may be blocked; the request is what we check).
   const requested = [];

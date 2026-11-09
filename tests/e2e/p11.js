@@ -18,7 +18,7 @@ const BASE = 'http://127.0.0.1:8099';
   p.on('dialog', d => d.accept());
 
   // ---------------------------------------------------------------- builder
-  await p.goto(`${BASE}/wp-admin/post-new.php?post_type=cfs_field_group`);
+  await p.goto(`${BASE}/wp-admin/post-new.php?post_type=cfstudio_field_group`);
   await p.fill('#title', 'P11 UI Host');
   const rows = () => p.locator('#cfs-fields-rows > tr.cfs-field-row');
   const main = (i) => rows().nth(i).locator('> td > .cfs-field-row-main');
@@ -49,18 +49,18 @@ const BASE = 'http://127.0.0.1:8099';
   const r2 = p.locator('.cfs-location-rule').nth(1);
   await r2.locator('.cfs-location-param').selectOption('post_type');
   await r2.locator('.cfs-location-value').selectOption('post');
-  await p.locator('input[name="cfs_options[show_in_rest]"]').check();
+  await p.locator('input[name="cfstudio_options[show_in_rest]"]').check();
   await Promise.all([p.waitForNavigation(), p.click('#publish')]);
   const gid = new URL(p.url()).searchParams.get('post');
-  const loc = JSON.parse(php('gmeta', gid, '_cfs_location'));
+  const loc = JSON.parse(php('gmeta', gid, '_cfstudio_location'));
   t('Location saved: post_status == draft AND post_type == post', loc.length === 1 && loc[0].length === 2 && loc[0][0].param === 'post_status' && loc[0][0].value === 'draft' && loc[0][1].param === 'post_type', loc);
-  const opt = JSON.parse(php('gmeta', gid, '_cfs_options'));
+  const opt = JSON.parse(php('gmeta', gid, '_cfstudio_options'));
   t('Show in REST API saved', opt.show_in_rest === 1, opt);
   const flds = JSON.parse(php('group', gid));
   const cl = flds[1];
-  t('Clone field saved with group key, seamless, prefix', cl.type === 'clone' && cl.display === 'seamless' && cl.prefix_name === 1 && cl.clone.length === 1 && cl.clone[0] === JSON.parse(php('gmeta', fx.term, '_cfs_group_key')), cl);
+  t('Clone field saved with group key, seamless, prefix', cl.type === 'clone' && cl.display === 'seamless' && cl.prefix_name === 1 && cl.clone.length === 1 && cl.clone[0] === JSON.parse(php('gmeta', fx.term, '_cfstudio_group_key')), cl);
   await p.reload();
-  t('Settings reload: rule value, REST tick and clone tick persisted', await p.locator('.cfs-location-rule').first().locator('.cfs-location-param').inputValue() === 'post_status' && await p.locator('input[name="cfs_options[show_in_rest]"]').isChecked());
+  t('Settings reload: rule value, REST tick and clone tick persisted', await p.locator('.cfs-location-rule').first().locator('.cfs-location-param').inputValue() === 'post_status' && await p.locator('input[name="cfstudio_options[show_in_rest]"]').isChecked());
   await p.locator('.cfs-expand-all').click();
   t('Clone settings reload with the group ticked', await panel(1).locator('> .cfs-field-setting[data-type="clone"] label:has-text("P11e term group") input').isChecked());
   const before = php('group', gid);
@@ -70,7 +70,7 @@ const BASE = 'http://127.0.0.1:8099';
   // ------------------------------------------- post screen: post_status rule + clone
   await p.goto(`${BASE}/wp-admin/post-new.php`);
   await p.fill('#title', 'P11e Draft Post');
-  t('Draft-only group shown on a new (draft) post', await p.locator(`#cfs_group_${gid}`).count() === 1 && await p.locator(`#cfs_group_${fx.draft}`).count() === 1);
+  t('Draft-only group shown on a new (draft) post', await p.locator(`#cfstudio_group_${gid}`).count() === 1 && await p.locator(`#cfstudio_group_${fx.draft}`).count() === 1);
   t('Seamless clone with prefix: cloned fields use prefixed names', await p.locator('[name="cfs[ui_own]"]').count() === 1 && await p.locator('[name="cfs[ui_clone_e2e_color]"]').count() === 1 && await p.locator('[name="cfs[ui_clone_e2e_featured]"]').count() === 1);
   await p.fill('[name="cfs[ui_own]"]', 'own value');
   await p.fill('[name="cfs[ui_clone_e2e_color]"]', 'teal');
@@ -85,22 +85,22 @@ const BASE = 'http://127.0.0.1:8099';
   await Promise.all([p.waitForNavigation(), p.click('#publish')]);
   t('Publishing saves what was typed in a draft-only group', JSON.parse(php('pmeta', pid, 'e2e_draft_note')) === 'edited at publish');
   await p.goto(`${BASE}/wp-admin/post.php?post=${pid}&action=edit`);
-  t('After publishing the draft-only groups are gone', await p.locator(`#cfs_group_${gid}`).count() === 0 && await p.locator(`#cfs_group_${fx.draft}`).count() === 0);
+  t('After publishing the draft-only groups are gone', await p.locator(`#cfstudio_group_${gid}`).count() === 0 && await p.locator(`#cfstudio_group_${fx.draft}`).count() === 0);
   t('Values survive (not deleted when the group stops showing)', JSON.parse(php('pmeta', pid, 'ui_own')) === 'own value');
 
   // ---------------------------------------------------------------- profile
   await p.goto(`${BASE}/wp-admin/profile.php`);
-  t('User profile shows the user group', await p.locator(`#cfs_group_${fx.user}`).count() === 1 && await p.locator('[name="cfs[e2e_twitter]"]').count() === 1);
+  t('User profile shows the user group', await p.locator(`#cfstudio_group_${fx.user}`).count() === 1 && await p.locator('[name="cfs[e2e_twitter]"]').count() === 1);
   await p.fill('[name="cfs[e2e_twitter]"]', '@e2e_user');
-  await p.locator(`#cfs_group_${fx.user} .cfs-repeater-add`).first().click();
-  await p.locator(`#cfs_group_${fx.user} [name$="[skill]"]`).first().fill('Playwright');
+  await p.locator(`#cfstudio_group_${fx.user} .cfs-repeater-add`).first().click();
+  await p.locator(`#cfstudio_group_${fx.user} [name$="[skill]"]`).first().fill('Playwright');
   await Promise.all([p.waitForNavigation(), p.click('#submit')]);
   t('Profile save stores user meta (text + repeater)', JSON.parse(php('umeta', '1', 'e2e_twitter')) === '@e2e_user' && String(JSON.parse(php('umeta', '1', 'e2e_skills'))) === '1' && JSON.parse(php('umeta', '1', 'e2e_skills_0_skill')) === 'Playwright');
-  t('Profile reloads with the saved values', await p.locator('[name="cfs[e2e_twitter]"]').inputValue() === '@e2e_user' && await p.locator(`#cfs_group_${fx.user} [name$="[skill]"]`).first().inputValue() === 'Playwright');
+  t('Profile reloads with the saved values', await p.locator('[name="cfs[e2e_twitter]"]').inputValue() === '@e2e_user' && await p.locator(`#cfstudio_group_${fx.user} [name$="[skill]"]`).first().inputValue() === 'Playwright');
 
   // ------------------------------------------------------------------- term
   await p.goto(`${BASE}/wp-admin/term.php?taxonomy=category&tag_ID=${fx.cat}&post_type=post`);
-  t('Category edit screen shows the term group', await p.locator(`#cfs_group_${fx.term}`).count() === 1);
+  t('Category edit screen shows the term group', await p.locator(`#cfstudio_group_${fx.term}`).count() === 1);
   await p.fill('[name="cfs[e2e_color]"]', 'crimson');
   await p.check('[name="cfs[e2e_featured]"]');
   await Promise.all([p.waitForNavigation(), p.click('input[type=submit].button-primary')]);
@@ -109,10 +109,10 @@ const BASE = 'http://127.0.0.1:8099';
   t('Term screen reloads with the saved values', await p.locator('[name="cfs[e2e_color]"]').inputValue() === 'crimson' && await p.locator('[name="cfs[e2e_featured]"]').isChecked());
   await p.goto(`${BASE}/wp-admin/edit-tags.php?taxonomy=post_tag`);
   const tagLink = await p.locator('a.row-title').first().getAttribute('href').catch(() => null);
-  if (tagLink) { await p.goto(`${BASE}/wp-admin/${tagLink.replace(/^.*wp-admin\//, '')}`); t('A tag screen does not show the category group', await p.locator(`#cfs_group_${fx.term}`).count() === 0); }
+  if (tagLink) { await p.goto(`${BASE}/wp-admin/${tagLink.replace(/^.*wp-admin\//, '')}`); t('A tag screen does not show the category group', await p.locator(`#cfstudio_group_${fx.term}`).count() === 0); }
 
   // ---------------------------------------------------------------- Tools page
-  await p.goto(`${BASE}/wp-admin/edit.php?post_type=cfs_field_group&page=cfs-tools`);
+  await p.goto(`${BASE}/wp-admin/edit.php?post_type=cfstudio_field_group&page=cfs-tools`);
   t('Tools page lists groups and shows local JSON status', await p.locator('#cfs-export-form input[name="groups[]"]').count() >= 4 && await p.locator('#cfs-json-off, #cfs-json-on').count() === 1);
   t('Tools submenu entry exists', await p.locator('#adminmenu a[href*="page=cfs-tools"]').count() >= 1);
   await p.locator('#cfs-export-form input[name="groups[]"]').evaluateAll(els => els.forEach(e => { e.checked = false; }));
@@ -151,7 +151,7 @@ const BASE = 'http://127.0.0.1:8099';
   await Promise.all([p.waitForNavigation(), p.click('#cfs-import-form button[type=submit]')]);
   t('Submitting with no file shows an error', (await p.locator('#cfs-tools-err').count()) === 1);
   // no-nonce direct hit
-  const code = await p.evaluate(async (u) => (await fetch(u, { method: 'POST', body: new URLSearchParams({ action: 'cfs_export' }) })).status, `${BASE}/wp-admin/admin-post.php`);
+  const code = await p.evaluate(async (u) => (await fetch(u, { method: 'POST', body: new URLSearchParams({ action: 'cfstudio_export' }) })).status, `${BASE}/wp-admin/admin-post.php`);
   t('Export without the nonce is refused', code === 403 || code === 302 || code >= 400, code);
 
   // ---------------------------------------------------------------- REST (cookie auth)
@@ -172,22 +172,22 @@ const BASE = 'http://127.0.0.1:8099';
   res = await api('POST', `/wp/v2/posts/${rid}`, { cfs: res.json.cfs });
   const res2 = await api('GET', `/wp/v2/posts/${rid}&context=edit`);
   t('REST: writing the read values back changes nothing', res.status === 200 && JSON.stringify(res2.json.cfs) === JSON.stringify((await api('GET', `/wp/v2/posts/${rid}&context=edit`)).json.cfs) && res2.json.cfs.ui_own === 'via rest');
-  res = await api('GET', `/wp/v2/posts/${rid}&context=edit&cfs_format=1`);
-  t('REST: cfs_format=1 gives formatted values (true/false is boolean)', res.status === 200 && typeof res.json.cfs.ui_clone_e2e_featured === 'boolean', res.json && res.json.cfs);
+  res = await api('GET', `/wp/v2/posts/${rid}&context=edit&cfstudio_format=1`);
+  t('REST: cfstudio_format=1 gives formatted values (true/false is boolean)', res.status === 200 && typeof res.json.cfs.ui_clone_e2e_featured === 'boolean', res.json && res.json.cfs);
   res = await api('POST', `/wp/v2/pages/${fx.page}`, { cfs: { anything: 'x' } });
   t('REST: page without matching exposed groups accepts cfs but writes nothing', res.status === 200 && JSON.parse(php('pmeta', fx.page, 'anything')) === '');
   res = await api('POST', '/wp/v2/users/1', { cfs: { e2e_twitter: '@via_rest', e2e_skills: [{ skill: 'REST' }, { skill: 'JSON' }] } });
   t('REST: write user fields', res.status === 200 && JSON.parse(php('umeta', '1', 'e2e_twitter')) === '@via_rest' && JSON.parse(php('umeta', '1', 'e2e_skills_1_skill')) === 'JSON', res.json);
   res = await api('POST', `/wp/v2/categories/${fx.cat}`, { cfs: { e2e_color: 'gold' } });
   t('REST: write term fields', res.status === 200 && JSON.parse(php('tmeta', fx.cat, 'e2e_color')) === 'gold');
-  res = await api('POST', '/cfs/v1/options', { anything: 1 });
+  res = await api('POST', '/cfstudio/v1/options', { anything: 1 });
   t('REST: options endpoint answers for admin', res.status === 200, res.json);
-  res = await api('GET', '/cfs/v1/groups');
+  res = await api('GET', '/cfstudio/v1/groups');
   t('REST: groups schema lists exposed groups', res.status === 200 && res.json.some(g => g.title === 'P11e user group') && res.json.some(g => g.title === 'P11 UI Host'), res.json && res.json.map(g => g.title));
   const anon = await (await b.newContext()).newPage();
-  const ares = await anon.goto(`${BASE}/index.php?rest_route=/cfs/v1/groups`);
+  const ares = await anon.goto(`${BASE}/index.php?rest_route=/cfstudio/v1/groups`);
   t('REST: groups schema is closed to anonymous visitors', ares.status() === 401 || ares.status() === 403, ares.status());
-  const ares2 = await anon.goto(`${BASE}/index.php?rest_route=/cfs/v1/options`);
+  const ares2 = await anon.goto(`${BASE}/index.php?rest_route=/cfstudio/v1/options`);
   t('REST: options are readable anonymously', ares2.status() === 200);
 
   console.log('errs', errs.filter(e => !/Failed to load resource/.test(e)));

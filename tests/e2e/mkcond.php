@@ -3,7 +3,7 @@
 define( 'WP_USE_THEMES', false );
 require $argv[1] . '/wp-load.php';
 $rule = function ( $field, $op, $val ) { return array( 'field' => $field, 'operator' => $op, 'value' => $val ); };
-$fields = CFS_Field_Group::sanitize_fields(
+$fields = CFStudio_Field_Group::sanitize_fields(
 	array(
 		array( 'label' => 'Items', 'name' => 'items', 'type' => 'repeater', 'sub_fields' => array(
 			array( 'label' => 'More', 'name' => 'more', 'type' => 'true_false' ),
@@ -20,7 +20,7 @@ $fields = CFS_Field_Group::sanitize_fields(
 		array( 'label' => 'Red only', 'name' => 'red_only', 'type' => 'text', 'conditional_logic' => array( 'enabled' => 1, 'rules' => array( $rule( 'colours', '==', 'red' ) ) ) ),
 	)
 );
-$id = wp_insert_post( array( 'post_type' => 'cfs_field_group', 'post_title' => 'P10b conditional scope', 'post_status' => 'publish' ) );
-update_post_meta( $id, '_cfs_fields', wp_slash( $fields ) );
-update_post_meta( $id, '_cfs_location', array( array( array( 'param' => 'post_type', 'operator' => '==', 'value' => 'page' ) ) ) );
+$id = wp_insert_post( array( 'post_type' => 'cfstudio_field_group', 'post_title' => 'P10b conditional scope', 'post_status' => 'publish' ) );
+update_post_meta( $id, '_cfstudio_fields', wp_slash( $fields ) );
+update_post_meta( $id, '_cfstudio_location', array( array( array( 'param' => 'post_type', 'operator' => '==', 'value' => 'page' ) ) ) );
 echo $id;

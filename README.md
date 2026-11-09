@@ -18,10 +18,10 @@ well-documented WordPress plugin patterns.
       (text, textarea, select, true/false, WYSIWYG, image), location rules
       (post type only)
 - [x] **Phase 2** — Meta box rendering on post edit screen, save handler,
-      template API (`cfs_get_field()`, `cfs_the_field()`, `cfs_get_fields()`)
+      template API (`cfstudio_get_field()`, `cfstudio_the_field()`, `cfstudio_get_fields()`)
 - [x] **Phase 3** — Repeater field (nested repeaters, min/max rows, drag-reorder,
-      WYSIWYG/image sub fields, `cfs_have_rows()` loop API)
-- [x] **Phase 4** — Flexible Content field (layouts, per-row layout storage, `cfs_get_row_layout()`)
+      WYSIWYG/image sub fields, `cfstudio_have_rows()` loop API)
+- [x] **Phase 4** — Flexible Content field (layouts, per-row layout storage, `cfstudio_get_row_layout()`)
 - [x] **Phase 5** — Options Pages (code + UI registry, `options_page` location rule, `'option'` context)
 - [x] **Phase 6** — Remaining field types (gallery, relationship, taxonomy, date picker)
 - [x] **Phase 7** — Field group builder UI polish (drag-drop ordering, settings panel)
@@ -56,42 +56,42 @@ sections_0_heading   = Welcome                (row 0 is a "hero")
 sections_1_body      = <p>Hello</p>           (row 1 is a "text_block")
 ```
 
-Reads and writes go through `CFS_Storage`, so the same field code will serve
+Reads and writes go through `CFStudio_Storage`, so the same field code will serve
 Options Pages (`'option'` context) in a later phase.
 
 ## Template API
 
 ```php
 // Simple fields
-echo cfs_get_field( 'subtitle' );
-cfs_the_field( 'subtitle' );
+echo cfstudio_get_field( 'subtitle' );
+cfstudio_the_field( 'subtitle' );
 
 // Repeater (nested repeaters work the same way, inside the outer loop)
-while ( cfs_have_rows( 'team' ) ) {
-    cfs_the_row();
-    echo esc_html( cfs_get_sub_field( 'name' ) );
+while ( cfstudio_have_rows( 'team' ) ) {
+    cfstudio_the_row();
+    echo esc_html( cfstudio_get_sub_field( 'name' ) );
 
-    while ( cfs_have_rows( 'links' ) ) {
-        cfs_the_row();
-        echo esc_url( cfs_get_sub_field( 'url' ) );
+    while ( cfstudio_have_rows( 'links' ) ) {
+        cfstudio_the_row();
+        echo esc_url( cfstudio_get_sub_field( 'url' ) );
     }
 }
 
 // Or take the rows as an array
-$rows = cfs_get_field( 'team' );
+$rows = cfstudio_get_field( 'team' );
 ```
 
 ```php
 // Flexible content: branch on the row's layout
-while ( cfs_have_rows( 'sections' ) ) {
-    cfs_the_row();
+while ( cfstudio_have_rows( 'sections' ) ) {
+    cfstudio_the_row();
 
-    switch ( cfs_get_row_layout() ) {
+    switch ( cfstudio_get_row_layout() ) {
         case 'hero':
-            echo '<h1>' . esc_html( cfs_get_sub_field( 'heading' ) ) . '</h1>';
+            echo '<h1>' . esc_html( cfstudio_get_sub_field( 'heading' ) ) . '</h1>';
             break;
         case 'text_block':
-            echo wp_kses_post( cfs_get_sub_field( 'body' ) );
+            echo wp_kses_post( cfstudio_get_sub_field( 'body' ) );
             break;
     }
 }
@@ -117,7 +117,7 @@ end-to-end tests drive the same content in a browser.
 **More location rules.** Besides post type and options page: a specific post, post status, page template,
 post category, post taxonomy term, the current user's role, the role of the user being edited (field groups on
 **user profile screens**) and a taxonomy (field groups on **term edit screens**). Rules are OR-groups of AND-rules.
-Values live in user meta / term meta; read them with `cfs_get_field( 'x', 'user_5' )` / `'term_3'` (a `WP_User`
+Values live in user meta / term meta; read them with `cfstudio_get_field( 'x', 'user_5' )` / `'term_3'` (a `WP_User`
 or `WP_Term` object works too). A group that was on screen when you press Publish still saves, even if publishing
 (or a new page template) makes its rule stop matching.
 
@@ -130,16 +130,16 @@ clone each other are cut off safely.
 another site; groups carry a stable key, so importing again updates instead of duplicating, and everything goes
 through the same sanitizers as the builder.
 
-**Local JSON.** Create a writable `cfs-json` folder in your theme (or point the `cfs/json_dir` filter at one) and
+**Local JSON.** Create a writable `cfs-json` folder in your theme (or point the `cfstudio/json_dir` filter at one) and
 every saved field group is also written there as `{key}.json`, so field groups can live in git. Files that are new
 or newer than the database copy are offered on the Tools page as *Sync changes*.
 
 **REST API.** Tick *Show in REST API* on a group to expose it:
 
 - a `cfs` field on posts, pages, other REST post types, users and terms (read and write; write needs the usual
-  edit capability; `?cfs_format=1` on a read returns formatted values instead of raw ones)
-- `GET`/`POST /wp-json/cfs/v1/options` (reading is public like the front end; writing needs `manage_options`)
-- `GET /wp-json/cfs/v1/groups` — field schema of the exposed groups (needs `edit_posts`)
+  edit capability; `?cfstudio_format=1` on a read returns formatted values instead of raw ones)
+- `GET`/`POST /wp-json/cfstudio/v1/options` (reading is public like the front end; writing needs `manage_options`)
+- `GET /wp-json/cfstudio/v1/groups` — field schema of the exposed groups (needs `edit_posts`)
 
 ### Phase 12: blocks, Google Map, multilingual
 
@@ -147,22 +147,22 @@ or newer than the database copy are offered on the Tools page as *Sync changes*.
 *Block == your block*:
 
 ```php
-cfs_register_block( array(
-    'name'            => 'testimonial',          // becomes cfs/testimonial
+cfstudio_register_block( array(
+    'name'            => 'testimonial',          // becomes cfstudio/testimonial
     'title'           => 'Testimonial',
     'icon'            => 'format-quote',
     'render_template' => get_theme_file_path( 'blocks/testimonial.php' ),
 ) );
 ```
 
-or drop `cfs-blocks/{slug}/block.json` + `render.php` into the theme. In the template, `cfs_get_field( 'quote' )`,
-`cfs_have_rows()` and the other template functions read the block's own values. In the editor the block shows a live
+or drop `cfs-blocks/{slug}/block.json` + `render.php` into the theme. In the template, `cfstudio_get_field( 'quote' )`,
+`cfstudio_have_rows()` and the other template functions read the block's own values. In the editor the block shows a live
 preview; the toolbar button switches to the field form. Values are stored in the block's attributes (inside the post
 content), not in post meta, and are re-sanitised by the field types every time the block renders. WYSIWYG fields show
 as plain textareas inside blocks.
 
 **Google Map field.** Address, latitude, longitude and zoom. Works with typed coordinates; add a Google Maps API key
-(*Field Groups → Tools*, or the `cfs/google_maps_api_key` filter) for a searchable, draggable map in the editor. The
+(*Field Groups → Tools*, or the `cfstudio/google_maps_api_key` filter) for a searchable, draggable map in the editor. The
 `[cfs]` shortcode renders a keyless Google embed.
 
 **WPML / Polylang.** *Tools → Store Options Page values separately for each language* keeps `options_fr_…` values per
@@ -186,13 +186,13 @@ under **Field Groups → Options Pages**, or register one from code:
 
 ```php
 add_action( 'init', function () {
-    cfs_add_options_page( array(
+    cfstudio_add_options_page( array(
         'page_title' => 'Site Options',
         'menu_slug'  => 'site-options',
     ) );
 
     // Under an existing menu (Settings here):
-    cfs_add_options_sub_page( array(
+    cfstudio_add_options_sub_page( array(
         'page_title'  => 'Footer',
         'menu_slug'   => 'site-footer',
         'parent_slug' => 'options-general.php',
@@ -204,11 +204,11 @@ Then create a field group with the location **Options Page is equal to Site
 Options** and read the values by passing `'option'` where a post ID goes:
 
 ```php
-echo esc_html( cfs_get_field( 'phone', 'option' ) );
+echo esc_html( cfstudio_get_field( 'phone', 'option' ) );
 
-while ( cfs_have_rows( 'social_links', 'option' ) ) {
-    cfs_the_row();
-    echo esc_url( cfs_get_sub_field( 'url' ) );
+while ( cfstudio_have_rows( 'social_links', 'option' ) ) {
+    cfstudio_the_row();
+    echo esc_url( cfstudio_get_sub_field( 'url' ) );
 }
 ```
 
@@ -217,7 +217,7 @@ or in content: `[cfs field="phone" post_id="option"]`. Values live in
 namespace, so keep field names unique across them. A page's capability
 (default `manage_options`) controls who can open and save it.
 
-After leaving a loop early with `break`, call `cfs_reset_rows()`.
+After leaving a loop early with `break`, call `cfstudio_reset_rows()`.
 
 ## Branching
 

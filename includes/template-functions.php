@@ -23,19 +23,19 @@ if ( ! defined( 'ABSPATH' ) ) {
  *                           the raw stored value instead.
  * @return mixed|null Null when the field isn't found or has no value.
  */
-function cfs_get_field( $selector, $post_id = null, $format = true ) {
-	$post_id = cfs_resolve_post_id( $post_id );
+function cfstudio_get_field( $selector, $post_id = null, $format = true ) {
+	$post_id = cfstudio_resolve_post_id( $post_id );
 	if ( ! $post_id ) {
 		return null;
 	}
 
-	$groups = cfs_groups_for_context( $post_id );
-	$field  = CFS_Field_Group::find_field( $groups, $selector );
+	$groups = cfstudio_groups_for_context( $post_id );
+	$field  = CFStudio_Field_Group::find_field( $groups, $selector );
 	if ( ! $field ) {
 		return null;
 	}
 
-	$type_class = CFS_Field_Registry::get_class( $field['type'] );
+	$type_class = CFStudio_Field_Registry::get_class( $field['type'] );
 	if ( ! $type_class ) {
 		return null;
 	}
@@ -65,8 +65,8 @@ function cfs_get_field( $selector, $post_id = null, $format = true ) {
  * @param string   $selector Field name or field key.
  * @param int|null $post_id  Post ID, defaults to the current post.
  */
-function cfs_the_field( $selector, $post_id = null ) {
-	$value = cfs_get_field( $selector, $post_id );
+function cfstudio_the_field( $selector, $post_id = null ) {
+	$value = cfstudio_get_field( $selector, $post_id );
 
 	if ( null === $value ) {
 		return;
@@ -88,22 +88,22 @@ function cfs_the_field( $selector, $post_id = null ) {
  * @param int|null $post_id Post ID, defaults to the current post.
  * @return array
  */
-function cfs_get_fields( $post_id = null ) {
-	$post_id = cfs_resolve_post_id( $post_id );
+function cfstudio_get_fields( $post_id = null ) {
+	$post_id = cfstudio_resolve_post_id( $post_id );
 	if ( ! $post_id ) {
 		return array();
 	}
 
-	$groups = cfs_groups_for_context( $post_id );
+	$groups = cfstudio_groups_for_context( $post_id );
 	$values = array();
 
 	foreach ( $groups as $group ) {
 		foreach ( $group['fields'] as $field ) {
-			$class = CFS_Field_Registry::get_class( $field['type'] );
+			$class = CFStudio_Field_Registry::get_class( $field['type'] );
 			if ( ! $class || ! $class::stores_value() ) {
 				continue;
 			}
-			$values[ $field['name'] ] = cfs_get_field( $field['name'], $post_id );
+			$values[ $field['name'] ] = cfstudio_get_field( $field['name'], $post_id );
 		}
 	}
 
@@ -116,12 +116,12 @@ function cfs_get_fields( $post_id = null ) {
  * null falls back to the current post in The Loop.
  *
  * Every function below that takes $post_id accepts 'option' — the same
- * value is the storage "context" ($ctx) used by CFS_Storage.
+ * value is the storage "context" ($ctx) used by CFStudio_Storage.
  *
  * @param int|string|null $post_id Explicit post ID, 'option', or null.
  * @return int|string A post ID, the string 'option', or 0 if nothing could be resolved.
  */
-function cfs_resolve_post_id( $post_id ) {
+function cfstudio_resolve_post_id( $post_id ) {
 	if ( is_string( $post_id ) && in_array( strtolower( $post_id ), array( 'option', 'options' ), true ) ) {
 		return 'option';
 	}
@@ -139,7 +139,7 @@ function cfs_resolve_post_id( $post_id ) {
 	}
 
 	// Inside a custom block's template, fields default to the block's own values.
-	if ( null === $post_id && CFS_Blocks::in_block() ) {
+	if ( null === $post_id && CFStudio_Blocks::in_block() ) {
 		return 'block';
 	}
 
@@ -156,39 +156,39 @@ function cfs_resolve_post_id( $post_id ) {
  * groups matching its post type; for 'option', the groups on any options
  * page.
  *
- * @param int|string $ctx Post ID, 'option', 'user_N' or 'term_N' (from cfs_resolve_post_id()).
+ * @param int|string $ctx Post ID, 'option', 'user_N' or 'term_N' (from cfstudio_resolve_post_id()).
  * @return array
  */
-function cfs_groups_for_context( $ctx ) {
+function cfstudio_groups_for_context( $ctx ) {
 	if ( 'option' === $ctx ) {
-		return CFS_Field_Group::get_options_groups();
+		return CFStudio_Field_Group::get_options_groups();
 	}
 
 	if ( 'block' === $ctx ) {
-		return CFS_Field_Group::get_groups_for_block( CFS_Blocks::current() );
+		return CFStudio_Field_Group::get_groups_for_block( CFStudio_Blocks::current() );
 	}
 
 	if ( is_string( $ctx ) && preg_match( '/^user_(\d+)$/', $ctx, $m ) ) {
-		return CFS_Field_Group::get_groups_for_user( (int) $m[1] );
+		return CFStudio_Field_Group::get_groups_for_user( (int) $m[1] );
 	}
 
 	if ( is_string( $ctx ) && preg_match( '/^term_(\d+)$/', $ctx, $m ) ) {
-		return CFS_Field_Group::get_groups_for_term( (int) $m[1] );
+		return CFStudio_Field_Group::get_groups_for_term( (int) $m[1] );
 	}
 
-	return get_post_type( $ctx ) ? CFS_Field_Group::get_groups_for_post( $ctx ) : array();
+	return get_post_type( $ctx ) ? CFStudio_Field_Group::get_groups_for_post( $ctx ) : array();
 }
 
 /* ----------------------------------------------------------------------
  * Repeater loop API
  *
- *   while ( cfs_have_rows( 'team' ) ) {
- *       cfs_the_row();
- *       echo cfs_get_sub_field( 'name' );
+ *   while ( cfstudio_have_rows( 'team' ) ) {
+ *       cfstudio_the_row();
+ *       echo cfstudio_get_sub_field( 'name' );
  *
- *       while ( cfs_have_rows( 'links' ) ) {   // a repeater inside the row
- *           cfs_the_row();
- *           echo cfs_get_sub_field( 'url' );
+ *       while ( cfstudio_have_rows( 'links' ) ) {   // a repeater inside the row
+ *           cfstudio_the_row();
+ *           echo cfstudio_get_sub_field( 'url' );
  *       }
  *   }
  * -------------------------------------------------------------------- */
@@ -199,11 +199,11 @@ function cfs_groups_for_context( $ctx ) {
  * global another plugin could trip over.
  *
  * Each entry: array( 'selector', 'post_id', 'rows', 'index' ) where
- * 'index' is the current row (-1 before the first cfs_the_row()).
+ * 'index' is the current row (-1 before the first cfstudio_the_row()).
  *
  * @return array
  */
-function &cfs_loop_stack() {
+function &cfstudio_loop_stack() {
 	static $stack = array();
 
 	return $stack;
@@ -215,19 +215,19 @@ function &cfs_loop_stack() {
  * the rows run out it ends the loop (so the same repeater can be looped
  * again later) and returns false.
  *
- * Called inside another cfs_have_rows() loop with the name of one of the
+ * Called inside another cfstudio_have_rows() loop with the name of one of the
  * current row's sub fields, it loops that nested repeater instead.
  *
  * @param string   $selector Repeater field name (or sub field name when nested).
  * @param int|null $post_id  Post ID, defaults to the current post.
  * @return bool
  */
-function cfs_have_rows( $selector, $post_id = null ) {
-	$stack = &cfs_loop_stack();
+function cfstudio_have_rows( $selector, $post_id = null ) {
+	$stack = &cfstudio_loop_stack();
 	$depth = count( $stack );
 	$top   = $depth ? $stack[ $depth - 1 ] : null;
 
-	$resolved_id = cfs_resolve_post_id( $post_id );
+	$resolved_id = cfstudio_resolve_post_id( $post_id );
 
 	if ( $top && $top['selector'] === $selector && ( null === $post_id || $top['post_id'] === $resolved_id ) ) {
 		// Already looping this repeater: keep going.
@@ -247,9 +247,9 @@ function cfs_have_rows( $selector, $post_id = null ) {
 		if ( null === $rows ) {
 			// A fresh top-level loop: discard any loops left half-finished
 			// (a `break` out of an earlier while) so they cannot leak in.
-			$stack = array();
-			$rows  = cfs_get_field( $selector, $post_id );
-			$rows  = is_array( $rows ) ? $rows : array();
+			$stack   = array();
+			$rows    = cfstudio_get_field( $selector, $post_id );
+			$rows    = is_array( $rows ) ? $rows : array();
 			$post_id = $resolved_id;
 		}
 
@@ -279,8 +279,8 @@ function cfs_have_rows( $selector, $post_id = null ) {
  *
  * @return array|false
  */
-function cfs_the_row() {
-	$stack = &cfs_loop_stack();
+function cfstudio_the_row() {
+	$stack = &cfstudio_loop_stack();
 	$depth = count( $stack );
 
 	if ( ! $depth ) {
@@ -293,7 +293,7 @@ function cfs_the_row() {
 		return false;
 	}
 
-	$current['index']++;
+	++$current['index'];
 
 	return $current['rows'][ $current['index'] ];
 }
@@ -304,8 +304,8 @@ function cfs_the_row() {
  * @param string $name Sub field name.
  * @return mixed|null
  */
-function cfs_get_sub_field( $name ) {
-	$stack = cfs_loop_stack();
+function cfstudio_get_sub_field( $name ) {
+	$stack = cfstudio_loop_stack();
 	$depth = count( $stack );
 
 	if ( ! $depth ) {
@@ -324,12 +324,12 @@ function cfs_get_sub_field( $name ) {
 
 /**
  * Echo a sub field's value in the current row (escaped; arrays are
- * printed readably, same as cfs_the_field()).
+ * printed readably, same as cfstudio_the_field()).
  *
  * @param string $name Sub field name.
  */
-function cfs_the_sub_field( $name ) {
-	$value = cfs_get_sub_field( $name );
+function cfstudio_the_sub_field( $name ) {
+	$value = cfstudio_get_sub_field( $name );
 
 	if ( null === $value ) {
 		return;
@@ -345,29 +345,29 @@ function cfs_the_sub_field( $name ) {
 
 /**
  * Layout name of the current row of a flexible content loop (e.g. "hero"),
- * or null when not in a loop / before cfs_the_row(). Repeater rows have none.
+ * or null when not in a loop / before cfstudio_the_row(). Repeater rows have none.
  *
- *   while ( cfs_have_rows( 'sections' ) ) {
- *       cfs_the_row();
- *       switch ( cfs_get_row_layout() ) { case 'hero': ...; case 'text': ...; }
+ *   while ( cfstudio_have_rows( 'sections' ) ) {
+ *       cfstudio_the_row();
+ *       switch ( cfstudio_get_row_layout() ) { case 'hero': ...; case 'text': ...; }
  *   }
  *
  * @return string|null
  */
-function cfs_get_row_layout() {
-	$layout = cfs_get_sub_field( CFS_Field_Flexible::LAYOUT_KEY );
+function cfstudio_get_row_layout() {
+	$layout = cfstudio_get_sub_field( CFStudio_Field_Flexible::LAYOUT_KEY );
 
 	return is_string( $layout ) ? $layout : null;
 }
 
 /**
  * 1-based number of the current row (1 for the first row), or 0 when not
- * in a loop / before cfs_the_row().
+ * in a loop / before cfstudio_the_row().
  *
  * @return int
  */
-function cfs_get_row_index() {
-	$stack = cfs_loop_stack();
+function cfstudio_get_row_index() {
+	$stack = cfstudio_loop_stack();
 	$depth = count( $stack );
 
 	return $depth ? $stack[ $depth - 1 ]['index'] + 1 : 0;
@@ -376,8 +376,8 @@ function cfs_get_row_index() {
 /**
  * Abandon all active loops. Use after breaking out of a while loop early.
  */
-function cfs_reset_rows() {
-	$stack = &cfs_loop_stack();
+function cfstudio_reset_rows() {
+	$stack = &cfstudio_loop_stack();
 	$stack = array();
 }
 
@@ -389,7 +389,7 @@ function cfs_reset_rows() {
  * Register an Options Page from code (theme functions.php, client plugin).
  * Pages can also be created in the UI under Field Groups → Options Pages.
  *
- *   cfs_add_options_page( array(
+ *   cfstudio_add_options_page( array(
  *       'page_title' => 'Site Options',
  *       'menu_title' => 'Site Options',   // defaults to page_title
  *       'menu_slug'  => 'site-options',   // defaults to the menu title
@@ -400,12 +400,12 @@ function cfs_reset_rows() {
  *   ) );
  *
  * Then give a field group the location "Options Page is equal to Site
- * Options" and read values with cfs_get_field( 'phone', 'option' ).
+ * Options" and read values with cfstudio_get_field( 'phone', 'option' ).
  *
  * @param array $args Page args (all optional except a title or slug).
  * @return string|false The menu slug, or false if the args were unusable.
  */
-function cfs_add_options_page( $args = array() ) {
+function cfstudio_add_options_page( $args = array() ) {
 	if ( empty( $args ) ) {
 		$args = array(
 			'page_title' => __( 'Site Options', 'custom-fields-studio' ),
@@ -413,30 +413,30 @@ function cfs_add_options_page( $args = array() ) {
 		);
 	}
 
-	return CFS_Options_Page::add( $args );
+	return CFStudio_Options_Page::add( $args );
 }
 
 /**
  * Register an Options Page under an existing admin menu — a core one such
  * as 'options-general.php' (Settings), or another options page's slug.
  *
- * @param array $args Same as cfs_add_options_page(); 'parent_slug' is required.
+ * @param array $args Same as cfstudio_add_options_page(); 'parent_slug' is required.
  * @return string|false
  */
-function cfs_add_options_sub_page( $args = array() ) {
+function cfstudio_add_options_sub_page( $args = array() ) {
 	if ( empty( $args['parent_slug'] ) ) {
 		return false;
 	}
 
-	return CFS_Options_Page::add( $args );
+	return CFStudio_Options_Page::add( $args );
 }
 
 /**
- * Register a custom block (see CFS_Blocks for the arguments).
+ * Register a custom block (see CFStudio_Blocks for the arguments).
  *
  * @param array $args Block settings.
- * @return string|WP_Error The block name ("cfs/slug").
+ * @return string|WP_Error The block name ("cfstudio/slug").
  */
-function cfs_register_block( $args ) {
-	return CFS_Blocks::register( $args );
+function cfstudio_register_block( $args ) {
+	return CFStudio_Blocks::register( $args );
 }

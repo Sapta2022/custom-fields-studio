@@ -4,7 +4,7 @@ Tags: custom fields, repeater, flexible content, blocks, options page
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 0.12.4
+Stable tag: 0.13.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,10 +26,10 @@ Text, textarea, WYSIWYG, number, range, email, URL, password, select, checkbox, 
 * Repeater and flexible content, including nested ones
 * Clone fields to reuse a group inside another
 * Options pages, user profile fields and term fields
-* Custom Gutenberg blocks driven by your field groups (`cfs_register_block()`)
+* Custom Gutenberg blocks driven by your field groups (`cfstudio_register_block()`)
 * JSON export and import, plus optional local JSON sync to a theme folder
-* REST API: values on posts, users and terms, and `/cfs/v1/options`
-* Template functions (`cfs_get_field()`, `cfs_have_rows()`, `cfs_the_row()`, `cfs_get_sub_field()`) and the `[cfs]` shortcode
+* REST API: values on posts, users and terms, and `/cfstudio/v1/options`
+* Template functions (`cfstudio_get_field()`, `cfstudio_have_rows()`, `cfstudio_the_row()`, `cfstudio_get_sub_field()`) and the `[cfs]` shortcode
 * Optional per-language options for Polylang and WPML sites
 * Google Map field works with typed coordinates, and adds a searchable map when you add a Google Maps API key
 
@@ -38,17 +38,17 @@ Text, textarea, WYSIWYG, number, range, email, URL, password, select, checkbox, 
 1. Upload the plugin to `/wp-content/plugins/custom-fields-studio/`, or install it from the Plugins screen.
 2. Activate it through the Plugins screen.
 3. Go to **Field Groups > Add New**, add fields and choose where they should appear.
-4. In your theme, print values with `cfs_get_field( 'field_name' )` or the `[cfs field="field_name"]` shortcode.
+4. In your theme, print values with `cfstudio_get_field( 'field_name' )` or the `[cfs field="field_name"]` shortcode.
 
 == Frequently Asked Questions ==
 
 = How do I show a field on the front end? =
 
-Use `cfs_get_field( 'name' )` in a template, or `[cfs field="name"]` in content. For options pages use `[cfs field="name" post_id="option"]`; for users `post_id="user_1"`; for terms `post_id="term_5"`.
+Use `cfstudio_get_field( 'name' )` in a template, or `[cfs field="name"]` in content. For options pages use `[cfs field="name" post_id="option"]`; for users `post_id="user_1"`; for terms `post_id="term_5"`.
 
 = How do I add a custom block? =
 
-Register it with `cfs_register_block()` in your theme or a small plugin, then create a field group whose location rule is "Block is equal to" your block.
+Register it with `cfstudio_register_block()` in your theme or a small plugin, then create a field group whose location rule is "Block is equal to" your block.
 
 = Does the Google Map field need an API key? =
 
@@ -64,6 +64,10 @@ Values are saved as post, user, term or option meta in your own database. Nothin
 
 == Changelog ==
 
+= 0.13.0 =
+* Internal rename of the code prefix from cfs to cfstudio (functions, hooks, options, post type, REST namespace `cfstudio/v1`, block namespace `cfstudio/`). Existing data is migrated automatically on first load.
+* Theme developers: template functions are now cfstudio_get_field(), cfstudio_have_rows(), cfstudio_the_row(), etc.
+
 = 0.12.4 =
 * Fix: fields inside custom blocks (repeater rows, media pickers, relationship) now work when the block editor runs in an iframe.
 
@@ -77,6 +81,9 @@ Values are saved as post, user, term or option meta in your own database. Nothin
 * JSON import/export and local JSON sync, REST API, extra location rules, clone field, user and term fields.
 
 == Upgrade Notice ==
+
+= 0.13.0 =
+Template functions were renamed from cfs_* to cfstudio_*. Update your theme code after upgrading; saved data is migrated automatically.
 
 = 0.12.4 =
 Fixes repeater and media fields inside custom blocks on current WordPress versions.
