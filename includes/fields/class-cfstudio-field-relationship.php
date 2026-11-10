@@ -155,7 +155,7 @@ class CFStudio_Field_Relationship extends CFStudio_Field_Base {
 		}
 
 		$valid = array_keys( self::available_post_types() );
-		$types = array_values( array_intersect( array_map( 'sanitize_key', explode( ',', (string) wp_unslash( $_POST['types'] ?? '' ) ) ), $valid ) );
+		$types = array_values( array_intersect( array_map( 'sanitize_key', explode( ',', sanitize_text_field( wp_unslash( $_POST['types'] ?? '' ) ) ) ), $valid ) );
 		if ( ! $types ) {
 			wp_send_json_success( array() );
 		}
