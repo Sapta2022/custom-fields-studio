@@ -4,7 +4,7 @@ Tags: custom fields, repeater, flexible content, blocks, options page
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 0.13.0
+Stable tag: 0.13.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -64,6 +64,9 @@ Values are saved as post, user, term or option meta in your own database. Nothin
 
 == Changelog ==
 
+= 0.13.1 =
+* Fix: block names saved in field-group location rules are now migrated too.
+
 = 0.13.0 =
 * Internal rename of the code prefix from cfs to cfstudio (functions, hooks, options, post type, REST namespace `cfstudio/v1`, block namespace `cfstudio/`). Existing data is migrated automatically on first load.
 * Theme developers: template functions are now cfstudio_get_field(), cfstudio_have_rows(), cfstudio_the_row(), etc.
@@ -81,6 +84,9 @@ Values are saved as post, user, term or option meta in your own database. Nothin
 * JSON import/export and local JSON sync, REST API, extra location rules, clone field, user and term fields.
 
 == Upgrade Notice ==
+
+= 0.13.1 =
+Fixes custom blocks losing their field group after the 0.13.0 prefix rename.
 
 = 0.13.0 =
 Template functions were renamed from cfs_* to cfstudio_*. Update your theme code after upgrading; saved data is migrated automatically.

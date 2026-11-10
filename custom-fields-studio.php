@@ -3,7 +3,7 @@
  * Plugin Name:       Custom Fields Studio
  * Plugin URI:        https://github.com/Sapta2022/custom-fields-studio
  * Description:       Add custom fields to posts, pages, users, terms, options pages and Gutenberg blocks. Repeater, flexible content, clone, conditional logic, JSON import/export and a REST API.
- * Version:           0.13.0
+ * Version:           0.13.1
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Author:            Sapatarshi Samanta
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CFSTUDIO_VERSION', '0.13.0' );
+define( 'CFSTUDIO_VERSION', '0.13.1' );
 define( 'CFSTUDIO_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CFSTUDIO_URL', plugin_dir_url( __FILE__ ) );
 define( 'CFSTUDIO_BASENAME', plugin_basename( __FILE__ ) );

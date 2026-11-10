@@ -21,11 +21,17 @@ class CFStudio_Migrate {
 	 * Run once per site (called from the loader on plugins_loaded, before the post type is registered).
 	 */
 	public static function maybe_run() {
-		if ( get_option( self::DONE_OPTION ) ) {
-			return;
+		$done = get_option( self::DONE_OPTION );
+		if ( ! $done ) {
+			self::run();
 		}
-		self::run();
-		update_option( self::DONE_OPTION, CFSTUDIO_VERSION, false );
+		// 0.13.1: block names inside saved location rules (missed in 0.13.0).
+		if ( ! $done || version_compare( (string) $done, '0.13.1', '<' ) ) {
+			self::migrate_block_locations();
+		}
+		if ( $done !== CFSTUDIO_VERSION ) {
+			update_option( self::DONE_OPTION, CFSTUDIO_VERSION, false );
+		}
 	}
 
 	/**
@@ -58,5 +64,37 @@ class CFStudio_Migrate {
 
 		clean_post_cache( 0 );
 		wp_cache_flush();
+	}
+
+	/**
+	 * Rewrite "cfs/<name>" block values in every group's location rules.
+	 */
+	public static function migrate_block_locations() {
+		$ids = get_posts(
+			array(
+				'post_type'   => 'cfstudio_field_group',
+				'post_status' => 'any',
+				'numberposts' => -1,
+				'fields'      => 'ids',
+			)
+		);
+		foreach ( $ids as $id ) {
+			$location = get_post_meta( $id, '_cfstudio_location', true );
+			if ( ! is_array( $location ) ) {
+				continue;
+			}
+			$changed = false;
+			foreach ( $location as $gi => $group ) {
+				foreach ( (array) $group as $ri => $rule ) {
+					if ( isset( $rule['param'], $rule['value'] ) && 'block' === $rule['param'] && 0 === strpos( (string) $rule['value'], 'cfs/' ) ) {
+						$location[ $gi ][ $ri ]['value'] = 'cfstudio/' . substr( $rule['value'], 4 );
+						$changed                         = true;
+					}
+				}
+			}
+			if ( $changed ) {
+				update_post_meta( $id, '_cfstudio_location', $location );
+			}
+		}
 	}
 }
