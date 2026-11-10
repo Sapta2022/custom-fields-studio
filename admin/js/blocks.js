@@ -1,7 +1,7 @@
 /**
  * Editor side of Custom Fields Studio blocks.
  *
- * Every block registered with cfs_register_block() is registered here too.
+ * Every block registered with cfstudio_register_block() is registered here too.
  * The block's field values are a form-encoded string kept in the `form`
  * attribute; the field form itself is HTML fetched from the server (so every
  * field type, repeaters included, works exactly as in a meta box).
@@ -80,7 +80,7 @@
 			}
 
 			wp.apiFetch( {
-				path: '/cfs/v1/block-form',
+				path: '/cfstudio/v1/block-form',
 				method: 'POST',
 				data: { block: props.block, form: props.form }
 			} ).then( function ( res ) {

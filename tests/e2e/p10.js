@@ -6,7 +6,7 @@ const BASE = 'http://127.0.0.1:8099';
   const { b, p, errs } = await launch(4200);
   await login(p);
   p.on('dialog', d => d.accept());
-  await p.goto(`${BASE}/wp-admin/post-new.php?post_type=cfs_field_group`);
+  await p.goto(`${BASE}/wp-admin/post-new.php?post_type=cfstudio_field_group`);
   await p.fill('#title', 'P10 layout and logic');
   const rows = () => p.locator('#cfs-fields-rows > tr.cfs-field-row');
   const main = (i) => rows().nth(i).locator('> td > .cfs-field-row-main');
@@ -61,7 +61,7 @@ const BASE = 'http://127.0.0.1:8099';
   await panel(2).locator('> .cfs-cond .cfs-cond-op').first().selectOption('==');
   t('"is equal to" shows it again', await panel(2).locator('> .cfs-cond .cfs-cond-value').first().isVisible());
 
-  await p.locator('select[name^="cfs_location"][name$="[value]"]').first().selectOption('page');
+  await p.locator('select[name^="cfstudio_location"][name$="[value]"]').first().selectOption('page');
   await Promise.all([p.waitForNavigation(), p.click('#publish')]);
   await p.locator('.cfs-expand-all').click();
   t('types persisted', JSON.stringify(await p.locator('#cfs-fields-rows > tr.cfs-field-row > td > .cfs-field-row-main .cfs-field-type-select').evaluateAll(a => a.map(e => e.value))) === JSON.stringify(defs.map(d => d[1])));

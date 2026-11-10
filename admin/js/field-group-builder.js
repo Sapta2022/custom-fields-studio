@@ -6,7 +6,7 @@
  * matching a row's selected type, and the location-rules AND/OR builder.
  *
  * Rows are never renamed after they're created. A new row gets a unique
- * key in its input names ("cfs_fields[n3][label]"), and PHP only looks at
+ * key in its input names ("cfstudio_fields[n3][label]"), and PHP only looks at
  * the order the rows arrive in, which is DOM order — so drag-reordering
  * needs no re-indexing, and nesting can't get its indices out of step.
  */
@@ -22,7 +22,7 @@
 		return 'n' + rowKeyCounter;
 	}
 
-	/** A random unique field key, same shape as PHP's CFS_Field_Group::new_key(). */
+	/** A random unique field key, same shape as PHP's CFStudio_Field_Group::new_key(). */
 	function newFieldKey() {
 		var bytes = new Uint8Array( 6 );
 		window.crypto.getRandomValues( bytes );
@@ -254,11 +254,11 @@
 				.find( '.cfs-location-rule' )
 				.each( function ( ruleIndex ) {
 					$( this )
-						.find( '[name*="cfs_location["]' )
+						.find( '[name*="cfstudio_location["]' )
 						.each( function () {
 							this.name = this.name.replace(
-								/cfs_location\[[^\]]*\]\[[^\]]*\]/,
-								'cfs_location[' + groupIndex + '][' + ruleIndex + ']'
+								/cfstudio_location\[[^\]]*\]\[[^\]]*\]/,
+								'cfstudio_location[' + groupIndex + '][' + ruleIndex + ']'
 							);
 						} );
 				} );

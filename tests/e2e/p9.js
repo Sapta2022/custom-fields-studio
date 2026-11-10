@@ -7,7 +7,7 @@ const BASE = 'http://127.0.0.1:8099';
   const { b, p, errs } = await launch(4200);
   await login(p);
   p.on('dialog', d => d.accept());
-  await p.goto(`${BASE}/wp-admin/post-new.php?post_type=cfs_field_group`);
+  await p.goto(`${BASE}/wp-admin/post-new.php?post_type=cfstudio_field_group`);
   await p.fill('#title', 'P9 all new types');
   const rows = () => p.locator('#cfs-fields-rows > tr.cfs-field-row');
   const main = (i) => rows().nth(i).locator('> td > .cfs-field-row-main');
@@ -43,7 +43,7 @@ const BASE = 'http://127.0.0.1:8099';
       else await el.fill(v);
     }
   }
-  await p.locator('select[name^="cfs_location"][name$="[value]"]').first().selectOption('page');
+  await p.locator('select[name^="cfstudio_location"][name$="[value]"]').first().selectOption('page');
   await Promise.all([p.waitForNavigation(), p.click('#publish')]);
   const gid = new URL(p.url()).searchParams.get('post');
   t('group published', !!gid);

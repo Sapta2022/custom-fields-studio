@@ -9,7 +9,7 @@ let ok=0,bad=0; const t=(n,c,x)=>{ c?ok++:bad++; console.log((c?'PASS ':'FAIL ')
   const { b, p, errs } = await launch(3000);
   await login(p);
   p.on('dialog', d => d.accept());
-  await p.goto('http://127.0.0.1:8099/wp-admin/post-new.php?post_type=cfs_field_group');
+  await p.goto('http://127.0.0.1:8099/wp-admin/post-new.php?post_type=cfstudio_field_group');
   await p.fill('#title', 'QA UI Built Group');
   const rows = () => p.locator('#cfs-fields-rows > tr.cfs-field-row');
   let n = 0;

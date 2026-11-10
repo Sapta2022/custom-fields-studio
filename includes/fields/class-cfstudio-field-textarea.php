@@ -1,0 +1,67 @@
+<?php
+/**
+ * Textarea field type.
+ *
+ * @package CustomFieldsStudio
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+class CFStudio_Field_Textarea extends CFStudio_Field_Base {
+
+	public static $type  = 'textarea';
+	public static $label = 'Text Area';
+
+	public static function defaults() {
+		return array(
+			'default_value' => '',
+			'placeholder'   => '',
+			'rows'          => 4,
+		);
+	}
+
+	public static function render_settings( $field, $prefix ) {
+		?>
+		<div class="cfs-field-setting" data-type="textarea">
+			<label><?php esc_html_e( 'Default Value', 'custom-fields-studio' ); ?></label>
+			<textarea name="<?php echo esc_attr( $prefix ); ?>[default_value]" rows="2"><?php echo esc_textarea( $field['default_value'] ?? '' ); ?></textarea>
+		</div>
+		<div class="cfs-field-setting" data-type="textarea">
+			<label><?php esc_html_e( 'Placeholder Text', 'custom-fields-studio' ); ?></label>
+			<input type="text" name="<?php echo esc_attr( $prefix ); ?>[placeholder]" value="<?php echo esc_attr( $field['placeholder'] ?? '' ); ?>" />
+		</div>
+		<div class="cfs-field-setting" data-type="textarea">
+			<label><?php esc_html_e( 'Rows', 'custom-fields-studio' ); ?></label>
+			<input type="number" min="1" name="<?php echo esc_attr( $prefix ); ?>[rows]" value="<?php echo esc_attr( $field['rows'] ?? 4 ); ?>" />
+		</div>
+		<?php
+	}
+
+	public static function sanitize( $raw ) {
+		return array(
+			'default_value' => isset( $raw['default_value'] ) ? sanitize_textarea_field( wp_unslash( $raw['default_value'] ) ) : '',
+			'placeholder'   => isset( $raw['placeholder'] ) ? sanitize_text_field( wp_unslash( $raw['placeholder'] ) ) : '',
+			'rows'          => isset( $raw['rows'] ) ? absint( $raw['rows'] ) : 4,
+		);
+	}
+
+	public static function render_input( $field, $value, $name ) {
+		if ( null === $value ) {
+			$value = $field['default_value'] ?? '';
+		}
+		printf(
+			'<textarea class="large-text" name="%1$s" rows="%2$d" placeholder="%3$s">%4$s</textarea>',
+			esc_attr( $name ),
+			absint( $field['rows'] ?? 4 ),
+			esc_attr( $field['placeholder'] ?? '' ),
+			esc_textarea( $value )
+		);
+	}
+
+	public static function sanitize_value( $raw_value, $field ) {
+		// Browsers submit CRLF; store plain \n so values compare and render the same everywhere.
+		return str_replace( array( "\r\n", "\r" ), "\n", sanitize_textarea_field( $raw_value ) );
+	}
+}

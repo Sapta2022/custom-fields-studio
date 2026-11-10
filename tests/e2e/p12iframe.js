@@ -8,17 +8,17 @@ const setOpt = (k, v) => execFileSync('php', ['-r', `define('WP_USE_THEMES',fals
 let ok=0,bad=0; const t=(n,c,x)=>{ c?ok++:bad++; console.log((c?'PASS ':'FAIL ')+n+(c?'':' '+JSON.stringify(x))); };
 const BASE = 'http://127.0.0.1:8099';
 (async () => {
-  setup('teardown'); setup('setup'); setOpt('cfs_qa_block_editor', '1');
+  setup('teardown'); setup('setup'); setOpt('cfstudio_qa_block_editor', '1');
   const { b, p, errs } = await launch(2400); await login(p);
   await p.goto(`${BASE}/wp-admin/post-new.php?post_type=page`);
-  await p.waitForFunction(() => window.wp && wp.data && wp.data.select('core/editor') && wp.blocks.getBlockType('cfs/p12e-hero'), null, { timeout: 30000 });
+  await p.waitForFunction(() => window.wp && wp.data && wp.data.select('core/editor') && wp.blocks.getBlockType('cfstudio/p12e-hero'), null, { timeout: 30000 });
   await p.evaluate(() => { wp.data.dispatch('core/preferences').set('core/edit-post', 'welcomeGuide', false); });
-  await p.evaluate(() => { wp.data.dispatch('core/block-editor').insertBlocks(wp.blocks.createBlock('cfs/p12e-hero')); });
+  await p.evaluate(() => { wp.data.dispatch('core/block-editor').insertBlocks(wp.blocks.createBlock('cfstudio/p12e-hero')); });
   // WordPress 6.5 does not iframe this editor, so build the iframe the way newer
   // WordPress does: render the block's form inside a separate document.
   await p.waitForSelector('.cfs-block-form input[name="cfs[heading]"]', { timeout: 20000 });
   await p.evaluate(async () => {
-    const res = await wp.apiFetch({ path: '/cfs/v1/block-form', method: 'POST', data: { block: 'cfs/p12e-hero', form: '' } });
+    const res = await wp.apiFetch({ path: '/cfstudio/v1/block-form', method: 'POST', data: { block: 'cfstudio/p12e-hero', form: '' } });
     const fr = document.createElement('iframe'); fr.id = 'fx'; fr.style.cssText = 'width:900px;height:600px';
     document.body.appendChild(fr);
     fr.contentDocument.body.innerHTML = '<div id="host">' + res.html + '</div>';
@@ -32,7 +32,7 @@ const BASE = 'http://127.0.0.1:8099';
   const n = await p.evaluate(() => { const d = window.__fx.contentDocument; d.querySelector('.cfs-repeater-remove').click(); return d.querySelectorAll('[name$="[item]"]').length; });
   t('Remove row works inside the iframe', n >= 1);
   t('cfsBindDocument is idempotent', await p.evaluate(() => { const before = window.__fx.contentDocument.querySelectorAll('[name$="[item]"]').length; window.cfsBindDocument(window.__fx.contentDocument); window.__fx.contentDocument.querySelector('.cfs-repeater-add').click(); return window.__fx.contentDocument.querySelectorAll('[name$="[item]"]').length === before + 1; }));
-  setOpt('cfs_qa_block_editor', 'false'); setup('teardown');
+  setOpt('cfstudio_qa_block_editor', 'false'); setup('teardown');
   console.log(`\n${ok} passed, ${bad} failed`, errs.length ? errs.slice(0,3) : '');
   await b.close();
 })();

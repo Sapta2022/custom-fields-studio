@@ -24,10 +24,10 @@ require_once CFS_QA_PATH . 'inc/tests-p12.php';
 add_action(
 	'init',
 	function () {
-		if ( ! function_exists( 'cfs_add_options_page' ) ) {
+		if ( ! function_exists( 'cfstudio_add_options_page' ) ) {
 			return;
 		}
-		cfs_add_options_page(
+		cfstudio_add_options_page(
 			array(
 				'page_title'      => 'QA Options',
 				'menu_slug'       => 'qa-options',
@@ -37,7 +37,7 @@ add_action(
 				'updated_message' => 'QA options saved.',
 			)
 		);
-		cfs_add_options_sub_page(
+		cfstudio_add_options_sub_page(
 			array(
 				'page_title'  => 'QA Options (Settings)',
 				'menu_slug'   => 'qa-options-sub',
@@ -51,41 +51,41 @@ add_action(
 add_action(
 	'admin_menu',
 	function () {
-		add_management_page( 'CFS QA Suite', 'CFS QA Suite', 'manage_options', 'cfs-qa-suite', 'cfs_qa_admin_page' );
+		add_management_page( 'CFS QA Suite', 'CFS QA Suite', 'manage_options', 'cfs-qa-suite', 'cfstudio_qa_admin_page' );
 	}
 );
 
-function cfs_qa_admin_page() {
+function cfstudio_qa_admin_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
 	$results = null;
 	$notice  = '';
 
-	if ( isset( $_POST['cfs_qa_action'] ) && check_admin_referer( 'cfs_qa' ) ) {
-		$action = sanitize_key( $_POST['cfs_qa_action'] );
+	if ( isset( $_POST['cfstudio_qa_action'] ) && check_admin_referer( 'cfstudio_qa' ) ) {
+		$action = sanitize_key( $_POST['cfstudio_qa_action'] );
 		if ( 'seed' === $action ) {
-			cfs_qa_seed();
+			cfstudio_qa_seed();
 			$notice = 'Demo content created.';
 		} elseif ( 'clean' === $action ) {
-			cfs_qa_cleanup();
+			cfstudio_qa_cleanup();
 			$notice = 'All QA content removed.';
 		} elseif ( 'run' === $action ) {
-			$results = cfs_qa_run_tests();
+			$results = cfstudio_qa_run_tests();
 		}
 	}
 
-	$ids = cfs_qa_ids();
+	$ids = cfstudio_qa_ids();
 	echo '<div class="wrap"><h1>CFS QA Suite</h1>';
 	if ( $notice ) {
 		echo '<div class="notice notice-success"><p>' . esc_html( $notice ) . '</p></div>';
 	}
 	echo '<form method="post">';
-	wp_nonce_field( 'cfs_qa' );
+	wp_nonce_field( 'cfstudio_qa' );
 	echo '<p>';
-	echo '<button class="button button-primary" name="cfs_qa_action" value="run">Run all tests (re-creates demo content)</button> ';
-	echo '<button class="button" name="cfs_qa_action" value="seed">Create demo content only</button> ';
-	echo '<button class="button" name="cfs_qa_action" value="clean" onclick="return confirm(\'Remove all QA groups, pages, posts, images and values?\')">Remove all QA content</button>';
+	echo '<button class="button button-primary" name="cfstudio_qa_action" value="run">Run all tests (re-creates demo content)</button> ';
+	echo '<button class="button" name="cfstudio_qa_action" value="seed">Create demo content only</button> ';
+	echo '<button class="button" name="cfstudio_qa_action" value="clean" onclick="return confirm(\'Remove all QA groups, pages, posts, images and values?\')">Remove all QA content</button>';
 	echo '</p></form>';
 
 	if ( ! empty( $ids['page'] ) ) {

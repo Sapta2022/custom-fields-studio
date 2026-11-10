@@ -2,19 +2,19 @@
 /**
  * Creates (and removes) the QA fixtures: images, posts, terms, the three
  * field groups, three demo pages and the options-page values. Everything
- * is tagged with the _cfs_qa meta / option prefix so cleanup is exact.
+ * is tagged with the _cfstudio_qa meta / option prefix so cleanup is exact.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function cfs_qa_ids() {
-	return (array) get_option( 'cfs_qa_ids', array() );
+function cfstudio_qa_ids() {
+	return (array) get_option( 'cfstudio_qa_ids', array() );
 }
 
 /** Colour PNG attachment. */
-function cfs_qa_make_image( $n ) {
+function cfstudio_qa_make_image( $n ) {
 	require_once ABSPATH . 'wp-admin/includes/image.php';
 	$colors = array( array( 220, 60, 60 ), array( 60, 160, 90 ), array( 60, 100, 220 ), array( 230, 180, 40 ), array( 140, 70, 190 ) );
 	$c      = $colors[ $n % count( $colors ) ];
@@ -38,13 +38,13 @@ function cfs_qa_make_image( $n ) {
 		$up['file']
 	);
 	wp_update_attachment_metadata( $id, wp_generate_attachment_metadata( $id, $up['file'] ) );
-	update_post_meta( $id, '_cfs_qa', 1 );
+	update_post_meta( $id, '_cfstudio_qa', 1 );
 	update_post_meta( $id, '_wp_attachment_image_alt', 'QA alt ' . $n );
 
 	return $id;
 }
 
-function cfs_qa_term( $name, $tax ) {
+function cfstudio_qa_term( $name, $tax ) {
 	$t = get_term_by( 'name', $name, $tax );
 	if ( $t ) {
 		return (int) $t->term_id;
@@ -54,10 +54,10 @@ function cfs_qa_term( $name, $tax ) {
 	return is_wp_error( $r ) ? 0 : (int) $r['term_id'];
 }
 
-function cfs_qa_cleanup() {
+function cfstudio_qa_cleanup() {
 	global $wpdb;
-	foreach ( array( 'cfs_field_group', 'page', 'post', 'attachment' ) as $type ) {
-		$ids = get_posts( array( 'post_type' => $type, 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids', 'meta_key' => '_cfs_qa', 'meta_value' => 1 ) ); // phpcs:ignore
+	foreach ( array( 'cfstudio_field_group', 'page', 'post', 'attachment' ) as $type ) {
+		$ids = get_posts( array( 'post_type' => $type, 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids', 'meta_key' => '_cfstudio_qa', 'meta_value' => 1 ) ); // phpcs:ignore
 		foreach ( $ids as $id ) {
 			wp_delete_post( $id, true );
 		}
@@ -73,46 +73,46 @@ function cfs_qa_cleanup() {
 			}
 		}
 	}
-	delete_option( 'cfs_qa_ids' );
+	delete_option( 'cfstudio_qa_ids' );
 }
 
 /** Run a post save through the real meta-box save handler. */
-function cfs_qa_save_post_values( $post_id, $values ) {
+function cfstudio_qa_save_post_values( $post_id, $values ) {
 	$_POST = array(
-		CFS_Meta_Box::NONCE_FIELD => wp_create_nonce( CFS_Meta_Box::NONCE_ACTION ),
+		CFStudio_Meta_Box::NONCE_FIELD => wp_create_nonce( CFStudio_Meta_Box::NONCE_ACTION ),
 		'cfs'                     => wp_slash( $values ),
 	);
 	wp_update_post( array( 'ID' => $post_id, 'post_status' => 'publish' ) );
 	$_POST = array();
 }
 
-function cfs_qa_seed() {
-	cfs_qa_cleanup();
+function cfstudio_qa_seed() {
+	cfstudio_qa_cleanup();
 	$ids = array();
 
 	// Fixtures.
 	for ( $i = 1; $i <= 5; $i++ ) {
-		$ids['img'][ $i ] = cfs_qa_make_image( $i );
+		$ids['img'][ $i ] = cfstudio_qa_make_image( $i );
 	}
 	foreach ( array( 1, 2, 3 ) as $i ) {
 		$pid = wp_insert_post( array( 'post_title' => 'QA Related Post ' . $i, 'post_status' => 'publish', 'post_content' => 'QA related body ' . $i ) );
-		update_post_meta( $pid, '_cfs_qa', 1 );
+		update_post_meta( $pid, '_cfstudio_qa', 1 );
 		$ids['rel'][ $i ] = $pid;
 	}
-	$ids['cat'] = array( 1 => cfs_qa_term( 'QA Cat A', 'category' ), 2 => cfs_qa_term( 'QA Cat B', 'category' ), 3 => cfs_qa_term( 'QA Cat C', 'category' ) );
-	$ids['tag'] = array( 1 => cfs_qa_term( 'qa-tag-1', 'post_tag' ), 2 => cfs_qa_term( 'qa-tag-2', 'post_tag' ), 3 => cfs_qa_term( 'qa-tag-3', 'post_tag' ) );
+	$ids['cat'] = array( 1 => cfstudio_qa_term( 'QA Cat A', 'category' ), 2 => cfstudio_qa_term( 'QA Cat B', 'category' ), 3 => cfstudio_qa_term( 'QA Cat C', 'category' ) );
+	$ids['tag'] = array( 1 => cfstudio_qa_term( 'qa-tag-1', 'post_tag' ), 2 => cfstudio_qa_term( 'qa-tag-2', 'post_tag' ), 3 => cfstudio_qa_term( 'qa-tag-3', 'post_tag' ) );
 
 	// Groups.
-	foreach ( cfs_qa_group_definitions() as $key => $def ) {
-		$gid = wp_insert_post( array( 'post_type' => 'cfs_field_group', 'post_title' => $def['title'], 'post_status' => 'publish' ) );
-		update_post_meta( $gid, '_cfs_fields', wp_slash( CFS_Field_Group::sanitize_fields( $def['fields'] ) ) );
-		update_post_meta( $gid, '_cfs_location', CFS_Location_Rules::sanitize( $def['location'] ) );
-		update_post_meta( $gid, '_cfs_options', $def['options'] );
-		update_post_meta( $gid, '_cfs_qa', 1 );
+	foreach ( cfstudio_qa_group_definitions() as $key => $def ) {
+		$gid = wp_insert_post( array( 'post_type' => 'cfstudio_field_group', 'post_title' => $def['title'], 'post_status' => 'publish' ) );
+		update_post_meta( $gid, '_cfstudio_fields', wp_slash( CFStudio_Field_Group::sanitize_fields( $def['fields'] ) ) );
+		update_post_meta( $gid, '_cfstudio_location', CFStudio_Location_Rules::sanitize( $def['location'] ) );
+		update_post_meta( $gid, '_cfstudio_options', $def['options'] );
+		update_post_meta( $gid, '_cfstudio_qa', 1 );
 		$ids['group'][ $key ] = $gid;
 	}
 
-	CFS_Field_Group::flush_cache();
+	CFStudio_Field_Group::flush_cache();
 
 	$I = $ids['img'];
 	$R = $ids['rel'];
@@ -121,7 +121,7 @@ function cfs_qa_seed() {
 
 	// Pages (shortcode tour for every field of the groups on that page).
 	$names = array();
-	foreach ( cfs_qa_group_definitions() as $key => $def ) {
+	foreach ( cfstudio_qa_group_definitions() as $key => $def ) {
 		if ( 'options' === $key ) {
 			continue;
 		}
@@ -146,7 +146,7 @@ function cfs_qa_seed() {
 	);
 	foreach ( $pages as $n => $title ) {
 		$pid = wp_insert_post( array( 'post_type' => 'page', 'post_title' => $title, 'post_status' => 'draft' ) );
-		update_post_meta( $pid, '_cfs_qa', 1 );
+		update_post_meta( $pid, '_cfstudio_qa', 1 );
 		$ids['page'][ $n ] = $pid;
 	}
 
@@ -171,7 +171,7 @@ function cfs_qa_seed() {
 	$repeater_values_full = array( 'qa_rep_table' => $table_rows( 3 ), 'qa_rep_block' => array( 'b0' => $block_row( 1 ), 'b1' => $block_row( 2 ) ), 'qa_flex' => $flex );
 
 	// Page 1.
-	cfs_qa_save_post_values(
+	cfstudio_qa_save_post_values(
 		$ids['page'][1],
 		array_merge(
 			array(
@@ -204,7 +204,7 @@ function cfs_qa_seed() {
 	wp_update_post( array( 'ID' => $ids['page'][1], 'post_content' => $tour( array( 'basic', 'repeater' ), $ids['page'][1] ) ) );
 
 	// Page 2: richer repeater/flexible, a few basics.
-	cfs_qa_save_post_values(
+	cfstudio_qa_save_post_values(
 		$ids['page'][2],
 		array_merge(
 			$repeater_values_full,
@@ -215,7 +215,7 @@ function cfs_qa_seed() {
 
 	// Page 3: limits / invalid / special characters.
 	$special = "Tom & Jerry's <b>x</b> \"q\" \\ ñ 日本 😀";
-	cfs_qa_save_post_values(
+	cfstudio_qa_save_post_values(
 		$ids['page'][3],
 		array(
 			'qa_text'          => $special . ' and a long tail past twenty chars',
@@ -249,8 +249,8 @@ function cfs_qa_seed() {
 
 	// Options page values (saved through the field classes, 'option' context).
 	$opt = array();
-	foreach ( cfs_qa_group_definitions()['options']['fields'] as $f ) {
-		$sf = CFS_Field_Group::sanitize_fields( array( $f ) );
+	foreach ( cfstudio_qa_group_definitions()['options']['fields'] as $f ) {
+		$sf = CFStudio_Field_Group::sanitize_fields( array( $f ) );
 		$opt[ $f['name'] ] = $sf[0];
 	}
 	$vals = array(
@@ -267,11 +267,11 @@ function cfs_qa_seed() {
 		'qa_opt_banners'    => array( 'x' => array( 'cfs_layout' => 'notice', 'message' => 'Planned maintenance', 'urgent' => '1' ) ),
 	);
 	foreach ( $vals as $name => $v ) {
-		$c = CFS_Field_Registry::get_class( $opt[ $name ]['type'] );
+		$c = CFStudio_Field_Registry::get_class( $opt[ $name ]['type'] );
 		$c::save_value( $opt[ $name ], $v, 'option' );
 	}
 
-	update_option( 'cfs_qa_ids', $ids, false );
+	update_option( 'cfstudio_qa_ids', $ids, false );
 
 	return $ids;
 }
