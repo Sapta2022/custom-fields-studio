@@ -640,7 +640,7 @@
 		function search( $rel ) {
 			var $results = $rel.find( '.cfs-rel-results' );
 			$.post( cfg.ajaxUrl, {
-				action: 'cfs_relationship_search',
+				action: 'cfstudio_relationship_search',
 				nonce: cfg.relationshipNonce,
 				types: $rel.attr( 'data-types' ),
 				s: $rel.find( '.cfs-rel-search' ).val(),

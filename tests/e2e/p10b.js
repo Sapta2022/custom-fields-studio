@@ -10,7 +10,7 @@ const BASE='http://127.0.0.1:8099';
   await login(p);
   await p.goto(`${BASE}/wp-admin/post-new.php?post_type=page`);
   await p.fill('#title', 'P10b page');
-  const box = p.locator('#cfs_group_' + gid);
+  const box = p.locator('#cfstudio_group_' + gid);
   const rowsL = box.locator('.cfs-repeater-row');
   await box.locator('.cfs-repeater-add').first().click();
   await box.locator('.cfs-repeater-add').first().click();

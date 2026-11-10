@@ -15,15 +15,15 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-$field_groups = get_posts(
+$cfstudio_field_groups = get_posts(
 	array(
-		'post_type'      => 'cfs_field_group',
-		'post_status'    => 'any',
-		'numberposts'    => -1,
-		'fields'         => 'ids',
+		'post_type'   => 'cfstudio_field_group',
+		'post_status' => 'any',
+		'numberposts' => -1,
+		'fields'      => 'ids',
 	)
 );
 
-foreach ( $field_groups as $post_id ) {
-	wp_delete_post( $post_id, true );
+foreach ( $cfstudio_field_groups as $cfstudio_group_id ) {
+	wp_delete_post( $cfstudio_group_id, true );
 }
