@@ -80,7 +80,7 @@ const BASE = 'http://127.0.0.1:8099';
   // ---- page
   await p.goto(`${BASE}/wp-admin/post-new.php?post_type=page`);
   await p.fill('#title', 'P10 page');
-  const nm = (n) => `[name="cfs[${n}]"]`;
+  const nm = (n) => `[name="cfstudio[${n}]"]`;
   t('two tab buttons built', await p.locator('.cfs-tab-button').count() === 2);
   t('first tab active, second hidden', await p.locator('.cfs-tab-panel').nth(0).isVisible() && !(await p.locator('.cfs-tab-panel').nth(1).isVisible()));
   t('tab markers removed after build', await p.locator('.cfs-tab-marker').count() === 0);
@@ -104,9 +104,9 @@ const BASE = 'http://127.0.0.1:8099';
   await p.locator(nm('link_url')).waitFor({ state: 'visible', timeout: 3000 }).catch(() => {});
   t('Link url shows when toggle on', await p.locator(nm('link_url')).isVisible());
   await p.locator(nm('link_url')).fill('https://deep.test/x');
-  await p.locator('[name="cfs[hero][heading]"]').fill('Hero heading');
+  await p.locator('[name="cfstudio[hero][heading]"]').fill('Hero heading');
   await p.evaluate(() => { document.getElementById('post').noValidate = true; });
-  await p.locator('[name="cfs[hero][qty]"]').fill('42');
+  await p.locator('[name="cfstudio[hero][qty]"]').fill('42');
   // post object: single pick by search
   await p.locator('.cfs-relationship[data-max="1"] .cfs-rel-search').fill('QA');
   await p.locator('.cfs-relationship[data-max="1"] .cfs-rel-result').first().waitFor();
@@ -126,7 +126,7 @@ const BASE = 'http://127.0.0.1:8099';
   await p.locator('.cfs-tab-button').nth(1).click();
   await p.locator('.cfs-accordion-head').first().click();
   t('toggle persisted and Link url visible', await p.locator(nm('show_link')).isChecked() && await p.locator(nm('link_url')).isVisible() && await p.locator(nm('link_url')).inputValue() === 'https://deep.test/x');
-  t('group values persisted', await p.locator('[name="cfs[hero][heading]"]').inputValue() === 'Hero heading' && await p.locator('[name="cfs[hero][qty]"]').inputValue() === '42');
+  t('group values persisted', await p.locator('[name="cfstudio[hero][heading]"]').inputValue() === 'Hero heading' && await p.locator('[name="cfstudio[hero][qty]"]').inputValue() === '42');
   t('post object persisted', await p.locator('.cfs-relationship[data-max="1"] .cfs-rel-selected li input').inputValue() === chosen);
   t('user persisted', await p.locator(nm('owner')).inputValue() === owner);
   // turning logic source off hides again, value still saved
@@ -140,7 +140,7 @@ const BASE = 'http://127.0.0.1:8099';
 
   // ---- storage and front end
   await p.goto(`${BASE}/wp-admin/post.php?post=${pid}&action=edit`);
-  await p.evaluate((v) => { const e = window.tinymce && tinymce.get('content'); if (e && !e.isHidden()) { e.setContent(v); e.save(); } else { document.getElementById('content').value = v; } }, '[cfs field="hero"]\n[cfs field="featured_page"]\n[cfs field="owner"]\n[cfs field="intro_note"]\n[cfs field="basics"]');
+  await p.evaluate((v) => { const e = window.tinymce && tinymce.get('content'); if (e && !e.isHidden()) { e.setContent(v); e.save(); } else { document.getElementById('content').value = v; } }, '[cfstudio field="hero"]\n[cfstudio field="featured_page"]\n[cfstudio field="owner"]\n[cfstudio field="intro_note"]\n[cfstudio field="basics"]');
   await Promise.all([p.waitForNavigation(), p.click('#publish')]);
   await p.goto(`${BASE}/?page_id=${pid}`);
   const body = await p.content();

@@ -1,5 +1,5 @@
 /**
- * Editor side of Custom Fields Studio blocks.
+ * Editor side of Fieldloom blocks.
  *
  * Every block registered with cfstudio_register_block() is registered here too.
  * The block's field values are a form-encoded string kept in the `form`
@@ -9,7 +9,7 @@
 ( function ( wp, $ ) {
 	'use strict';
 
-	if ( ! wp || ! window.cfsBlocks ) {
+	if ( ! wp || ! window.cfstudioBlocks ) {
 		return;
 	}
 
@@ -18,10 +18,10 @@
 	var useState = wp.element.useState;
 	var useEffect = wp.element.useEffect;
 	var useRef = wp.element.useRef;
-	var i18n = window.cfsBlocks.i18n;
+	var i18n = window.cfstudioBlocks.i18n;
 
 	function serialize( root ) {
-		return $( root ).find( ':input[name^="cfs["]' ).serialize();
+		return $( root ).find( ':input[name^="cfstudio["]' ).serialize();
 	}
 
 	/*
@@ -32,13 +32,13 @@
 		if ( ! doc || doc === document ) {
 			return;
 		}
-		if ( window.cfsBindDocument ) {
-			window.cfsBindDocument( doc );
+		if ( window.cfstudioBindDocument ) {
+			window.cfstudioBindDocument( doc );
 		}
-		if ( doc.__cfsStyled ) {
+		if ( doc.__cfstudioStyled ) {
 			return;
 		}
-		doc.__cfsStyled = true;
+		doc.__cfstudioStyled = true;
 		$( 'link[rel="stylesheet"]' ).each( function () {
 			var id = this.id || '';
 			if ( /^(cfs-admin|buttons|forms|dashicons|wp-color-picker|media-views)-css$/.test( id ) ) {
@@ -94,8 +94,8 @@
 				ref.current.innerHTML = res.html;
 				prepareDocument( ref.current.ownerDocument );
 				$root = $( ref.current );
-				if ( window.cfsInit ) {
-					window.cfsInit( $root );
+				if ( window.cfstudioInit ) {
+					window.cfstudioInit( $root );
 				}
 				$root.on( 'input change click', schedule );
 				observer = new MutationObserver( schedule );
@@ -124,7 +124,7 @@
 		);
 	}
 
-	window.cfsBlocks.blocks.forEach( function ( def ) {
+	window.cfstudioBlocks.blocks.forEach( function ( def ) {
 		wp.blocks.registerBlockType( def.name, {
 			apiVersion: 2,
 			title: def.title,

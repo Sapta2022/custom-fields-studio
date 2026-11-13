@@ -3,7 +3,7 @@
  * Taxonomy field: pick terms of one taxonomy. Stored as an array of term
  * IDs; optionally also assigns the terms to the post.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -34,7 +34,7 @@ class CFStudio_Field_Taxonomy extends CFStudio_Field_Base {
 		$return     = $field['return_format'] ?? 'object';
 		?>
 		<div class="cfs-field-setting" data-type="taxonomy">
-			<label><?php esc_html_e( 'Taxonomy', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Taxonomy', 'fieldloom' ); ?></label>
 			<select name="<?php echo esc_attr( $prefix ); ?>[taxonomy]">
 				<?php foreach ( self::taxonomies() as $slug => $obj ) : ?>
 					<option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $tax, $slug ); ?>><?php echo esc_html( $obj->labels->singular_name ); ?></option>
@@ -42,25 +42,25 @@ class CFStudio_Field_Taxonomy extends CFStudio_Field_Base {
 			</select>
 		</div>
 		<div class="cfs-field-setting" data-type="taxonomy">
-			<label><?php esc_html_e( 'Appearance', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Appearance', 'fieldloom' ); ?></label>
 			<select name="<?php echo esc_attr( $prefix ); ?>[field_type]">
-				<option value="checkbox" <?php selected( $field_type, 'checkbox' ); ?>><?php esc_html_e( 'Checkboxes (multiple)', 'custom-fields-studio' ); ?></option>
-				<option value="multi_select" <?php selected( $field_type, 'multi_select' ); ?>><?php esc_html_e( 'Multi Select', 'custom-fields-studio' ); ?></option>
-				<option value="radio" <?php selected( $field_type, 'radio' ); ?>><?php esc_html_e( 'Radio (single)', 'custom-fields-studio' ); ?></option>
-				<option value="select" <?php selected( $field_type, 'select' ); ?>><?php esc_html_e( 'Select (single)', 'custom-fields-studio' ); ?></option>
+				<option value="checkbox" <?php selected( $field_type, 'checkbox' ); ?>><?php esc_html_e( 'Checkboxes (multiple)', 'fieldloom' ); ?></option>
+				<option value="multi_select" <?php selected( $field_type, 'multi_select' ); ?>><?php esc_html_e( 'Multi Select', 'fieldloom' ); ?></option>
+				<option value="radio" <?php selected( $field_type, 'radio' ); ?>><?php esc_html_e( 'Radio (single)', 'fieldloom' ); ?></option>
+				<option value="select" <?php selected( $field_type, 'select' ); ?>><?php esc_html_e( 'Select (single)', 'fieldloom' ); ?></option>
 			</select>
 		</div>
 		<div class="cfs-field-setting" data-type="taxonomy">
-			<label><?php esc_html_e( 'Return Format', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Return Format', 'fieldloom' ); ?></label>
 			<select name="<?php echo esc_attr( $prefix ); ?>[return_format]">
-				<option value="object" <?php selected( $return, 'object' ); ?>><?php esc_html_e( 'Term Objects', 'custom-fields-studio' ); ?></option>
-				<option value="id" <?php selected( $return, 'id' ); ?>><?php esc_html_e( 'Term IDs', 'custom-fields-studio' ); ?></option>
+				<option value="object" <?php selected( $return, 'object' ); ?>><?php esc_html_e( 'Term Objects', 'fieldloom' ); ?></option>
+				<option value="id" <?php selected( $return, 'id' ); ?>><?php esc_html_e( 'Term IDs', 'fieldloom' ); ?></option>
 			</select>
 		</div>
 		<div class="cfs-field-setting" data-type="taxonomy">
 			<label>
 				<input type="checkbox" name="<?php echo esc_attr( $prefix ); ?>[save_terms]" value="1" <?php checked( ! empty( $field['save_terms'] ) ); ?> />
-				<?php esc_html_e( 'Also assign the selected terms to the post', 'custom-fields-studio' ); ?>
+				<?php esc_html_e( 'Also assign the selected terms to the post', 'fieldloom' ); ?>
 			</label>
 		</div>
 		<?php
@@ -102,7 +102,7 @@ class CFStudio_Field_Taxonomy extends CFStudio_Field_Base {
 			<?php if ( 'select' === $type || 'multi_select' === $type ) : ?>
 				<select name="<?php echo esc_attr( $name ); ?>[]" <?php echo 'multi_select' === $type ? 'multiple size="6"' : ''; ?>>
 					<?php if ( 'select' === $type ) : ?>
-						<option value=""><?php esc_html_e( '— None —', 'custom-fields-studio' ); ?></option>
+						<option value=""><?php esc_html_e( '— None —', 'fieldloom' ); ?></option>
 					<?php endif; ?>
 					<?php foreach ( $terms as $term ) : ?>
 						<option value="<?php echo esc_attr( $term->term_id ); ?>" <?php selected( in_array( $term->term_id, $selected, true ) ); ?>><?php echo esc_html( $term->name ); ?></option>

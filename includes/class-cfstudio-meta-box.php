@@ -3,7 +3,7 @@
  * Renders matching field groups as meta boxes on post edit screens, and
  * saves the posted values as post meta.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -115,7 +115,7 @@ class CFStudio_Meta_Box {
 
 	/**
 	 * Save the posted values of a list of groups into a context. The posted
-	 * data is read from $_POST['cfs'] (or $posted when given).
+	 * data is read from $_POST['cfstudio'] (or $posted when given).
 	 *
 	 * @param array      $groups Groups.
 	 * @param int|string $ctx    Storage context.
@@ -123,7 +123,7 @@ class CFStudio_Meta_Box {
 	 */
 	public static function save_groups( $groups, $ctx, $posted = null ) {
 		if ( null === $posted ) {
-			$posted = isset( $_POST['cfs'] ) ? wp_unslash( $_POST['cfs'] ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- callers verify the nonce first; each field type sanitizes its own value.
+			$posted = isset( $_POST['cfstudio'] ) ? wp_unslash( $_POST['cfstudio'] ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- callers verify the nonce first; each field type sanitizes its own value.
 		}
 
 		foreach ( $groups as $group ) {
@@ -194,7 +194,7 @@ class CFStudio_Meta_Box {
 		echo '<input type="hidden" name="cfstudio_rendered[]" value="' . (int) $group['id'] . '" />';
 
 		if ( empty( $group['fields'] ) ) {
-			echo '<p>' . esc_html__( 'This field group has no fields yet.', 'custom-fields-studio' ) . '</p>';
+			echo '<p>' . esc_html__( 'This field group has no fields yet.', 'fieldloom' ) . '</p>';
 			return;
 		}
 
@@ -245,7 +245,7 @@ class CFStudio_Meta_Box {
 			$value = null;
 		}
 
-		self::render_field( $field, $value, 'cfs[' . $field['name'] . ']' );
+		self::render_field( $field, $value, 'cfstudio[' . $field['name'] . ']' );
 	}
 
 	/**
@@ -283,7 +283,7 @@ class CFStudio_Meta_Box {
 			<label class="cfs-field-label">
 				<?php echo esc_html( $field['label'] ); ?>
 				<?php if ( ! empty( $field['required'] ) ) : ?>
-					<span class="cfs-required" title="<?php esc_attr_e( 'Required', 'custom-fields-studio' ); ?>">*</span>
+					<span class="cfs-required" title="<?php esc_attr_e( 'Required', 'fieldloom' ); ?>">*</span>
 				<?php endif; ?>
 			</label>
 			<?php if ( ! empty( $field['instructions'] ) ) : ?>
@@ -326,7 +326,7 @@ class CFStudio_Meta_Box {
 			return;
 		}
 
-		$posted = isset( $_POST['cfs'] ) ? wp_unslash( $_POST['cfs'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- each field type sanitizes its own value below.
+		$posted = isset( $_POST['cfstudio'] ) ? wp_unslash( $_POST['cfstudio'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- each field type sanitizes its own value below.
 
 		foreach ( $groups as $group ) {
 			foreach ( $group['fields'] as $field ) {
@@ -389,7 +389,7 @@ class CFStudio_Meta_Box {
 	 * @param array $groups Groups that will be rendered on the screen.
 	 */
 	public static function enqueue_assets( $groups ) {
-		wp_enqueue_style( 'cfs-admin', CFSTUDIO_URL . 'admin/css/admin.css', array(), CFSTUDIO_VERSION );
+		wp_enqueue_style( 'cfstudio-admin', CFSTUDIO_URL . 'admin/css/admin.css', array(), CFSTUDIO_VERSION );
 
 		// Needed for the Image field's "Select Image" button (wp.media()).
 		wp_enqueue_media();
@@ -403,7 +403,7 @@ class CFStudio_Meta_Box {
 		}
 
 		wp_enqueue_script(
-			'cfs-meta-box',
+			'cfstudio-meta-box',
 			CFSTUDIO_URL . 'admin/js/meta-box.js',
 			array( 'jquery', 'jquery-ui-sortable' ),
 			CFSTUDIO_VERSION,
@@ -411,18 +411,18 @@ class CFStudio_Meta_Box {
 		);
 
 		wp_localize_script(
-			'cfs-meta-box',
-			'cfsMetaBox',
+			'cfstudio-meta-box',
+			'cfstudioMetaBox',
 			array(
 				'ajaxUrl'           => admin_url( 'admin-ajax.php' ),
 				'relationshipNonce' => wp_create_nonce( CFStudio_Field_Relationship::NONCE ),
 				'i18n'              => array(
-					'addImages'   => __( 'Add images', 'custom-fields-studio' ),
-					'noResults'   => __( 'No results', 'custom-fields-studio' ),
-					'selectImage' => __( 'Select Image', 'custom-fields-studio' ),
-					'useImage'    => __( 'Use this image', 'custom-fields-studio' ),
-					'selectFile'  => __( 'Select File', 'custom-fields-studio' ),
-					'useFile'     => __( 'Use this file', 'custom-fields-studio' ),
+					'addImages'   => __( 'Add images', 'fieldloom' ),
+					'noResults'   => __( 'No results', 'fieldloom' ),
+					'selectImage' => __( 'Select Image', 'fieldloom' ),
+					'useImage'    => __( 'Use this image', 'fieldloom' ),
+					'selectFile'  => __( 'Select File', 'fieldloom' ),
+					'useFile'     => __( 'Use this file', 'fieldloom' ),
 				),
 			)
 		);

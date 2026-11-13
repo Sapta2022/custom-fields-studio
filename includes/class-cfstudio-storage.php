@@ -16,7 +16,7 @@
  * like "gallery_0_caption" and pass them in as $key, so this class stays
  * dumb: it only gets, updates and deletes one key.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

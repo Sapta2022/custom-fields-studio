@@ -8,7 +8,7 @@
  * rendering the field's input on a target post edit screen, sanitizing the
  * posted value on save, and formatting the stored value for the template API.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -101,7 +101,7 @@ abstract class CFStudio_Field_Base {
 	/**
 	 * Render this field's actual input on a post edit screen (inside the
 	 * CFS meta box). $name is the fully-formed HTML name attribute to use
-	 * for the input, already unique per field, e.g. "cfs[my_text]" — field
+	 * for the input, already unique per field, e.g. "cfstudio[my_text]" — field
 	 * type classes should not invent their own naming scheme.
 	 *
 	 * @param array  $field Field config (label, name, type, + type-specific settings).

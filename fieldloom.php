@@ -1,18 +1,18 @@
 <?php
 /**
- * Plugin Name:       Custom Fields Studio
+ * Plugin Name:       Fieldloom Custom Fields
  * Plugin URI:        https://github.com/Sapta2022/custom-fields-studio
  * Description:       Add custom fields to posts, pages, users, terms, options pages and Gutenberg blocks. Repeater, flexible content, clone, conditional logic, JSON import/export and a REST API.
- * Version:           0.13.1
+ * Version:           0.14.0
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Author:            Sapatarshi Samanta
  * Author URI:        https://github.com/Sapta2022
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       custom-fields-studio
+ * Text Domain:       fieldloom
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 // Exit if accessed directly.
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CFSTUDIO_VERSION', '0.13.1' );
+define( 'CFSTUDIO_VERSION', '0.14.0' );
 define( 'CFSTUDIO_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CFSTUDIO_URL', plugin_dir_url( __FILE__ ) );
 define( 'CFSTUDIO_BASENAME', plugin_basename( __FILE__ ) );

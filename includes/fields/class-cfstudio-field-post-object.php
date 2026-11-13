@@ -5,7 +5,7 @@
  *
  * Stored as a post ID (single) or an array of IDs (multiple).
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -33,7 +33,7 @@ class CFStudio_Field_Post_Object extends CFStudio_Field_Relationship {
 		$selected = (array) ( $field['post_types'] ?? static::defaults()['post_types'] );
 		?>
 		<div class="cfs-field-setting" data-type="<?php echo esc_attr( $type ); ?>">
-			<label><?php esc_html_e( 'Post Types', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Post Types', 'fieldloom' ); ?></label>
 			<?php foreach ( self::available_post_types() as $slug => $obj ) : ?>
 				<label style="display:inline-block;margin-right:12px;">
 					<input type="checkbox" name="<?php echo esc_attr( $prefix ); ?>[post_types][]" value="<?php echo esc_attr( $slug ); ?>" <?php checked( in_array( $slug, $selected, true ) ); ?> />
@@ -47,16 +47,16 @@ class CFStudio_Field_Post_Object extends CFStudio_Field_Relationship {
 				$type,
 				$prefix,
 				'return_format',
-				__( 'Return Format', 'custom-fields-studio' ),
+				__( 'Return Format', 'fieldloom' ),
 				$field,
 				array(
-					'object' => __( 'Post Object', 'custom-fields-studio' ),
-					'id'     => __( 'Post ID', 'custom-fields-studio' ),
+					'object' => __( 'Post Object', 'fieldloom' ),
+					'id'     => __( 'Post ID', 'fieldloom' ),
 				),
 				'object'
 			);
 		}
-		self::setting_checkbox( $type, $prefix, 'multiple', __( 'Allow multiple values', 'custom-fields-studio' ), $field );
+		self::setting_checkbox( $type, $prefix, 'multiple', __( 'Allow multiple values', 'fieldloom' ), $field );
 	}
 
 	public static function sanitize( $raw ) {

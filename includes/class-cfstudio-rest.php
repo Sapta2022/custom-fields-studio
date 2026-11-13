@@ -4,7 +4,7 @@
  *
  * A field group with "Show in REST API" ticked is exposed as:
  *
- *  - a `cfs` field on posts, pages and other REST-enabled post types, users
+ *  - a `cfstudio` field on posts, pages and other REST-enabled post types, users
  *    and taxonomy terms (GET: the values; POST/PUT: update the values you
  *    send, by field name). Values are the stored, "raw" values — what you
  *    read is what you can write back. Add `?cfstudio_format=1` to a GET to get
@@ -17,7 +17,7 @@
  * Writes go through each field type's own sanitizer, exactly like saving
  * in the admin.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -37,7 +37,7 @@ class CFStudio_REST {
 			'get_callback'    => array( __CLASS__, 'get_callback' ),
 			'update_callback' => array( __CLASS__, 'update_callback' ),
 			'schema'          => array(
-				'description'          => __( 'Custom Fields Studio values, keyed by field name.', 'custom-fields-studio' ),
+				'description'          => __( 'Fieldloom values, keyed by field name.', 'fieldloom' ),
 				'type'                 => 'object',
 				'additionalProperties' => true,
 				'context'              => array( 'view', 'edit' ),
@@ -45,11 +45,11 @@ class CFStudio_REST {
 		);
 
 		foreach ( get_post_types( array( 'show_in_rest' => true ) ) as $post_type ) {
-			register_rest_field( $post_type, 'cfs', $args );
+			register_rest_field( $post_type, 'cfstudio', $args );
 		}
-		register_rest_field( 'user', 'cfs', $args );
+		register_rest_field( 'user', 'cfstudio', $args );
 		foreach ( get_taxonomies( array( 'show_in_rest' => true ) ) as $taxonomy ) {
-			register_rest_field( $taxonomy, 'cfs', $args );
+			register_rest_field( $taxonomy, 'cfstudio', $args );
 		}
 
 		register_rest_route(
@@ -85,7 +85,7 @@ class CFStudio_REST {
 	}
 
 	/* ------------------------------------------------------------------
-	 * The `cfs` field on posts / users / terms
+	 * The `cfstudio` field on posts / users / terms
 	 * ---------------------------------------------------------------- */
 
 	/** Storage context for a REST object array + object type. */
@@ -124,7 +124,7 @@ class CFStudio_REST {
 
 	public static function update_callback( $value, $object, $field_name, $request, $object_type ) {
 		if ( ! is_array( $value ) ) {
-			return new WP_Error( 'cfstudio_rest_invalid', __( 'The cfs value must be an object of field values.', 'custom-fields-studio' ), array( 'status' => 400 ) );
+			return new WP_Error( 'cfstudio_rest_invalid', __( 'The cfstudio value must be an object of field values.', 'fieldloom' ), array( 'status' => 400 ) );
 		}
 
 		if ( 'user' === $object_type ) {
@@ -140,7 +140,7 @@ class CFStudio_REST {
 		}
 
 		if ( ! $ok ) {
-			return new WP_Error( 'cfstudio_rest_forbidden', __( 'You are not allowed to edit these fields.', 'custom-fields-studio' ), array( 'status' => rest_authorization_required_code() ) );
+			return new WP_Error( 'cfstudio_rest_forbidden', __( 'You are not allowed to edit these fields.', 'fieldloom' ), array( 'status' => rest_authorization_required_code() ) );
 		}
 
 		self::write( cfstudio_groups_for_context( $ctx ), $ctx, $value );
@@ -164,7 +164,7 @@ class CFStudio_REST {
 			$body = $request->get_body_params();
 		}
 		if ( ! is_array( $body ) ) {
-			return new WP_Error( 'cfstudio_rest_invalid', __( 'Send a JSON object of field values.', 'custom-fields-studio' ), array( 'status' => 400 ) );
+			return new WP_Error( 'cfstudio_rest_invalid', __( 'Send a JSON object of field values.', 'fieldloom' ), array( 'status' => 400 ) );
 		}
 
 		self::write( CFStudio_Field_Group::get_options_groups(), 'option', $body );

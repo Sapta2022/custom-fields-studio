@@ -4,7 +4,7 @@
  *
  * Choices use the same "value : Label" one-per-line format as Select.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -31,29 +31,29 @@ abstract class CFStudio_Field_Choice_Base extends CFStudio_Field_Base {
 		$type = static::$type;
 		?>
 		<div class="cfs-field-setting" data-type="<?php echo esc_attr( $type ); ?>">
-			<label><?php esc_html_e( 'Choices', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Choices', 'fieldloom' ); ?></label>
 			<textarea name="<?php echo esc_attr( $prefix ); ?>[choices]" rows="4" placeholder="red : Red&#10;blue : Blue"><?php echo esc_textarea( $field['choices'] ?? '' ); ?></textarea>
-			<p class="description"><?php esc_html_e( 'One choice per line. Format: value : Label', 'custom-fields-studio' ); ?></p>
+			<p class="description"><?php esc_html_e( 'One choice per line. Format: value : Label', 'fieldloom' ); ?></p>
 		</div>
 		<?php
 		self::setting_input(
 			$type,
 			$prefix,
 			'default_value',
-			static::$multi ? __( 'Default Values', 'custom-fields-studio' ) : __( 'Default Value', 'custom-fields-studio' ),
+			static::$multi ? __( 'Default Values', 'fieldloom' ) : __( 'Default Value', 'fieldloom' ),
 			$field,
 			'text',
-			static::$multi ? __( 'Comma-separated values.', 'custom-fields-studio' ) : ''
+			static::$multi ? __( 'Comma-separated values.', 'fieldloom' ) : ''
 		);
 		self::setting_select(
 			$type,
 			$prefix,
 			'layout',
-			__( 'Layout', 'custom-fields-studio' ),
+			__( 'Layout', 'fieldloom' ),
 			$field,
 			array(
-				'vertical'   => __( 'Vertical', 'custom-fields-studio' ),
-				'horizontal' => __( 'Horizontal', 'custom-fields-studio' ),
+				'vertical'   => __( 'Vertical', 'fieldloom' ),
+				'horizontal' => __( 'Horizontal', 'fieldloom' ),
 			),
 			'vertical'
 		);
@@ -61,17 +61,17 @@ abstract class CFStudio_Field_Choice_Base extends CFStudio_Field_Base {
 			$type,
 			$prefix,
 			'return_format',
-			__( 'Return Format', 'custom-fields-studio' ),
+			__( 'Return Format', 'fieldloom' ),
 			$field,
 			array(
-				'value' => __( 'Value', 'custom-fields-studio' ),
-				'label' => __( 'Label', 'custom-fields-studio' ),
-				'array' => __( 'Both (Array)', 'custom-fields-studio' ),
+				'value' => __( 'Value', 'fieldloom' ),
+				'label' => __( 'Label', 'fieldloom' ),
+				'array' => __( 'Both (Array)', 'fieldloom' ),
 			),
 			'value'
 		);
 		if ( ! static::$multi ) {
-			self::setting_checkbox( $type, $prefix, 'allow_null', __( 'Allow Null (lets the choice be cleared)', 'custom-fields-studio' ), $field );
+			self::setting_checkbox( $type, $prefix, 'allow_null', __( 'Allow Null (lets the choice be cleared)', 'fieldloom' ), $field );
 		}
 	}
 
@@ -184,7 +184,7 @@ class CFStudio_Field_Radio extends CFStudio_Field_Choice_Base {
 			);
 		}
 		if ( ! empty( $field['allow_null'] ) ) {
-			echo '<li><a href="#" class="cfs-choice-clear">' . esc_html__( 'Clear', 'custom-fields-studio' ) . '</a></li>';
+			echo '<li><a href="#" class="cfs-choice-clear">' . esc_html__( 'Clear', 'fieldloom' ) . '</a></li>';
 		}
 		echo '</ul>';
 	}

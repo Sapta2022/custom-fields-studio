@@ -80,7 +80,7 @@ function cfstudio_qa_cleanup() {
 function cfstudio_qa_save_post_values( $post_id, $values ) {
 	$_POST = array(
 		CFStudio_Meta_Box::NONCE_FIELD => wp_create_nonce( CFStudio_Meta_Box::NONCE_ACTION ),
-		'cfs'                     => wp_slash( $values ),
+		'cfstudio' => wp_slash( $values ),
 	);
 	wp_update_post( array( 'ID' => $post_id, 'post_status' => 'publish' ) );
 	$_POST = array();
@@ -133,7 +133,7 @@ function cfstudio_qa_seed() {
 		$html = '';
 		foreach ( $keys as $k ) {
 			foreach ( $names[ $k ] as $pair ) {
-				$html .= '<h3>' . esc_html( $pair[1] ) . "</h3>\n[cfs field=\"" . $pair[0] . "\" post_id=\"" . $post_id . "\"]\n\n";
+				$html .= '<h3>' . esc_html( $pair[1] ) . "</h3>\n[cfstudio field=\"" . $pair[0] . "\" post_id=\"" . $post_id . "\"]\n\n";
 			}
 		}
 		return $html;

@@ -17,7 +17,7 @@ let ok=0,bad=0; const t=(n,c,x)=>{ c?ok++:bad++; console.log((c?'PASS ':'FAIL ')
   for (const n of [1, 2, 3]) {
     const { text, html } = await visit(n);
     t(`Page ${n}: no PHP warnings/notices/fatals in output`, !/(Warning|Notice|Fatal error|Deprecated):/.test(html), (html.match(/(Warning|Notice|Fatal error|Deprecated):[^<]{0,120}/) || [])[0]);
-    t(`Page ${n}: no unrendered [cfs] shortcodes`, !/\[cfs field=/.test(html));
+    t(`Page ${n}: no unrendered [cfstudio] shortcodes`, !/\[cfstudio field=/.test(html));
     t(`Page ${n}: has content blocks`, (await p.locator('[class*="cfs-out"]').count()) > 5, await p.locator('[class*="cfs-out"]').count());
     const broken = await p.evaluate(() => [...document.querySelectorAll('[class*="cfs-out"] img')].filter(i => !i.complete || i.naturalWidth === 0).map(i => i.src));
     t(`Page ${n}: every CFS image loads`, broken.length === 0, broken);

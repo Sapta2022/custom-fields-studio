@@ -1,5 +1,5 @@
 /**
- * Custom Fields Studio — field group builder.
+ * Fieldloom — field group builder.
  *
  * Handles: adding/removing/reordering field rows (top level AND a
  * repeater's nested sub-field rows), showing only the settings block
@@ -10,7 +10,7 @@
  * the order the rows arrive in, which is DOM order — so drag-reordering
  * needs no re-indexing, and nesting can't get its indices out of step.
  */
-/* global jQuery, cfsBuilder */
+/* global jQuery, cfstudioBuilder */
 ( function ( $ ) {
 	'use strict';
 
@@ -171,7 +171,7 @@
 			$name.val( $name.val() + '_copy' );
 		}
 		$name.data( 'touched', true );
-		$label.val( $label.val() + cfsBuilder.i18n.copySuffix );
+		$label.val( $label.val() + cfstudioBuilder.i18n.copySuffix );
 
 		$row.after( $clone );
 		$clone.find( '.cfs-field-row' ).addBack().each( function () {
@@ -215,7 +215,7 @@
 
 		var $err = $( '.cfs-builder-errors' );
 		if ( dupes.length ) {
-			$err.find( 'p' ).text( cfsBuilder.i18n.duplicateName.replace( '%s', dupes.join( ', ' ) ) );
+			$err.find( 'p' ).text( cfstudioBuilder.i18n.duplicateName.replace( '%s', dupes.join( ', ' ) ) );
 			$err.show();
 			$err[ 0 ].scrollIntoView( { block: 'center' } );
 			return false;
@@ -343,7 +343,7 @@
 
 		$editor.on( 'click', '.cfs-remove-layout', function () {
 			// eslint-disable-next-line no-alert
-			if ( window.confirm( cfsBuilder.i18n.confirmRemove ) ) {
+			if ( window.confirm( cfstudioBuilder.i18n.confirmRemove ) ) {
 				$( this ).closest( '.cfs-layout-block' ).remove();
 			}
 		} );
@@ -401,7 +401,7 @@
 			var $rule = $( '<div class="cfs-cond-rule"></div>' );
 			var $f = $( '<select class="cfs-cond-field"></select>' ).attr( 'name', base + '[field]' );
 			var $o = $( '<select class="cfs-cond-op"></select>' ).attr( 'name', base + '[operator]' );
-			$.each( cfsBuilder.condOps || {}, function ( k, label ) {
+			$.each( cfstudioBuilder.condOps || {}, function ( k, label ) {
 				$o.append( $( '<option></option>' ).val( k ).text( label ) );
 			} );
 			var $v = $( '<input type="text" class="cfs-cond-value" />' ).attr( 'name', base + '[value]' );
@@ -421,7 +421,7 @@
 			}
 
 			// eslint-disable-next-line no-alert
-			if ( ! window.confirm( cfsBuilder.i18n.confirmRemove ) ) {
+			if ( ! window.confirm( cfstudioBuilder.i18n.confirmRemove ) ) {
 				return;
 			}
 
@@ -432,12 +432,12 @@
 
 		// A rule's param decides which values the value dropdown offers.
 		$locationWrap.on( 'change', '.cfs-location-param', function () {
-			var values = ( cfsBuilder.locationValues || {} )[ $( this ).val() ] || {};
+			var values = ( cfstudioBuilder.locationValues || {} )[ $( this ).val() ] || {};
 			var $select = $( this ).closest( '.cfs-location-rule' ).find( '.cfs-location-value' ).empty();
 			var keys = Object.keys( values );
 
 			if ( ! keys.length ) {
-				$select.append( $( '<option>', { value: '', text: cfsBuilder.i18n.noValues } ) );
+				$select.append( $( '<option>', { value: '', text: cfstudioBuilder.i18n.noValues } ) );
 				return;
 			}
 

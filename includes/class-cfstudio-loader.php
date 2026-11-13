@@ -2,7 +2,7 @@
 /**
  * Central hook loader.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -50,7 +50,7 @@ class CFStudio_Loader {
 		}
 
 		wp_enqueue_style(
-			'cfs-admin',
+			'cfstudio-admin',
 			CFSTUDIO_URL . 'admin/css/admin.css',
 			array(),
 			CFSTUDIO_VERSION
@@ -59,7 +59,7 @@ class CFStudio_Loader {
 		wp_enqueue_script( 'jquery-ui-sortable' );
 
 		wp_enqueue_script(
-			'cfs-field-group-builder',
+			'cfstudio-field-group-builder',
 			CFSTUDIO_URL . 'admin/js/field-group-builder.js',
 			array( 'jquery', 'jquery-ui-sortable' ),
 			CFSTUDIO_VERSION,
@@ -67,16 +67,16 @@ class CFStudio_Loader {
 		);
 
 		wp_localize_script(
-			'cfs-field-group-builder',
-			'cfsBuilder',
+			'cfstudio-field-group-builder',
+			'cfstudioBuilder',
 			array(
 				'i18n'           => array(
-					'confirmRemove' => __( 'Remove this field?', 'custom-fields-studio' ),
-					'newFieldLabel' => __( 'New Field', 'custom-fields-studio' ),
+					'confirmRemove' => __( 'Remove this field?', 'fieldloom' ),
+					'newFieldLabel' => __( 'New Field', 'fieldloom' ),
 					/* translators: %s: the duplicated field name. */
-					'duplicateName' => __( 'Field names must be unique within a list. Duplicated: %s', 'custom-fields-studio' ),
-					'copySuffix'    => __( ' (copy)', 'custom-fields-studio' ),
-					'noValues'      => __( '— none available —', 'custom-fields-studio' ),
+					'duplicateName' => __( 'Field names must be unique within a list. Duplicated: %s', 'fieldloom' ),
+					'copySuffix'    => __( ' (copy)', 'fieldloom' ),
+					'noValues'      => __( '— none available —', 'fieldloom' ),
 				),
 				// Every location param's values, to refill the value dropdown
 				// when a rule's param changes.

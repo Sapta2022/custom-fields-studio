@@ -2,7 +2,7 @@
 /**
  * Link (url + title + target) and oEmbed (a URL rendered as embedded media).
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -23,11 +23,11 @@ class CFStudio_Field_Link extends CFStudio_Field_Base {
 			'link',
 			$prefix,
 			'return_format',
-			__( 'Return Format', 'custom-fields-studio' ),
+			__( 'Return Format', 'fieldloom' ),
 			$field,
 			array(
-				'array' => __( 'Link Array', 'custom-fields-studio' ),
-				'url'   => __( 'Link URL', 'custom-fields-studio' ),
+				'array' => __( 'Link Array', 'fieldloom' ),
+				'url'   => __( 'Link URL', 'fieldloom' ),
 			),
 			'array'
 		);
@@ -41,9 +41,9 @@ class CFStudio_Field_Link extends CFStudio_Field_Base {
 		$value = is_array( $value ) ? $value : array();
 		?>
 		<div class="cfs-link-field">
-			<input type="url" name="<?php echo esc_attr( $name ); ?>[url]" value="<?php echo esc_attr( $value['url'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'URL', 'custom-fields-studio' ); ?>" class="regular-text" />
-			<input type="text" name="<?php echo esc_attr( $name ); ?>[title]" value="<?php echo esc_attr( $value['title'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'Link text', 'custom-fields-studio' ); ?>" class="regular-text" />
-			<label><input type="checkbox" name="<?php echo esc_attr( $name ); ?>[target]" value="_blank" <?php checked( '_blank', $value['target'] ?? '' ); ?> /> <?php esc_html_e( 'Open in new tab', 'custom-fields-studio' ); ?></label>
+			<input type="url" name="<?php echo esc_attr( $name ); ?>[url]" value="<?php echo esc_attr( $value['url'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'URL', 'fieldloom' ); ?>" class="regular-text" />
+			<input type="text" name="<?php echo esc_attr( $name ); ?>[title]" value="<?php echo esc_attr( $value['title'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'Link text', 'fieldloom' ); ?>" class="regular-text" />
+			<label><input type="checkbox" name="<?php echo esc_attr( $name ); ?>[target]" value="_blank" <?php checked( '_blank', $value['target'] ?? '' ); ?> /> <?php esc_html_e( 'Open in new tab', 'fieldloom' ); ?></label>
 		</div>
 		<?php
 	}
@@ -85,7 +85,7 @@ class CFStudio_Field_Oembed extends CFStudio_Field_Base {
 	}
 
 	public static function render_settings( $field, $prefix ) {
-		self::setting_input( 'oembed', $prefix, 'placeholder', __( 'Placeholder Text', 'custom-fields-studio' ), $field );
+		self::setting_input( 'oembed', $prefix, 'placeholder', __( 'Placeholder Text', 'fieldloom' ), $field );
 	}
 
 	public static function sanitize( $raw ) {

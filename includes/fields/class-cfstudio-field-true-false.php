@@ -2,7 +2,7 @@
 /**
  * True / False (toggle) field type.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -27,15 +27,15 @@ class CFStudio_Field_True_False extends CFStudio_Field_Base {
 		<div class="cfs-field-setting" data-type="true_false">
 			<label>
 				<input type="checkbox" name="<?php echo esc_attr( $prefix ); ?>[default_value]" value="1" <?php checked( ! empty( $field['default_value'] ) ); ?> />
-				<?php esc_html_e( 'Default to "on"', 'custom-fields-studio' ); ?>
+				<?php esc_html_e( 'Default to "on"', 'fieldloom' ); ?>
 			</label>
 		</div>
 		<div class="cfs-field-setting" data-type="true_false">
-			<label><?php esc_html_e( 'On Text', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'On Text', 'fieldloom' ); ?></label>
 			<input type="text" name="<?php echo esc_attr( $prefix ); ?>[ui_on]" value="<?php echo esc_attr( $field['ui_on'] ?? 'Yes' ); ?>" />
 		</div>
 		<div class="cfs-field-setting" data-type="true_false">
-			<label><?php esc_html_e( 'Off Text', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Off Text', 'fieldloom' ); ?></label>
 			<input type="text" name="<?php echo esc_attr( $prefix ); ?>[ui_off]" value="<?php echo esc_attr( $field['ui_off'] ?? 'No' ); ?>" />
 		</div>
 		<?php

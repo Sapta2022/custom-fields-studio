@@ -155,13 +155,13 @@ function cfstudio_qa_run_tests() {
 		ob_start();
 		( new CFStudio_Meta_Box() )->render_group_fields( cfstudio_qa_group( 'QA Basic Fields', 'page' ), $P1 );
 		$html = ob_get_clean();
-		$t( 'Basic group renders inputs', false !== strpos( $html, 'cfs[qa_text]' ) && false !== strpos( $html, 'cfs[qa_gallery_id]' ), strlen( $html ) );
+		$t( 'Basic group renders inputs', false !== strpos( $html, 'cfstudio[qa_text]' ) && false !== strpos( $html, 'cfstudio[qa_gallery_id]' ), strlen( $html ) );
 		$t( 'Text input has maxlength + placeholder + value', false !== strpos( $html, 'maxlength="20"' ) && false !== strpos( $html, 'placeholder="Type here"' ) && false !== strpos( $html, 'value="Hello World"' ) );
 		$t( 'Required marker/instructions rendered', false !== strpos( $html, 'Max 20 chars.' ) );
 		$t( 'Textarea renders rows=6 and value', false !== strpos( $html, 'rows="6"' ) && false !== strpos( $html, 'Line one' ) );
 		$t( 'Select: allow_null option + selected value', false !== strpos( $html, '— Select —' ) && preg_match( '/<option value="green"[^>]*selected/', $html ) );
-		$t( 'Multi select posts as array and marks selected', false !== strpos( $html, 'cfs[qa_select_multi][]' ) && preg_match( '/<option value="red"[^>]*selected/', $html ) );
-		$t( 'True/False: checked with custom "Enabled" label', preg_match( '/name="cfs\[qa_true_false\]"[^>]*checked/', $html ) && false !== strpos( $html, 'Enabled' ) );
+		$t( 'Multi select posts as array and marks selected', false !== strpos( $html, 'cfstudio[qa_select_multi][]' ) && preg_match( '/<option value="red"[^>]*selected/', $html ) );
+		$t( 'True/False: checked with custom "Enabled" label', preg_match( '/name="cfstudio\[qa_true_false\]"[^>]*checked/', $html ) && false !== strpos( $html, 'Enabled' ) );
 		$t( 'Date input holds Y-m-d', false !== strpos( $html, 'value="2026-11-07"' ) );
 		$t( 'Gallery items rendered with ids', false !== strpos( $html, 'data-id="' . $I[1] . '"' ) );
 		$t( 'Relationship selected titles rendered', false !== strpos( $html, 'QA Related Post 2' ) );
@@ -173,7 +173,7 @@ function cfstudio_qa_run_tests() {
 		$t( 'Repeater custom button label', false !== strpos( $html2, 'Add Entry' ) && false !== strpos( $html2, 'Add Item' ) );
 		$t( 'Flexible renders layouts + custom button', false !== strpos( $html2, 'cfs-flex' ) && false !== strpos( $html2, 'Add Section' ) );
 		$t( 'Defaults applied to an unsaved post (text default)', false !== strpos( $html_new = cfstudio_qa_render_new( 'page' ), 'value="Default text"' ), 'no default' );
-		$t( 'Defaults: true/false default on, select default blue', preg_match( '/name="cfs\[qa_true_false\]"[^>]*checked/', $html_new ) && preg_match( '/<option value="blue"[^>]*selected/', $html_new ) );
+		$t( 'Defaults: true/false default on, select default blue', preg_match( '/name="cfstudio\[qa_true_false\]"[^>]*checked/', $html_new ) && preg_match( '/<option value="blue"[^>]*selected/', $html_new ) );
 
 		$module = 'Defaults vs deliberate empty values';
 		ob_start();
@@ -184,7 +184,7 @@ function cfstudio_qa_run_tests() {
 		ob_start();
 		( new CFStudio_Meta_Box() )->render_group_fields( cfstudio_qa_group( 'QA Basic Fields', 'page' ), $P2 );
 		$h2b = ob_get_clean();
-		$t( 'True/False saved off stays off (default is on)', ! preg_match( '/name="cfs\[qa_true_false\]"[^>]*checked/', $h2b ) );
+		$t( 'True/False saved off stays off (default is on)', ! preg_match( '/name="cfstudio\[qa_true_false\]"[^>]*checked/', $h2b ) );
 		$t( 'Textarea saved empty on purpose stays empty', false === strpos( $h2b, 'Default area</textarea>' ) );
 		$t( 'CFStudio_Storage::exists true for saved-empty reference key', CFStudio_Storage::exists( '_qa_textarea', $P2 ) && ! CFStudio_Storage::exists( '_never_saved', $P2 ) );
 
@@ -325,9 +325,9 @@ function cfstudio_qa_run_tests() {
 		CFStudio_Field_Flexible::save_value( CFStudio_Field_Group::find_field( CFStudio_Field_Group::get_matching_groups( 'page' ), 'qa_flex' ), array( 'a' => array( 'cfs_layout' => 'quote', 'quote_text' => 'x' ) ), $P1 );
 		$t( 'Re-saving flexible replaces rows and removes old keys', 1 === count( $rows( 'qa_flex', $P1 ) ) && '' === (string) get_post_meta( $P1, 'qa_flex_1_quote_text', true ) );
 
-		$module = '[cfs] shortcode';
+		$module = '[cfstudio] shortcode';
 		$sc = function ( $name, $post ) {
-			return do_shortcode( '[cfs field="' . $name . '" post_id="' . $post . '"]' );
+			return do_shortcode( '[cfstudio field="' . $name . '" post_id="' . $post . '"]' );
 		};
 		$GLOBALS['post'] = get_post( $P2 );
 		$h = $sc( 'qa_rep_table', $P2 );
@@ -392,9 +392,9 @@ function cfstudio_qa_run_tests() {
 		$t( 'Option values stored in wp_options, not autoloaded', 'no' === $wpdb->get_var( "SELECT autoload FROM {$wpdb->options} WHERE option_name='options_qa_opt_text'" ) );
 		$t( 'Option reference key stored', '' !== (string) get_option( 'options__qa_opt_text' ) );
 		$t( 'Option field invisible on a page', null === cfstudio_get_field( 'qa_opt_text', $P1 ) );
-		$t( '[cfs post_id="option"] shortcode (text)', false !== strpos( do_shortcode( '[cfs field="qa_opt_text" post_id="option"]' ), 'Just another QA site' ) );
-		$t( '[cfs post_id="option"] shortcode (repeater)', false !== strpos( do_shortcode( '[cfs field="qa_opt_social" post_id="option"]' ), 'Mastodon' ) );
-		$_POST = array( CFStudio_Options_Page::NONCE_FIELD => 'bad', 'cfs' => array( 'qa_opt_text' => 'HACK' ) );
+		$t( '[cfstudio post_id="option"] shortcode (text)', false !== strpos( do_shortcode( '[cfstudio field="qa_opt_text" post_id="option"]' ), 'Just another QA site' ) );
+		$t( '[cfstudio post_id="option"] shortcode (repeater)', false !== strpos( do_shortcode( '[cfstudio field="qa_opt_social" post_id="option"]' ), 'Mastodon' ) );
+		$_POST = array( CFStudio_Options_Page::NONCE_FIELD => 'bad', 'cfstudio' => array( 'qa_opt_text' => 'HACK' ) );
 		CFStudio_Options_Page::maybe_save( 'qa-options' );
 		$_POST = array();
 		$t( 'Bad nonce changes nothing', 'Just another QA site' === get_option( 'options_qa_opt_text' ) );
@@ -516,7 +516,7 @@ function cfstudio_qa_run_tests() {
 		$module = 'Context & permissions';
 		$t( 'cfstudio_resolve_post_id: option / options / int / null', 'option' === cfstudio_resolve_post_id( 'option' ) && 'option' === cfstudio_resolve_post_id( 'OPTIONS' ) && 5 === cfstudio_resolve_post_id( '5' ) );
 		$t( 'Meta box save ignores a bad nonce', ( function () use ( $P1 ) {
-			$_POST = array( CFStudio_Meta_Box::NONCE_FIELD => 'bad', 'cfs' => array( 'qa_text' => 'HACKED' ) );
+			$_POST = array( CFStudio_Meta_Box::NONCE_FIELD => 'bad', 'cfstudio' => array( 'qa_text' => 'HACKED' ) );
 			wp_update_post( array( 'ID' => $P1, 'post_status' => 'publish' ) );
 			$_POST = array();
 			return 'HACKED' !== cfstudio_get_field( 'qa_text', $P1 );
@@ -524,7 +524,7 @@ function cfstudio_qa_run_tests() {
 		$t( 'Meta box save ignored for user who cannot edit', ( function () use ( $P1 ) {
 			$user = wp_insert_user( array( 'user_login' => 'cfstudio_qa_sub', 'user_pass' => wp_generate_password(), 'role' => 'subscriber' ) );
 			wp_set_current_user( $user );
-			$_POST = array( CFStudio_Meta_Box::NONCE_FIELD => wp_create_nonce( CFStudio_Meta_Box::NONCE_ACTION ), 'cfs' => array( 'qa_text' => 'SUBHACK' ) );
+			$_POST = array( CFStudio_Meta_Box::NONCE_FIELD => wp_create_nonce( CFStudio_Meta_Box::NONCE_ACTION ), 'cfstudio' => array( 'qa_text' => 'SUBHACK' ) );
 			do_action( 'save_post_page', $P1, get_post( $P1 ), true );
 			$_POST = array();
 			wp_set_current_user( 1 );

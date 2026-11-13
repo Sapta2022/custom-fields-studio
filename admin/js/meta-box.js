@@ -1,5 +1,5 @@
 /**
- * Custom Fields Studio — post edit screen meta box behavior.
+ * Fieldloom — post edit screen meta box behavior.
  *
  *  - Image field: wp.media() picker.
  *  - Repeater field: add / remove / reorder rows, nested repeaters,
@@ -12,7 +12,7 @@
  * rows in DOM order and re-indexes them on save, so dragging a row needs
  * no renaming at all.
  */
-/* global jQuery, wp, cfsMetaBox */
+/* global jQuery, wp, cfstudioMetaBox */
 ( function ( $ ) {
 	'use strict';
 
@@ -30,11 +30,11 @@
 		delegated.push( args );
 		$( document ).on.apply( $( document ), args );
 	}
-	window.cfsBindDocument = function ( doc ) {
-		if ( ! doc || doc === document || doc.__cfsBound ) {
+	window.cfstudioBindDocument = function ( doc ) {
+		if ( ! doc || doc === document || doc.__cfstudioBound ) {
 			return;
 		}
-		doc.__cfsBound = true;
+		doc.__cfstudioBound = true;
 		delegated.forEach( function ( args ) {
 			$( doc ).on.apply( $( doc ), args );
 		} );
@@ -57,7 +57,7 @@
 		$scope.find( 'textarea.cfs-wysiwyg-lazy' ).each( function () {
 			var $textarea = $( this );
 
-			if ( $textarea.data( 'cfsEditor' ) ) {
+			if ( $textarea.data( 'cfstudioEditor' ) ) {
 				return;
 			}
 
@@ -66,7 +66,7 @@
 				this.id = 'cfs-wysiwyg-' + editorCounter;
 			}
 
-			$textarea.data( 'cfsEditor', true );
+			$textarea.data( 'cfstudioEditor', true );
 
 			wp.editor.initialize( this.id, {
 				tinymce:
@@ -92,7 +92,7 @@
 		$scope.find( 'textarea.cfs-wysiwyg-lazy' ).each( function () {
 			var $textarea = $( this );
 
-			if ( ! $textarea.data( 'cfsEditor' ) ) {
+			if ( ! $textarea.data( 'cfstudioEditor' ) ) {
 				return;
 			}
 
@@ -101,7 +101,7 @@
 			}
 
 			wp.editor.remove( this.id );
-			$textarea.removeData( 'cfsEditor' );
+			$textarea.removeData( 'cfstudioEditor' );
 		} );
 	}
 
@@ -309,10 +309,10 @@
 			var $removeBtn = $wrap.find( '.cfs-image-remove' );
 
 			var frame = wp.media( {
-				title: cfsMetaBox.i18n.selectImage,
+				title: cfstudioMetaBox.i18n.selectImage,
 				library: { type: 'image' },
 				multiple: false,
-				button: { text: cfsMetaBox.i18n.useImage },
+				button: { text: cfstudioMetaBox.i18n.useImage },
 			} );
 
 			frame.on( 'select', function () {
@@ -345,7 +345,7 @@
 
 	/** File, color, range, choice helpers (delegated; cloned rows just work). */
 	function bindPhase9Fields() {
-		var cfg = window.cfsMetaBox || {};
+		var cfg = window.cfstudioMetaBox || {};
 		var i18n = cfg.i18n || {};
 
 		onDoc( 'click', '.cfs-field-values .cfs-file-select', function ( e ) {
@@ -412,10 +412,10 @@
 
 	/** Turn tab / accordion markers inside one .cfs-field-values into UI. */
 	function buildSections( $values ) {
-		if ( $values.data( 'cfsSections' ) ) {
+		if ( $values.data( 'cfstudioSections' ) ) {
 			return;
 		}
-		$values.data( 'cfsSections', true );
+		$values.data( 'cfstudioSections', true );
 
 		var $kids = $values.children();
 		var hasTab = $kids.filter( '.cfs-tab-marker' ).length > 0;
@@ -592,7 +592,7 @@
 
 	/** Gallery + Relationship (delegated, so cloned rows just work). */
 	function bindGalleryAndRelationship() {
-		var cfg = window.cfsMetaBox || {};
+		var cfg = window.cfstudioMetaBox || {};
 		var i18n = cfg.i18n || {};
 
 		onDoc( 'click', '.cfs-field-values .cfs-gallery-add', function ( e ) {
@@ -759,7 +759,7 @@
 		bindGoogleMap();
 
 		// For fields injected after load (custom blocks).
-		window.cfsInit = function ( $scope ) {
+		window.cfstudioInit = function ( $scope ) {
 			initRepeaters( $scope );
 		};
 	} );
@@ -774,28 +774,28 @@
 				cb();
 				return;
 			}
-			window.__cfsGmapQueue = window.__cfsGmapQueue || [];
-			window.__cfsGmapQueue.push( cb );
-			if ( window.__cfsGmapLoading ) {
+			window.__cfstudioGmapQueue = window.__cfstudioGmapQueue || [];
+			window.__cfstudioGmapQueue.push( cb );
+			if ( window.__cfstudioGmapLoading ) {
 				return;
 			}
-			window.__cfsGmapLoading = true;
-			window.__cfsGmapReady = function () {
-				( window.__cfsGmapQueue || [] ).forEach( function ( fn ) {
+			window.__cfstudioGmapLoading = true;
+			window.__cfstudioGmapReady = function () {
+				( window.__cfstudioGmapQueue || [] ).forEach( function ( fn ) {
 					fn();
 				} );
 			};
 			var s = document.createElement( 'script' );
-			s.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent( key ) + '&libraries=places&callback=__cfsGmapReady';
+			s.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent( key ) + '&libraries=places&callback=__cfstudioGmapReady';
 			s.async = true;
 			document.head.appendChild( s );
 		}
 
 		function initMap( $w ) {
-			if ( $w.data( 'cfsMapInit' ) ) {
+			if ( $w.data( 'cfstudioMapInit' ) ) {
 				return;
 			}
-			$w.data( 'cfsMapInit', true );
+			$w.data( 'cfstudioMapInit', true );
 			var key = $w.attr( 'data-key' );
 			if ( ! key ) {
 				return;

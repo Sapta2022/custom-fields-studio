@@ -29,7 +29,7 @@
  * In the editor the block shows a live preview; the toolbar button switches
  * to the field form. (WYSIWYG fields appear as plain textareas in blocks.)
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -62,7 +62,7 @@ class CFStudio_Blocks {
 	public static function register( $args ) {
 		$slug = isset( $args['name'] ) ? sanitize_key( str_replace( 'cfstudio/', '', (string) $args['name'] ) ) : '';
 		if ( '' === $slug ) {
-			return new WP_Error( 'cfstudio_block', __( 'A block needs a name.', 'custom-fields-studio' ) );
+			return new WP_Error( 'cfstudio_block', __( 'A block needs a name.', 'fieldloom' ) );
 		}
 
 		$name = 'cfstudio/' . $slug;
@@ -189,7 +189,7 @@ class CFStudio_Blocks {
 
 		if ( '' !== $form && strlen( $form ) <= self::MAX_FORM ) {
 			parse_str( $form, $parsed );
-			$posted = isset( $parsed['cfs'] ) && is_array( $parsed['cfs'] ) ? $parsed['cfs'] : array();
+			$posted = isset( $parsed['cfstudio'] ) && is_array( $parsed['cfstudio'] ) ? $parsed['cfstudio'] : array();
 		}
 
 		CFStudio_Meta_Box::save_groups( $groups, 'block', $posted );
@@ -278,23 +278,23 @@ class CFStudio_Blocks {
 		CFStudio_Meta_Box::enqueue_assets( CFStudio_Field_Group::all_active() );
 
 		wp_enqueue_script(
-			'cfs-blocks',
+			'cfstudio-blocks',
 			CFSTUDIO_URL . 'admin/js/blocks.js',
-			array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-server-side-render', 'wp-api-fetch', 'jquery', 'cfs-meta-box' ),
+			array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-server-side-render', 'wp-api-fetch', 'jquery', 'cfstudio-meta-box' ),
 			CFSTUDIO_VERSION,
 			true
 		);
 
 		wp_localize_script(
-			'cfs-blocks',
-			'cfsBlocks',
+			'cfstudio-blocks',
+			'cfstudioBlocks',
 			array(
 				'blocks' => array_values( self::$blocks ),
 				'i18n'   => array(
-					'editFields' => __( 'Edit fields', 'custom-fields-studio' ),
-					'preview'    => __( 'Preview', 'custom-fields-studio' ),
-					'loading'    => __( 'Loading fields…', 'custom-fields-studio' ),
-					'noFields'   => __( 'No field group is assigned to this block yet. Create a field group with the location rule Block == this block.', 'custom-fields-studio' ),
+					'editFields' => __( 'Edit fields', 'fieldloom' ),
+					'preview'    => __( 'Preview', 'fieldloom' ),
+					'loading'    => __( 'Loading fields…', 'fieldloom' ),
+					'noFields'   => __( 'No field group is assigned to this block yet. Create a field group with the location rule Block == this block.', 'fieldloom' ),
 				),
 			)
 		);
@@ -328,7 +328,7 @@ class CFStudio_Blocks {
 	public static function rest_form( $request ) {
 		$name = (string) $request->get_param( 'block' );
 		if ( ! isset( self::$blocks[ $name ] ) ) {
-			return new WP_Error( 'cfstudio_block', __( 'Unknown block.', 'custom-fields-studio' ), array( 'status' => 404 ) );
+			return new WP_Error( 'cfstudio_block', __( 'Unknown block.', 'fieldloom' ), array( 'status' => 404 ) );
 		}
 
 		$previous      = CFStudio_Storage::swap_block_values( array() );

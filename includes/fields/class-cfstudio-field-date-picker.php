@@ -4,7 +4,7 @@
  * compare correctly in meta queries; edited with the browser's native
  * date input; formatted for templates with a PHP date format.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -25,9 +25,9 @@ class CFStudio_Field_Date_Picker extends CFStudio_Field_Base {
 	public static function render_settings( $field, $prefix ) {
 		?>
 		<div class="cfs-field-setting" data-type="date_picker">
-			<label><?php esc_html_e( 'Return Format', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Return Format', 'fieldloom' ); ?></label>
 			<input type="text" name="<?php echo esc_attr( $prefix ); ?>[return_format]" value="<?php echo esc_attr( $field['return_format'] ?? 'd/m/Y' ); ?>" />
-			<p class="description"><?php esc_html_e( 'A PHP date format, e.g. d/m/Y or F j, Y. Use Ymd for the raw stored value.', 'custom-fields-studio' ); ?></p>
+			<p class="description"><?php esc_html_e( 'A PHP date format, e.g. d/m/Y or F j, Y. Use Ymd for the raw stored value.', 'fieldloom' ); ?></p>
 		</div>
 		<?php
 	}

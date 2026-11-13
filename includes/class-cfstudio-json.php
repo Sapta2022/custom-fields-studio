@@ -15,13 +15,16 @@
  * Groups are matched on import by their stable "key", so importing the
  * same file twice updates instead of duplicating.
  *
- * Local JSON: when a "cfs-json" folder exists in the active theme (the
- * folder can be changed with the `cfstudio/json_dir` filter), every saved field
- * group is also written there as {key}.json, so field groups can live in
- * version control. Files newer than the database copy (or unknown to the
- * database) are offered for sync on the Tools page.
+ * Local JSON: when switched on in Tools, every saved field group is also
+ * written as {key}.json to a "fieldloom/json" folder inside the uploads
+ * directory (a different folder inside uploads can be set with the
+ * `cfstudio/json_dir` filter). The plugin never writes anywhere else.
+ * Files newer than the database copy (or unknown to the database) are
+ * offered for sync on the Tools page. Extra read-only folders to sync
+ * from (for example one kept in version control) can be added with the
+ * `cfstudio/json_load_paths` filter.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -30,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class CFStudio_JSON {
 
-	const MENU_SLUG = 'cfs-tools';
+	const MENU_SLUG = 'cfstudio-tools';
 
 	/** @var bool While true, saves are not mirrored back to the JSON folder. */
 	protected static $silent = false;
@@ -39,7 +42,7 @@ class CFStudio_JSON {
 	public static function enqueue_styles() {
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
 		if ( self::MENU_SLUG === $page ) {
-			wp_enqueue_style( 'cfs-admin', CFSTUDIO_URL . 'admin/css/admin.css', array(), CFSTUDIO_VERSION );
+			wp_enqueue_style( 'cfstudio-admin', CFSTUDIO_URL . 'admin/css/admin.css', array(), CFSTUDIO_VERSION );
 		}
 	}
 
@@ -138,7 +141,7 @@ class CFStudio_JSON {
 	 */
 	public static function import_data( $data ) {
 		if ( ! is_array( $data ) ) {
-			return new WP_Error( 'cfstudio_json', __( 'That is not valid JSON.', 'custom-fields-studio' ) );
+			return new WP_Error( 'cfstudio_json', __( 'That is not valid JSON.', 'fieldloom' ) );
 		}
 
 		if ( isset( $data['groups'] ) && is_array( $data['groups'] ) ) {
@@ -148,7 +151,7 @@ class CFStudio_JSON {
 		} elseif ( isset( $data[0] ) && is_array( $data[0] ) ) {
 			$groups = $data; // A bare list of groups.
 		} else {
-			return new WP_Error( 'cfstudio_json', __( 'No field groups were found in that file.', 'custom-fields-studio' ) );
+			return new WP_Error( 'cfstudio_json', __( 'No field groups were found in that file.', 'fieldloom' ) );
 		}
 
 		$result = array(
@@ -172,7 +175,7 @@ class CFStudio_JSON {
 		}
 
 		if ( ! $result['ids'] ) {
-			return new WP_Error( 'cfstudio_json', __( 'No field groups were found in that file.', 'custom-fields-studio' ) );
+			return new WP_Error( 'cfstudio_json', __( 'No field groups were found in that file.', 'fieldloom' ) );
 		}
 
 		return $result;
@@ -258,17 +261,97 @@ class CFStudio_JSON {
 	 * Local JSON folder
 	 * ---------------------------------------------------------------- */
 
+	const OPTION_LOCAL_JSON = 'cfstudio_local_json';
+
+	/** Whether local JSON was switched on in Tools. */
+	public static function local_json_enabled() {
+		return (bool) get_option( self::OPTION_LOCAL_JSON, false );
+	}
+
 	/**
-	 * The local JSON folder, or '' when local JSON is off (the folder must
-	 * exist and be writable — creating it is how you switch the feature on).
+	 * Where local JSON files are written: always a folder inside the
+	 * uploads directory, resolved at runtime.
+	 *
+	 * @return string Absolute path without trailing slash, or '' when uploads is unavailable.
+	 */
+	public static function json_target_dir() {
+		$uploads = wp_upload_dir( null, false );
+		if ( ! empty( $uploads['error'] ) || empty( $uploads['basedir'] ) ) {
+			return '';
+		}
+
+		$base    = wp_normalize_path( untrailingslashit( $uploads['basedir'] ) );
+		$default = $base . '/fieldloom/json';
+		$dir     = wp_normalize_path( untrailingslashit( (string) apply_filters( 'cfstudio/json_dir', $default ) ) );
+
+		// Only folders inside uploads are accepted.
+		if ( '' === $dir || false !== strpos( $dir, '..' ) || 0 !== strpos( $dir . '/', $base . '/' ) || $dir === $base ) {
+			$dir = $default;
+		}
+
+		return $dir;
+	}
+
+	/**
+	 * Create the local JSON folder and protect it from direct access.
+	 *
+	 * @return bool
+	 */
+	public static function prepare_json_dir() {
+		$dir = self::json_target_dir();
+		if ( '' === $dir || ! wp_mkdir_p( $dir ) ) {
+			return false;
+		}
+
+		if ( ! is_file( $dir . '/index.php' ) ) {
+			file_put_contents( $dir . '/index.php', "<?php\n// Silence is golden.\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions -- inside the uploads directory.
+		}
+		if ( ! is_file( $dir . '/.htaccess' ) ) {
+			file_put_contents( $dir . '/.htaccess', "Require all denied\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions -- inside the uploads directory.
+		}
+
+		return true;
+	}
+
+	/**
+	 * The local JSON folder, or '' when local JSON is off or the folder
+	 * is not usable.
 	 *
 	 * @return string
 	 */
 	public static function json_dir() {
-		$dir = (string) apply_filters( 'cfstudio/json_dir', trailingslashit( get_stylesheet_directory() ) . 'cfs-json' );
-		$dir = untrailingslashit( $dir );
+		if ( ! self::local_json_enabled() ) {
+			return '';
+		}
 
-		return ( '' !== $dir && is_dir( $dir ) && is_writable( $dir ) ) ? $dir : ''; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- only checks that the optional local JSON folder is usable.
+		$dir = self::json_target_dir();
+
+		return ( '' !== $dir && is_dir( $dir ) && wp_is_writable( $dir ) ) ? $dir : '';
+	}
+
+	/**
+	 * Folders that are read when looking for groups to sync: the local
+	 * JSON folder plus any read-only folders added by filter.
+	 *
+	 * @return string[]
+	 */
+	public static function json_load_paths() {
+		$paths = array();
+		$dir   = self::json_dir();
+		if ( '' !== $dir ) {
+			$paths[] = $dir;
+		}
+
+		$paths = (array) apply_filters( 'cfstudio/json_load_paths', $paths );
+		$out   = array();
+		foreach ( $paths as $path ) {
+			$path = untrailingslashit( (string) $path );
+			if ( '' !== $path && is_dir( $path ) ) {
+				$out[] = $path;
+			}
+		}
+
+		return array_values( array_unique( $out ) );
 	}
 
 	/** File path for a group key (keys are sanitize_key()ed, so safe in a path). */
@@ -310,7 +393,7 @@ class CFStudio_JSON {
 		$data['modified'] = time();
 		update_post_meta( $group_id, '_cfstudio_json_modified', $data['modified'] );
 
-		return false !== file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions
+		return false !== file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions -- json_dir() is always inside the uploads directory.
 			self::file_for( $dir, $data['key'] ),
 			wp_json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 		);
@@ -345,19 +428,27 @@ class CFStudio_JSON {
 	 * @return array List of array( key, title, file, modified, status 'new'|'newer', group_id ).
 	 */
 	public static function pending_sync() {
-		$dir = self::json_dir();
-		if ( '' === $dir ) {
-			return array();
+		$files = array();
+		foreach ( self::json_load_paths() as $path ) {
+			foreach ( (array) glob( $path . '/*.json' ) as $file ) {
+				$files[] = $file;
+			}
 		}
 
 		$pending = array();
-		foreach ( (array) glob( $dir . '/*.json' ) as $file ) {
+		$seen    = array();
+		foreach ( $files as $file ) {
 			$data = json_decode( (string) file_get_contents( $file ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 			if ( ! is_array( $data ) || empty( $data['key'] ) || ! isset( $data['title'] ) ) {
 				continue;
 			}
 
-			$key      = sanitize_key( (string) $data['key'] );
+			$key = sanitize_key( (string) $data['key'] );
+			if ( isset( $seen[ $key ] ) ) {
+				continue;
+			}
+			$seen[ $key ] = true;
+
 			$modified = isset( $data['modified'] ) ? (int) $data['modified'] : (int) filemtime( $file );
 			$id       = self::find_group_by_key( $key );
 			$status   = '';
@@ -413,8 +504,8 @@ class CFStudio_JSON {
 	public static function register_menu() {
 		add_submenu_page(
 			'edit.php?post_type=' . CFStudio_Field_Group::POST_TYPE,
-			__( 'Tools — Import / Export', 'custom-fields-studio' ),
-			__( 'Tools', 'custom-fields-studio' ),
+			__( 'Tools — Import / Export', 'fieldloom' ),
+			__( 'Tools', 'fieldloom' ),
 			'manage_options',
 			self::MENU_SLUG,
 			array( __CLASS__, 'render_page' )
@@ -455,7 +546,7 @@ class CFStudio_JSON {
 		$err     = isset( $_GET['cfstudio_err'] ) ? sanitize_text_field( wp_unslash( $_GET['cfstudio_err'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
 		?>
 		<div class="wrap" id="cfs-tools">
-			<h1><?php esc_html_e( 'Custom Fields Studio — Tools', 'custom-fields-studio' ); ?></h1>
+			<h1><?php esc_html_e( 'Fieldloom — Tools', 'fieldloom' ); ?></h1>
 
 			<?php if ( '' !== $msg ) : ?>
 				<div class="notice notice-success"><p id="cfs-tools-msg"><?php echo esc_html( $msg ); ?></p></div>
@@ -464,30 +555,45 @@ class CFStudio_JSON {
 				<div class="notice notice-error"><p id="cfs-tools-err"><?php echo esc_html( $err ); ?></p></div>
 			<?php endif; ?>
 
-			<h2><?php esc_html_e( 'Settings', 'custom-fields-studio' ); ?></h2>
+			<h2><?php esc_html_e( 'Settings', 'fieldloom' ); ?></h2>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="cfs-settings-form">
 				<input type="hidden" name="action" value="cfstudio_settings" />
 				<?php wp_nonce_field( 'cfstudio_settings' ); ?>
 				<p>
-					<label for="cfs-gmaps-key"><strong><?php esc_html_e( 'Google Maps API key', 'custom-fields-studio' ); ?></strong></label><br />
+					<label for="cfs-gmaps-key"><strong><?php esc_html_e( 'Google Maps API key', 'fieldloom' ); ?></strong></label><br />
 					<input type="text" id="cfs-gmaps-key" name="cfstudio_google_maps_api_key" class="regular-text" value="<?php echo esc_attr( (string) get_option( 'cfstudio_google_maps_api_key', '' ) ); ?>" autocomplete="off" />
-					<br /><span class="description"><?php esc_html_e( 'Used by the Google Map field to show a searchable map in the editor (Maps JavaScript API + Places API). Without a key the field still works with typed latitude / longitude.', 'custom-fields-studio' ); ?></span>
+					<br /><span class="description"><?php esc_html_e( 'Used by the Google Map field to show a searchable map in the editor (Maps JavaScript API + Places API). Without a key the field still works with typed latitude / longitude.', 'fieldloom' ); ?></span>
 				</p>
 				<p>
 					<label>
 						<input type="checkbox" id="cfs-translate-options" name="cfstudio_translate_options" value="1" <?php checked( (bool) get_option( CFStudio_I18n::OPTION, false ) ); ?> />
-						<?php esc_html_e( 'Store Options Page values separately for each language (WPML / Polylang)', 'custom-fields-studio' ); ?>
+						<?php esc_html_e( 'Store Options Page values separately for each language (WPML / Polylang)', 'fieldloom' ); ?>
 					</label>
 					<br /><span class="description">
 						<?php
-						echo CFStudio_I18n::active() ? esc_html__( 'A multilingual plugin is active.', 'custom-fields-studio' ) : esc_html__( 'No multilingual plugin is active, so this has no effect yet.', 'custom-fields-studio' );
+						echo CFStudio_I18n::active() ? esc_html__( 'A multilingual plugin is active.', 'fieldloom' ) : esc_html__( 'No multilingual plugin is active, so this has no effect yet.', 'fieldloom' );
 						?>
 					</span>
 				</p>
-				<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Save settings', 'custom-fields-studio' ); ?></button></p>
+				<p>
+					<label>
+						<input type="checkbox" id="cfs-local-json" name="cfstudio_local_json" value="1" <?php checked( self::local_json_enabled() ); ?> />
+						<?php esc_html_e( 'Local JSON: also save every field group as a JSON file', 'fieldloom' ); ?>
+					</label>
+					<br /><span class="description">
+						<?php
+						printf(
+							/* translators: %s: folder path */
+							esc_html__( 'Files are written to %s, inside the uploads folder.', 'fieldloom' ),
+							'<code>' . esc_html( self::json_target_dir() ) . '</code>'
+						);
+						?>
+					</span>
+				</p>
+				<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Save settings', 'fieldloom' ); ?></button></p>
 			</form>
 
-			<h2><?php esc_html_e( 'Export field groups', 'custom-fields-studio' ); ?></h2>
+			<h2><?php esc_html_e( 'Export field groups', 'fieldloom' ); ?></h2>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="cfs-export-form">
 				<input type="hidden" name="action" value="cfstudio_export" />
 				<?php wp_nonce_field( 'cfstudio_export' ); ?>
@@ -500,29 +606,29 @@ class CFStudio_JSON {
 							</label><br />
 						<?php endforeach; ?>
 					</p>
-					<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Download export file (.json)', 'custom-fields-studio' ); ?></button></p>
+					<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Download export file (.json)', 'fieldloom' ); ?></button></p>
 				<?php else : ?>
-					<p><?php esc_html_e( 'There are no field groups to export yet.', 'custom-fields-studio' ); ?></p>
+					<p><?php esc_html_e( 'There are no field groups to export yet.', 'fieldloom' ); ?></p>
 				<?php endif; ?>
 			</form>
 
-			<h2><?php esc_html_e( 'Import field groups', 'custom-fields-studio' ); ?></h2>
+			<h2><?php esc_html_e( 'Import field groups', 'fieldloom' ); ?></h2>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data" id="cfs-import-form">
 				<input type="hidden" name="action" value="cfstudio_import" />
 				<?php wp_nonce_field( 'cfstudio_import' ); ?>
 				<p><input type="file" name="cfstudio_import_file" accept=".json,application/json" /></p>
-				<p class="description"><?php esc_html_e( 'Groups are matched by their key: a group that already exists is updated, anything else is created.', 'custom-fields-studio' ); ?></p>
-				<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Import', 'custom-fields-studio' ); ?></button></p>
+				<p class="description"><?php esc_html_e( 'Groups are matched by their key: a group that already exists is updated, anything else is created.', 'fieldloom' ); ?></p>
+				<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Import', 'fieldloom' ); ?></button></p>
 			</form>
 
-			<h2><?php esc_html_e( 'Local JSON', 'custom-fields-studio' ); ?></h2>
+			<h2><?php esc_html_e( 'Local JSON', 'fieldloom' ); ?></h2>
 			<?php if ( '' === $dir ) : ?>
 				<p id="cfs-json-off">
 					<?php
 					printf(
 						/* translators: %s: folder path */
-						esc_html__( 'Local JSON is off. Create the folder %s (writable) to save every field group as a JSON file there, so field groups can be kept in version control.', 'custom-fields-studio' ),
-						'<code>' . esc_html( trailingslashit( get_stylesheet_directory() ) . 'cfs-json' ) . '</code>'
+						esc_html__( 'Local JSON is off. Turn it on in Settings above to save every field group as a JSON file in %s (inside the uploads folder).', 'fieldloom' ),
+						'<code>' . esc_html( self::json_target_dir() ) . '</code>'
 					);
 					?>
 				</p>
@@ -531,19 +637,21 @@ class CFStudio_JSON {
 					<?php
 					printf(
 						/* translators: %s: folder path */
-						esc_html__( 'Local JSON is on. Field groups are saved to %s.', 'custom-fields-studio' ),
+						esc_html__( 'Local JSON is on. Field groups are saved to %s.', 'fieldloom' ),
 						'<code>' . esc_html( $dir ) . '</code>'
 					);
 					?>
 				</p>
+			<?php endif; ?>
+			<?php if ( '' !== $dir || $pending ) : ?>
 				<?php if ( $pending ) : ?>
 					<table class="widefat striped" id="cfs-sync-table" style="max-width:700px">
-						<thead><tr><th><?php esc_html_e( 'Field group', 'custom-fields-studio' ); ?></th><th><?php esc_html_e( 'Status', 'custom-fields-studio' ); ?></th></tr></thead>
+						<thead><tr><th><?php esc_html_e( 'Field group', 'fieldloom' ); ?></th><th><?php esc_html_e( 'Status', 'fieldloom' ); ?></th></tr></thead>
 						<tbody>
 						<?php foreach ( $pending as $item ) : ?>
 							<tr>
 								<td><?php echo esc_html( $item['title'] ); ?></td>
-								<td><?php echo 'new' === $item['status'] ? esc_html__( 'New (not in the database)', 'custom-fields-studio' ) : esc_html__( 'File is newer than the database', 'custom-fields-studio' ); ?></td>
+								<td><?php echo 'new' === $item['status'] ? esc_html__( 'New (not in the database)', 'fieldloom' ) : esc_html__( 'File is newer than the database', 'fieldloom' ); ?></td>
 							</tr>
 						<?php endforeach; ?>
 						</tbody>
@@ -551,10 +659,10 @@ class CFStudio_JSON {
 					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="cfs-sync-form">
 						<input type="hidden" name="action" value="cfstudio_sync" />
 						<?php wp_nonce_field( 'cfstudio_sync' ); ?>
-						<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Sync changes', 'custom-fields-studio' ); ?></button></p>
+						<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Sync changes', 'fieldloom' ); ?></button></p>
 					</form>
 				<?php else : ?>
-					<p id="cfs-sync-clean"><?php esc_html_e( 'Everything is in sync.', 'custom-fields-studio' ); ?></p>
+					<p id="cfs-sync-clean"><?php esc_html_e( 'Everything is in sync.', 'fieldloom' ); ?></p>
 				<?php endif; ?>
 			<?php endif; ?>
 		</div>
@@ -564,7 +672,7 @@ class CFStudio_JSON {
 	/** admin-post: save the Tools page settings. */
 	public static function handle_settings() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'custom-fields-studio' ), 403 );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'fieldloom' ), 403 );
 		}
 		check_admin_referer( 'cfstudio_settings' );
 
@@ -572,13 +680,19 @@ class CFStudio_JSON {
 		update_option( 'cfstudio_google_maps_api_key', $key, false );
 		update_option( CFStudio_I18n::OPTION, ! empty( $_POST['cfstudio_translate_options'] ) ? 1 : 0, false );
 
-		self::back( array( 'cfstudio_msg' => __( 'Settings saved.', 'custom-fields-studio' ) ) );
+		$local_json = ! empty( $_POST['cfstudio_local_json'] );
+		update_option( self::OPTION_LOCAL_JSON, $local_json ? 1 : 0, false );
+		if ( $local_json && ! self::prepare_json_dir() ) {
+			self::back( array( 'cfstudio_err' => __( 'Settings saved, but the local JSON folder could not be created inside the uploads folder.', 'fieldloom' ) ) );
+		}
+
+		self::back( array( 'cfstudio_msg' => __( 'Settings saved.', 'fieldloom' ) ) );
 	}
 
 	/** admin-post: download an export file. */
 	public static function handle_export() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'custom-fields-studio' ), 403 );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'fieldloom' ), 403 );
 		}
 		check_admin_referer( 'cfstudio_export' );
 
@@ -586,7 +700,7 @@ class CFStudio_JSON {
 
 		nocache_headers();
 		header( 'Content-Type: application/json; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename="cfs-export-' . gmdate( 'Y-m-d' ) . '.json"' );
+		header( 'Content-Disposition: attachment; filename="cfstudio-export-' . gmdate( 'Y-m-d' ) . '.json"' );
 		echo self::export_json( $only ? $only : null ); // phpcs:ignore WordPress.Security.EscapeOutput -- JSON download.
 		exit;
 	}
@@ -594,19 +708,19 @@ class CFStudio_JSON {
 	/** admin-post: import an uploaded file. */
 	public static function handle_import() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'custom-fields-studio' ), 403 );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'fieldloom' ), 403 );
 		}
 		check_admin_referer( 'cfstudio_import' );
 
 		$file = isset( $_FILES['cfstudio_import_file'] ) ? $_FILES['cfstudio_import_file'] : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 		if ( empty( $file['tmp_name'] ) || ! is_uploaded_file( $file['tmp_name'] ) || ! empty( $file['error'] ) ) {
-			self::back( array( 'cfstudio_err' => __( 'Choose a .json file to import.', 'custom-fields-studio' ) ) );
+			self::back( array( 'cfstudio_err' => __( 'Choose a .json file to import.', 'fieldloom' ) ) );
 		}
 		if ( 'json' !== strtolower( pathinfo( (string) $file['name'], PATHINFO_EXTENSION ) ) ) {
-			self::back( array( 'cfstudio_err' => __( 'The file must be a .json file.', 'custom-fields-studio' ) ) );
+			self::back( array( 'cfstudio_err' => __( 'The file must be a .json file.', 'fieldloom' ) ) );
 		}
 		if ( (int) $file['size'] > 5 * MB_IN_BYTES ) {
-			self::back( array( 'cfstudio_err' => __( 'That file is too large.', 'custom-fields-studio' ) ) );
+			self::back( array( 'cfstudio_err' => __( 'That file is too large.', 'fieldloom' ) ) );
 		}
 
 		$data   = json_decode( (string) file_get_contents( $file['tmp_name'] ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions
@@ -620,7 +734,7 @@ class CFStudio_JSON {
 			array(
 				'cfstudio_msg' => sprintf(
 					/* translators: 1: created count, 2: updated count */
-					__( 'Import finished: %1$d created, %2$d updated.', 'custom-fields-studio' ),
+					__( 'Import finished: %1$d created, %2$d updated.', 'fieldloom' ),
 					$result['created'],
 					$result['updated']
 				),
@@ -631,7 +745,7 @@ class CFStudio_JSON {
 	/** admin-post: sync the JSON folder into the database. */
 	public static function handle_sync() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'custom-fields-studio' ), 403 );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'fieldloom' ), 403 );
 		}
 		check_admin_referer( 'cfstudio_sync' );
 
@@ -640,7 +754,7 @@ class CFStudio_JSON {
 		self::back(
 			array(
 				/* translators: %d: number of groups */
-				'cfstudio_msg' => sprintf( _n( 'Synced %d field group.', 'Synced %d field groups.', $count, 'custom-fields-studio' ), $count ),
+				'cfstudio_msg' => sprintf( _n( 'Synced %d field group.', 'Synced %d field groups.', $count, 'fieldloom' ), $count ),
 			)
 		);
 	}

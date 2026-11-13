@@ -1,5 +1,5 @@
 /**
- * Custom Fields Studio — Options Pages manager: add / remove page rows.
+ * Fieldloom — Options Pages manager: add / remove page rows.
  */
 /* global jQuery */
 ( function ( $ ) {

@@ -13,7 +13,7 @@
  *    WPML has its own per-custom-field settings in its Translation Management
  *    screen; use those for WPML (this plugin does not change them).
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
