@@ -6,7 +6,7 @@
  * options, and the block namespace used inside saved post content.
  * Field VALUES (the site's own content) are never touched.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -28,6 +28,10 @@ class CFStudio_Migrate {
 		// 0.13.1: block names inside saved location rules (missed in 0.13.0).
 		if ( ! $done || version_compare( (string) $done, '0.13.1', '<' ) ) {
 			self::migrate_block_locations();
+		}
+		// 0.14.0: the shortcode was renamed from [cfs] to [cfstudio].
+		if ( ! $done || version_compare( (string) $done, '0.14.0', '<' ) ) {
+			self::migrate_shortcode();
 		}
 		if ( $done !== CFSTUDIO_VERSION ) {
 			update_option( self::DONE_OPTION, CFSTUDIO_VERSION, false );
@@ -96,5 +100,19 @@ class CFStudio_Migrate {
 				update_post_meta( $id, '_cfstudio_location', $location );
 			}
 		}
+	}
+
+	/**
+	 * Rewrite the old [cfs ...] shortcode to [cfstudio ...] in saved post content.
+	 */
+	public static function migrate_shortcode() {
+		global $wpdb;
+
+		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+			"UPDATE {$wpdb->posts} SET post_content = REPLACE(post_content, '[cfs ', '[cfstudio ') WHERE post_content LIKE '%[cfs %'"
+		);
+
+		clean_post_cache( 0 );
+		wp_cache_flush();
 	}
 }

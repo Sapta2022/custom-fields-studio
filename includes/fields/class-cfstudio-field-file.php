@@ -2,7 +2,7 @@
 /**
  * File field. Stores the attachment ID; picked with the media modal.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -26,16 +26,16 @@ class CFStudio_Field_File extends CFStudio_Field_Base {
 			'file',
 			$prefix,
 			'return_format',
-			__( 'Return Format', 'custom-fields-studio' ),
+			__( 'Return Format', 'fieldloom' ),
 			$field,
 			array(
-				'array' => __( 'File Array', 'custom-fields-studio' ),
-				'url'   => __( 'File URL', 'custom-fields-studio' ),
-				'id'    => __( 'Attachment ID', 'custom-fields-studio' ),
+				'array' => __( 'File Array', 'fieldloom' ),
+				'url'   => __( 'File URL', 'fieldloom' ),
+				'id'    => __( 'Attachment ID', 'fieldloom' ),
 			),
 			'array'
 		);
-		self::setting_input( 'file', $prefix, 'mime_types', __( 'Allowed File Types', 'custom-fields-studio' ), $field, 'text', __( 'Comma-separated extensions, e.g. pdf, docx, zip. Blank allows any file type WordPress accepts.', 'custom-fields-studio' ) );
+		self::setting_input( 'file', $prefix, 'mime_types', __( 'Allowed File Types', 'fieldloom' ), $field, 'text', __( 'Comma-separated extensions, e.g. pdf, docx, zip. Blank allows any file type WordPress accepts.', 'fieldloom' ) );
 	}
 
 	public static function sanitize( $raw ) {
@@ -70,8 +70,8 @@ class CFStudio_Field_File extends CFStudio_Field_Base {
 				<a class="cfs-file-name" href="<?php echo esc_url( $has_file ? wp_get_attachment_url( $id ) : '' ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $has_file ? wp_basename( (string) get_attached_file( $id ) ) : '' ); ?></a>
 			</p>
 			<p>
-				<button type="button" class="button cfs-file-select"<?php echo $has_file ? ' style="display:none;"' : ''; ?>><?php esc_html_e( 'Select File', 'custom-fields-studio' ); ?></button>
-				<button type="button" class="button cfs-file-remove"<?php echo $has_file ? '' : ' style="display:none;"'; ?>><?php esc_html_e( 'Remove', 'custom-fields-studio' ); ?></button>
+				<button type="button" class="button cfs-file-select"<?php echo $has_file ? ' style="display:none;"' : ''; ?>><?php esc_html_e( 'Select File', 'fieldloom' ); ?></button>
+				<button type="button" class="button cfs-file-remove"<?php echo $has_file ? '' : ' style="display:none;"'; ?>><?php esc_html_e( 'Remove', 'fieldloom' ); ?></button>
 			</p>
 		</div>
 		<?php

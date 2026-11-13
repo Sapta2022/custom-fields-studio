@@ -16,7 +16,7 @@
  * All options pages share one storage namespace, like ACF's, so field
  * names should be unique across them.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -32,7 +32,7 @@ class CFStudio_Options_Page {
 	const NONCE_ACTION = 'cfstudio_save_options_';
 
 	/** Menu slug of the "Options Pages" manager screen. */
-	const MANAGER_SLUG = 'cfs-options-pages';
+	const MANAGER_SLUG = 'cfstudio-options-pages';
 
 	/**
 	 * Pages registered from code, keyed by menu slug.
@@ -231,8 +231,8 @@ class CFStudio_Options_Page {
 		// The manager lives under Field Groups.
 		self::$manager_hook = (string) add_submenu_page(
 			'edit.php?post_type=' . CFStudio_Field_Group::POST_TYPE,
-			__( 'Options Pages', 'custom-fields-studio' ),
-			__( 'Options Pages', 'custom-fields-studio' ),
+			__( 'Options Pages', 'fieldloom' ),
+			__( 'Options Pages', 'fieldloom' ),
 			'manage_options',
 			self::MANAGER_SLUG,
 			array( __CLASS__, 'render_manager' )
@@ -274,13 +274,13 @@ class CFStudio_Options_Page {
 		}
 
 		$groups = CFStudio_Field_Group::get_options_groups( $slug );
-		$button = '' !== $page['update_button'] ? $page['update_button'] : __( 'Save Options', 'custom-fields-studio' );
-		$notice = '' !== $page['updated_message'] ? $page['updated_message'] : __( 'Options saved.', 'custom-fields-studio' );
+		$button = '' !== $page['update_button'] ? $page['update_button'] : __( 'Save Options', 'fieldloom' );
+		$notice = '' !== $page['updated_message'] ? $page['updated_message'] : __( 'Options saved.', 'fieldloom' );
 
 		echo '<div class="wrap cfs-options-page">';
 		echo '<h1>' . esc_html( $page['page_title'] ) . '</h1>';
 
-		if ( isset( $_GET['cfs-updated'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification -- display only.
+		if ( isset( $_GET['cfstudio-updated'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification -- display only.
 			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( $notice ) . '</p></div>';
 		}
 
@@ -289,9 +289,9 @@ class CFStudio_Options_Page {
 				'<p>%s</p>',
 				sprintf(
 					/* translators: 1: page title, 2: link to add a field group. */
-					esc_html__( 'No field groups are assigned to “%1$s” yet. %2$s and set its location to “Options Page is equal to %1$s”.', 'custom-fields-studio' ),
+					esc_html__( 'No field groups are assigned to “%1$s” yet. %2$s and set its location to “Options Page is equal to %1$s”.', 'fieldloom' ),
 					esc_html( $page['menu_title'] ),
-					'<a href="' . esc_url( admin_url( 'post-new.php?post_type=' . CFStudio_Field_Group::POST_TYPE ) ) . '">' . esc_html__( 'Add a field group', 'custom-fields-studio' ) . '</a>'
+					'<a href="' . esc_url( admin_url( 'post-new.php?post_type=' . CFStudio_Field_Group::POST_TYPE ) ) . '">' . esc_html__( 'Add a field group', 'fieldloom' ) . '</a>'
 				)
 			); // phpcs:ignore WordPress.Security.EscapeOutput -- every part is escaped above.
 			echo '</div>';
@@ -304,7 +304,7 @@ class CFStudio_Options_Page {
 		foreach ( $groups as $group ) {
 			echo '<div class="postbox cfs-options-box"><div class="postbox-header"><h2 class="hndle">' . esc_html( $group['title'] ) . '</h2></div><div class="inside">';
 			if ( empty( $group['fields'] ) ) {
-				echo '<p>' . esc_html__( 'This field group has no fields yet.', 'custom-fields-studio' ) . '</p>';
+				echo '<p>' . esc_html__( 'This field group has no fields yet.', 'fieldloom' ) . '</p>';
 			} else {
 				CFStudio_Meta_Box::render_group_fields( $group, 'option' );
 			}
@@ -330,7 +330,7 @@ class CFStudio_Options_Page {
 			return;
 		}
 
-		$posted = isset( $_POST['cfs'] ) ? wp_unslash( $_POST['cfs'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- each field type sanitizes its own value.
+		$posted = isset( $_POST['cfstudio'] ) ? wp_unslash( $_POST['cfstudio'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- each field type sanitizes its own value.
 
 		foreach ( CFStudio_Field_Group::get_options_groups( $slug ) as $group ) {
 			foreach ( $group['fields'] as $field ) {
@@ -348,14 +348,14 @@ class CFStudio_Options_Page {
 		 */
 		do_action( 'cfstudio/options_saved', $slug );
 
-		wp_safe_redirect( add_query_arg( 'cfs-updated', '1', self::page_url( $slug ) ) );
+		wp_safe_redirect( add_query_arg( 'cfstudio-updated', '1', self::page_url( $slug ) ) );
 		exit;
 	}
 
 	public static function enqueue( $hook ) {
 		if ( self::$manager_hook && $hook === self::$manager_hook ) {
-			wp_enqueue_style( 'cfs-admin', CFSTUDIO_URL . 'admin/css/admin.css', array(), CFSTUDIO_VERSION );
-			wp_enqueue_script( 'cfs-options-pages', CFSTUDIO_URL . 'admin/js/options-pages.js', array( 'jquery' ), CFSTUDIO_VERSION, true );
+			wp_enqueue_style( 'cfstudio-admin', CFSTUDIO_URL . 'admin/css/admin.css', array(), CFSTUDIO_VERSION );
+			wp_enqueue_script( 'cfstudio-options-pages', CFSTUDIO_URL . 'admin/js/options-pages.js', array( 'jquery' ), CFSTUDIO_VERSION, true );
 			return;
 		}
 
@@ -380,18 +380,18 @@ class CFStudio_Options_Page {
 	 */
 	protected static function parent_choices() {
 		$choices = array(
-			''                    => __( '— Top level menu —', 'custom-fields-studio' ),
-			'options-general.php' => __( 'Settings', 'custom-fields-studio' ),
-			'themes.php'          => __( 'Appearance', 'custom-fields-studio' ),
-			'tools.php'           => __( 'Tools', 'custom-fields-studio' ),
-			'edit.php'            => __( 'Posts', 'custom-fields-studio' ),
-			'upload.php'          => __( 'Media', 'custom-fields-studio' ),
+			''                    => __( '— Top level menu —', 'fieldloom' ),
+			'options-general.php' => __( 'Settings', 'fieldloom' ),
+			'themes.php'          => __( 'Appearance', 'fieldloom' ),
+			'tools.php'           => __( 'Tools', 'fieldloom' ),
+			'edit.php'            => __( 'Posts', 'fieldloom' ),
+			'upload.php'          => __( 'Media', 'fieldloom' ),
 		);
 
 		foreach ( self::get_pages() as $slug => $page ) {
 			if ( '' === $page['parent_slug'] ) {
 				/* translators: %s: options page menu title */
-				$choices[ $slug ] = sprintf( __( 'Under “%s”', 'custom-fields-studio' ), $page['menu_title'] );
+				$choices[ $slug ] = sprintf( __( 'Under “%s”', 'fieldloom' ), $page['menu_title'] );
 			}
 		}
 
@@ -407,23 +407,23 @@ class CFStudio_Options_Page {
 		$code  = self::$code_pages;
 		$index = 0;
 
-		echo '<div class="wrap cfs-options-manager"><h1>' . esc_html__( 'Options Pages', 'custom-fields-studio' ) . '</h1>';
+		echo '<div class="wrap cfs-options-manager"><h1>' . esc_html__( 'Options Pages', 'fieldloom' ) . '</h1>';
 
-		if ( isset( $_GET['cfs-updated'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification -- display only.
-			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Options pages saved.', 'custom-fields-studio' ) . '</p></div>';
+		if ( isset( $_GET['cfstudio-updated'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification -- display only.
+			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Options pages saved.', 'fieldloom' ) . '</p></div>';
 		}
 
-		echo '<p>' . esc_html__( 'Create admin pages that hold site-wide values. Then add a field group whose location is “Options Page is equal to …”. Read the values with cfstudio_get_field( \'name\', \'option\' ).', 'custom-fields-studio' ) . '</p>';
+		echo '<p>' . esc_html__( 'Create admin pages that hold site-wide values. Then add a field group whose location is “Options Page is equal to …”. Read the values with cfstudio_get_field( \'name\', \'option\' ).', 'fieldloom' ) . '</p>';
 
 		if ( $code ) {
-			echo '<h2>' . esc_html__( 'Registered in code', 'custom-fields-studio' ) . '</h2><table class="widefat striped" style="max-width:900px"><thead><tr><th>' . esc_html__( 'Title', 'custom-fields-studio' ) . '</th><th>' . esc_html__( 'Slug', 'custom-fields-studio' ) . '</th><th>' . esc_html__( 'Parent', 'custom-fields-studio' ) . '</th></tr></thead><tbody>';
+			echo '<h2>' . esc_html__( 'Registered in code', 'fieldloom' ) . '</h2><table class="widefat striped" style="max-width:900px"><thead><tr><th>' . esc_html__( 'Title', 'fieldloom' ) . '</th><th>' . esc_html__( 'Slug', 'fieldloom' ) . '</th><th>' . esc_html__( 'Parent', 'fieldloom' ) . '</th></tr></thead><tbody>';
 			foreach ( $code as $slug => $page ) {
 				echo '<tr><td>' . esc_html( $page['menu_title'] ) . '</td><td><code>' . esc_html( $slug ) . '</code></td><td>' . esc_html( $page['parent_slug'] ?: '—' ) . '</td></tr>';
 			}
 			echo '</tbody></table>';
 		}
 
-		echo '<h2>' . esc_html__( 'Created here', 'custom-fields-studio' ) . '</h2>';
+		echo '<h2>' . esc_html__( 'Created here', 'fieldloom' ) . '</h2>';
 		echo '<form method="post" action="">';
 		wp_nonce_field( self::NONCE_ACTION . self::MANAGER_SLUG, self::NONCE_FIELD );
 		echo '<table class="widefat cfs-options-pages-table" style="max-width:1100px"><thead><tr>';
@@ -440,8 +440,8 @@ class CFStudio_Options_Page {
 		echo '<script type="text/html" id="tmpl-cfs-options-page-row">';
 		self::render_manager_row( '__INDEX__', array() );
 		echo '</script>';
-		echo '<p><button type="button" class="button" id="cfs-add-options-page">' . esc_html__( '+ Add Options Page', 'custom-fields-studio' ) . '</button></p>';
-		submit_button( __( 'Save Options Pages', 'custom-fields-studio' ) );
+		echo '<p><button type="button" class="button" id="cfs-add-options-page">' . esc_html__( '+ Add Options Page', 'fieldloom' ) . '</button></p>';
+		submit_button( __( 'Save Options Pages', 'fieldloom' ) );
 		echo '</form></div>';
 	}
 
@@ -450,8 +450,8 @@ class CFStudio_Options_Page {
 		$parent = $page['parent_slug'] ?? '';
 		?>
 		<tr class="cfs-options-page-row">
-			<td><input type="text" name="<?php echo esc_attr( $name ); ?>[page_title]" value="<?php echo esc_attr( $page['page_title'] ?? '' ); ?>" class="regular-text" placeholder="<?php esc_attr_e( 'Site Options', 'custom-fields-studio' ); ?>" /></td>
-			<td><input type="text" name="<?php echo esc_attr( $name ); ?>[menu_title]" value="<?php echo esc_attr( $page['menu_title'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'Site Options', 'custom-fields-studio' ); ?>" /></td>
+			<td><input type="text" name="<?php echo esc_attr( $name ); ?>[page_title]" value="<?php echo esc_attr( $page['page_title'] ?? '' ); ?>" class="regular-text" placeholder="<?php esc_attr_e( 'Site Options', 'fieldloom' ); ?>" /></td>
+			<td><input type="text" name="<?php echo esc_attr( $name ); ?>[menu_title]" value="<?php echo esc_attr( $page['menu_title'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'Site Options', 'fieldloom' ); ?>" /></td>
 			<td><input type="text" name="<?php echo esc_attr( $name ); ?>[menu_slug]" value="<?php echo esc_attr( $page['menu_slug'] ?? '' ); ?>" placeholder="site-options" /></td>
 			<td>
 				<select name="<?php echo esc_attr( $name ); ?>[parent_slug]">
@@ -462,7 +462,7 @@ class CFStudio_Options_Page {
 			</td>
 			<td><input type="text" name="<?php echo esc_attr( $name ); ?>[capability]" value="<?php echo esc_attr( $page['capability'] ?? 'manage_options' ); ?>" /></td>
 			<td><input type="text" name="<?php echo esc_attr( $name ); ?>[icon_url]" value="<?php echo esc_attr( $page['icon_url'] ?? 'dashicons-admin-generic' ); ?>" /></td>
-			<td><button type="button" class="button-link cfs-remove-options-page" aria-label="<?php esc_attr_e( 'Remove', 'custom-fields-studio' ); ?>">&times;</button></td>
+			<td><button type="button" class="button-link cfs-remove-options-page" aria-label="<?php esc_attr_e( 'Remove', 'fieldloom' ); ?>">&times;</button></td>
 		</tr>
 		<?php
 	}
@@ -497,7 +497,7 @@ class CFStudio_Options_Page {
 
 		update_option( self::OPTION_PAGES, $clean );
 
-		wp_safe_redirect( add_query_arg( 'cfs-updated', '1', self::page_url( self::MANAGER_SLUG ) ) );
+		wp_safe_redirect( add_query_arg( 'cfstudio-updated', '1', self::page_url( self::MANAGER_SLUG ) ) );
 		exit;
 	}
 }

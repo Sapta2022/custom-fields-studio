@@ -1,11 +1,11 @@
-# Testing Custom Fields Studio
+# Testing Fieldloom Custom Fields
 
 Two layers, both driven by the **CFS QA Suite** companion plugin in `tests/cfs-qa-suite/`.
 
 ## 1. In-WordPress QA suite (works on any site, no tools needed)
 
 1. Copy `tests/cfs-qa-suite/` into `wp-content/plugins/` (or upload `cfs-qa-suite.zip`) and activate it
-   next to Custom Fields Studio.
+   next to Fieldloom Custom Fields.
 2. **Tools -> CFS QA Suite -> Run all tests.**
 
 It (re)creates, tagged so they can be removed exactly:
@@ -13,7 +13,7 @@ It (re)creates, tagged so they can be removed exactly:
 * **3 field groups** that between them use every field type and option -
   *QA Basic Fields* (pages + posts), *QA Repeater & Flexible* (pages), *QA Options Fields* (two options pages);
 * **3 demo pages** - page 1 full values, page 2 rich repeater/flexible content, page 3 edge cases
-  (limits, invalid input, special characters). Each page body shows every field through the `[cfs]` shortcode;
+  (limits, invalid input, special characters). Each page body shows every field through the `[cfstudio]` shortcode;
 * **2 options pages** - *QA Options* (top level) and *QA Options (Settings)* (sub page);
 * images, related posts, categories and tags to point the fields at.
 

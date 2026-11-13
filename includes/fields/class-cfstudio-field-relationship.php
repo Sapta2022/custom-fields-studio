@@ -3,7 +3,7 @@
  * Relationship field: pick related posts (ordered). Stored as an array of
  * post IDs. The picker searches via an AJAX endpoint registered here.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -43,7 +43,7 @@ class CFStudio_Field_Relationship extends CFStudio_Field_Base {
 		$return_format = $field['return_format'] ?? 'object';
 		?>
 		<div class="cfs-field-setting" data-type="relationship">
-			<label><?php esc_html_e( 'Post Types', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Post Types', 'fieldloom' ); ?></label>
 			<?php foreach ( self::available_post_types() as $slug => $obj ) : ?>
 				<label style="display:inline-block;margin-right:12px;">
 					<input type="checkbox" name="<?php echo esc_attr( $prefix ); ?>[post_types][]" value="<?php echo esc_attr( $slug ); ?>" <?php checked( in_array( $slug, $selected, true ) ); ?> />
@@ -52,14 +52,14 @@ class CFStudio_Field_Relationship extends CFStudio_Field_Base {
 			<?php endforeach; ?>
 		</div>
 		<div class="cfs-field-setting" data-type="relationship">
-			<label><?php esc_html_e( 'Return Format', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Return Format', 'fieldloom' ); ?></label>
 			<select name="<?php echo esc_attr( $prefix ); ?>[return_format]">
-				<option value="object" <?php selected( $return_format, 'object' ); ?>><?php esc_html_e( 'Post Objects', 'custom-fields-studio' ); ?></option>
-				<option value="id" <?php selected( $return_format, 'id' ); ?>><?php esc_html_e( 'Post IDs', 'custom-fields-studio' ); ?></option>
+				<option value="object" <?php selected( $return_format, 'object' ); ?>><?php esc_html_e( 'Post Objects', 'fieldloom' ); ?></option>
+				<option value="id" <?php selected( $return_format, 'id' ); ?>><?php esc_html_e( 'Post IDs', 'fieldloom' ); ?></option>
 			</select>
 		</div>
 		<div class="cfs-field-setting" data-type="relationship">
-			<label><?php esc_html_e( 'Maximum Posts (0 = no limit)', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Maximum Posts (0 = no limit)', 'fieldloom' ); ?></label>
 			<input type="number" min="0" name="<?php echo esc_attr( $prefix ); ?>[max]" value="<?php echo esc_attr( (int) ( $field['max'] ?? 0 ) ); ?>" style="width:80px" />
 		</div>
 		<?php
@@ -89,7 +89,7 @@ class CFStudio_Field_Relationship extends CFStudio_Field_Base {
 		<div class="cfs-relationship" data-name="<?php echo esc_attr( $name ); ?>" data-types="<?php echo esc_attr( implode( ',', $types ) ); ?>" data-max="<?php echo esc_attr( (int) ( $field['max'] ?? 0 ) ); ?>">
 			<input type="hidden" name="<?php echo esc_attr( $name ); ?>[]" value="" />
 			<div class="cfs-rel-col">
-				<input type="search" class="cfs-rel-search" placeholder="<?php esc_attr_e( 'Search…', 'custom-fields-studio' ); ?>" />
+				<input type="search" class="cfs-rel-search" placeholder="<?php esc_attr_e( 'Search…', 'fieldloom' ); ?>" />
 				<ul class="cfs-rel-results"></ul>
 			</div>
 			<div class="cfs-rel-col">
@@ -98,7 +98,7 @@ class CFStudio_Field_Relationship extends CFStudio_Field_Base {
 						<li data-id="<?php echo esc_attr( $id ); ?>">
 							<input type="hidden" name="<?php echo esc_attr( $name ); ?>[]" value="<?php echo esc_attr( $id ); ?>" />
 							<span class="cfs-rel-title"><?php echo esc_html( get_the_title( $id ) ); ?></span>
-							<button type="button" class="cfs-rel-remove" aria-label="<?php esc_attr_e( 'Remove', 'custom-fields-studio' ); ?>">&times;</button>
+							<button type="button" class="cfs-rel-remove" aria-label="<?php esc_attr_e( 'Remove', 'fieldloom' ); ?>">&times;</button>
 						</li>
 					<?php endforeach; ?>
 				</ul>
@@ -181,7 +181,7 @@ class CFStudio_Field_Relationship extends CFStudio_Field_Base {
 			$obj   = get_post_type_object( $post->post_type );
 			$out[] = array(
 				'id'    => $post->ID,
-				'title' => '' !== $post->post_title ? $post->post_title : __( '(no title)', 'custom-fields-studio' ),
+				'title' => '' !== $post->post_title ? $post->post_title : __( '(no title)', 'fieldloom' ),
 				'type'  => $obj ? $obj->labels->singular_name : $post->post_type,
 			);
 		}

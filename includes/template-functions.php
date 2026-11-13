@@ -5,7 +5,7 @@
  * (get_field/the_field/have_rows/...) so templates read familiarly, but
  * this is an original implementation against our own storage.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -408,8 +408,8 @@ function cfstudio_reset_rows() {
 function cfstudio_add_options_page( $args = array() ) {
 	if ( empty( $args ) ) {
 		$args = array(
-			'page_title' => __( 'Site Options', 'custom-fields-studio' ),
-			'menu_slug'  => 'cfs-site-options',
+			'page_title' => __( 'Site Options', 'fieldloom' ),
+			'menu_slug'  => 'cfstudio-site-options',
 		);
 	}
 

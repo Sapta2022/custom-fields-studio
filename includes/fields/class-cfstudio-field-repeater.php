@@ -16,7 +16,7 @@
  * ("gallery_0_tags_1_name"), because every level builds its children's
  * keys from its own key and the load/save/delete hooks recurse.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -46,28 +46,28 @@ class CFStudio_Field_Repeater extends CFStudio_Field_Base {
 		$layout = $field['layout'] ?? 'table';
 		?>
 		<div class="cfs-field-setting" data-type="repeater">
-			<label><?php esc_html_e( 'Layout', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Layout', 'fieldloom' ); ?></label>
 			<select name="<?php echo esc_attr( $prefix ); ?>[layout]">
-				<option value="table" <?php selected( $layout, 'table' ); ?>><?php esc_html_e( 'Row (sub fields side by side)', 'custom-fields-studio' ); ?></option>
-				<option value="block" <?php selected( $layout, 'block' ); ?>><?php esc_html_e( 'Block (sub fields stacked)', 'custom-fields-studio' ); ?></option>
+				<option value="table" <?php selected( $layout, 'table' ); ?>><?php esc_html_e( 'Row (sub fields side by side)', 'fieldloom' ); ?></option>
+				<option value="block" <?php selected( $layout, 'block' ); ?>><?php esc_html_e( 'Block (sub fields stacked)', 'fieldloom' ); ?></option>
 			</select>
 		</div>
 		<div class="cfs-field-setting" data-type="repeater">
-			<label><?php esc_html_e( 'Minimum Rows', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Minimum Rows', 'fieldloom' ); ?></label>
 			<input type="number" min="0" name="<?php echo esc_attr( $prefix ); ?>[min]" value="<?php echo esc_attr( $field['min'] ?? 0 ); ?>" />
 		</div>
 		<div class="cfs-field-setting" data-type="repeater">
-			<label><?php esc_html_e( 'Maximum Rows', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Maximum Rows', 'fieldloom' ); ?></label>
 			<input type="number" min="0" name="<?php echo esc_attr( $prefix ); ?>[max]" value="<?php echo esc_attr( $field['max'] ?? 0 ); ?>" />
-			<p class="description"><?php esc_html_e( '0 means no limit.', 'custom-fields-studio' ); ?></p>
+			<p class="description"><?php esc_html_e( '0 means no limit.', 'fieldloom' ); ?></p>
 		</div>
 		<div class="cfs-field-setting" data-type="repeater">
-			<label><?php esc_html_e( 'Add Row Button Label', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Add Row Button Label', 'fieldloom' ); ?></label>
 			<input type="text" name="<?php echo esc_attr( $prefix ); ?>[button_label]" value="<?php echo esc_attr( $field['button_label'] ?? 'Add Row' ); ?>" />
 		</div>
 		<?php // One shared editor serves Repeater and Group (same input names), so it is rendered once. ?>
 		<div class="cfs-field-setting" data-type="repeater group">
-			<label><?php esc_html_e( 'Sub Fields', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Sub Fields', 'fieldloom' ); ?></label>
 			<?php
 			$sub_fields = isset( $field['sub_fields'] ) && is_array( $field['sub_fields'] ) ? $field['sub_fields'] : array();
 			CFStudio_Field_Group::render_fields_editor( $sub_fields, $prefix . '[sub_fields]' );
@@ -256,7 +256,7 @@ class CFStudio_Field_Repeater extends CFStudio_Field_Base {
 		$subs = self::usable_sub_fields( $field );
 
 		if ( empty( $subs ) ) {
-			echo '<p class="description">' . esc_html__( 'This repeater has no sub fields yet. Add some in the field group editor.', 'custom-fields-studio' ) . '</p>';
+			echo '<p class="description">' . esc_html__( 'This repeater has no sub fields yet. Add some in the field group editor.', 'fieldloom' ) . '</p>';
 			return;
 		}
 
@@ -264,7 +264,7 @@ class CFStudio_Field_Repeater extends CFStudio_Field_Base {
 		$min    = isset( $field['min'] ) ? (int) $field['min'] : 0;
 		$max    = isset( $field['max'] ) ? (int) $field['max'] : 0;
 		$layout = ( isset( $field['layout'] ) && 'block' === $field['layout'] ) ? 'block' : 'table';
-		$button = ! empty( $field['button_label'] ) ? $field['button_label'] : __( 'Add Row', 'custom-fields-studio' );
+		$button = ! empty( $field['button_label'] ) ? $field['button_label'] : __( 'Add Row', 'fieldloom' );
 		$token  = '__ROW' . self::$row_depth . '__';
 
 		// Show at least "min" rows so the editor can fill them in.
@@ -311,7 +311,7 @@ class CFStudio_Field_Repeater extends CFStudio_Field_Base {
 	 * One row: drag handle + row number, the sub fields, a remove button.
 	 *
 	 * @param array      $subs  Usable sub fields.
-	 * @param string     $name  Input name of the repeater, e.g. "cfs[gallery]".
+	 * @param string     $name  Input name of the repeater, e.g. "cfstudio[gallery]".
 	 * @param int|string $index Row index, or the level's __ROWn__ token.
 	 * @param array      $row   Raw values keyed by sub-field name.
 	 */
@@ -319,7 +319,7 @@ class CFStudio_Field_Repeater extends CFStudio_Field_Base {
 		?>
 		<div class="cfs-repeater-row">
 			<div class="cfs-repeater-row-handle">
-				<span class="cfs-drag-handle dashicons dashicons-menu" title="<?php esc_attr_e( 'Drag to reorder', 'custom-fields-studio' ); ?>"></span>
+				<span class="cfs-drag-handle dashicons dashicons-menu" title="<?php esc_attr_e( 'Drag to reorder', 'fieldloom' ); ?>"></span>
 				<span class="cfs-row-number"></span>
 			</div>
 			<div class="cfs-repeater-fields">
@@ -345,7 +345,7 @@ class CFStudio_Field_Repeater extends CFStudio_Field_Base {
 				?>
 			</div>
 			<div class="cfs-repeater-row-actions">
-				<button type="button" class="button-link cfs-repeater-remove" aria-label="<?php esc_attr_e( 'Remove row', 'custom-fields-studio' ); ?>">&times;</button>
+				<button type="button" class="button-link cfs-repeater-remove" aria-label="<?php esc_attr_e( 'Remove row', 'fieldloom' ); ?>">&times;</button>
 			</div>
 		</div>
 		<?php

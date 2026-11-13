@@ -1,16 +1,16 @@
 <?php
 /**
- * [cfs] shortcode — render a field's value on the front end without
+ * [cfstudio] shortcode — render a field's value on the front end without
  * writing PHP. Meant for quick pages and for checking that a field group
  * works; real themes should use the template functions for custom markup.
  *
- *   [cfs field="sections"]                 Current post's field.
- *   [cfs field="sections" post_id="21"]    A specific post.
- *   [cfs field="phone" post_id="option"]   A value from an Options Page.
+ *   [cfstudio field="sections"]                 Current post's field.
+ *   [cfstudio field="sections" post_id="21"]    A specific post.
+ *   [cfstudio field="phone" post_id="option"]   A value from an Options Page.
  *
  * Output is plain, class-hooked HTML (cfs-out-*) so a theme can style it.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class CFStudio_Shortcode {
 
 	public static function init() {
-		add_shortcode( 'cfs', array( __CLASS__, 'render_shortcode' ) );
+		add_shortcode( 'cfstudio', array( __CLASS__, 'render_shortcode' ) );
 	}
 
 	public static function render_shortcode( $atts ) {
@@ -30,7 +30,7 @@ class CFStudio_Shortcode {
 				'post_id' => null,
 			),
 			$atts,
-			'cfs'
+			'cfstudio'
 		);
 
 		if ( '' === $atts['field'] ) {
@@ -211,7 +211,7 @@ class CFStudio_Shortcode {
 				return '<span class="cfs-out-field cfs-out-choice">' . esc_html( implode( ', ', $items ) ) . '</span>';
 
 			case 'true_false':
-				return '<span class="cfs-out-field">' . ( $value ? esc_html__( 'Yes', 'custom-fields-studio' ) : esc_html__( 'No', 'custom-fields-studio' ) ) . '</span>';
+				return '<span class="cfs-out-field">' . ( $value ? esc_html__( 'Yes', 'fieldloom' ) : esc_html__( 'No', 'fieldloom' ) ) . '</span>';
 
 			case 'textarea':
 				return '<p class="cfs-out-field">' . nl2br( esc_html( (string) $value ) ) . '</p>';

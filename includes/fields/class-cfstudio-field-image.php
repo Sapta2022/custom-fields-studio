@@ -3,7 +3,7 @@
  * Image field type. Value storage/media-frame wiring lands in Phase 2;
  * here we only define its builder settings.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -27,15 +27,15 @@ class CFStudio_Field_Image extends CFStudio_Field_Base {
 		$preview_size  = $field['preview_size'] ?? 'medium';
 		?>
 		<div class="cfs-field-setting" data-type="image">
-			<label><?php esc_html_e( 'Return Format', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Return Format', 'fieldloom' ); ?></label>
 			<select name="<?php echo esc_attr( $prefix ); ?>[return_format]">
-				<option value="array" <?php selected( $return_format, 'array' ); ?>><?php esc_html_e( 'Image Array', 'custom-fields-studio' ); ?></option>
-				<option value="url" <?php selected( $return_format, 'url' ); ?>><?php esc_html_e( 'Image URL', 'custom-fields-studio' ); ?></option>
-				<option value="id" <?php selected( $return_format, 'id' ); ?>><?php esc_html_e( 'Attachment ID', 'custom-fields-studio' ); ?></option>
+				<option value="array" <?php selected( $return_format, 'array' ); ?>><?php esc_html_e( 'Image Array', 'fieldloom' ); ?></option>
+				<option value="url" <?php selected( $return_format, 'url' ); ?>><?php esc_html_e( 'Image URL', 'fieldloom' ); ?></option>
+				<option value="id" <?php selected( $return_format, 'id' ); ?>><?php esc_html_e( 'Attachment ID', 'fieldloom' ); ?></option>
 			</select>
 		</div>
 		<div class="cfs-field-setting" data-type="image">
-			<label><?php esc_html_e( 'Preview Size', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Preview Size', 'fieldloom' ); ?></label>
 			<select name="<?php echo esc_attr( $prefix ); ?>[preview_size]">
 				<?php foreach ( get_intermediate_image_sizes() as $size ) : ?>
 					<option value="<?php echo esc_attr( $size ); ?>" <?php selected( $preview_size, $size ); ?>><?php echo esc_html( $size ); ?></option>
@@ -83,8 +83,8 @@ class CFStudio_Field_Image extends CFStudio_Field_Base {
 				<?php echo $image_html; // phpcs:ignore WordPress.Security.EscapeOutput -- wp_get_attachment_image() output is already escaped by core. ?>
 			</div>
 			<p class="cfs-image-actions">
-				<button type="button" class="button cfs-image-select" <?php echo $image_html ? 'style="display:none;"' : ''; ?>><?php esc_html_e( 'Select Image', 'custom-fields-studio' ); ?></button>
-				<button type="button" class="button cfs-image-remove" <?php echo $image_html ? '' : 'style="display:none;"'; ?>><?php esc_html_e( 'Remove', 'custom-fields-studio' ); ?></button>
+				<button type="button" class="button cfs-image-select" <?php echo $image_html ? 'style="display:none;"' : ''; ?>><?php esc_html_e( 'Select Image', 'fieldloom' ); ?></button>
+				<button type="button" class="button cfs-image-remove" <?php echo $image_html ? '' : 'style="display:none;"'; ?>><?php esc_html_e( 'Remove', 'fieldloom' ); ?></button>
 			</p>
 		</div>
 		<?php

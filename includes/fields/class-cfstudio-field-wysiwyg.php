@@ -2,7 +2,7 @@
 /**
  * WYSIWYG (rich text editor) field type.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -25,16 +25,16 @@ class CFStudio_Field_Wysiwyg extends CFStudio_Field_Base {
 		$toolbar = $field['toolbar'] ?? 'full';
 		?>
 		<div class="cfs-field-setting" data-type="wysiwyg">
-			<label><?php esc_html_e( 'Toolbar', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Toolbar', 'fieldloom' ); ?></label>
 			<select name="<?php echo esc_attr( $prefix ); ?>[toolbar]">
-				<option value="full" <?php selected( $toolbar, 'full' ); ?>><?php esc_html_e( 'Full', 'custom-fields-studio' ); ?></option>
-				<option value="basic" <?php selected( $toolbar, 'basic' ); ?>><?php esc_html_e( 'Basic', 'custom-fields-studio' ); ?></option>
+				<option value="full" <?php selected( $toolbar, 'full' ); ?>><?php esc_html_e( 'Full', 'fieldloom' ); ?></option>
+				<option value="basic" <?php selected( $toolbar, 'basic' ); ?>><?php esc_html_e( 'Basic', 'fieldloom' ); ?></option>
 			</select>
 		</div>
 		<div class="cfs-field-setting" data-type="wysiwyg">
 			<label>
 				<input type="checkbox" name="<?php echo esc_attr( $prefix ); ?>[media_upload]" value="1" <?php checked( ! empty( $field['media_upload'] ) ); ?> />
-				<?php esc_html_e( 'Allow Media Upload Button', 'custom-fields-studio' ); ?>
+				<?php esc_html_e( 'Allow Media Upload Button', 'fieldloom' ); ?>
 			</label>
 		</div>
 		<?php

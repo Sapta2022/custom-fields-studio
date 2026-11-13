@@ -15,7 +15,7 @@
  *
  * Clones refer to field groups by group KEY (stable across JSON import/export).
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -49,7 +49,7 @@ class CFStudio_Field_Clone extends CFStudio_Field_Layout_Base {
 		);
 		?>
 		<div class="cfs-field-setting" data-type="clone">
-			<label><?php esc_html_e( 'Field groups to clone', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Field groups to clone', 'fieldloom' ); ?></label>
 			<?php $shown = 0; ?>
 			<?php foreach ( $groups as $group ) : ?>
 				<?php
@@ -65,7 +65,7 @@ class CFStudio_Field_Clone extends CFStudio_Field_Layout_Base {
 				</label><br />
 			<?php endforeach; ?>
 			<?php if ( ! $shown ) : ?>
-				<p class="description"><?php esc_html_e( 'There are no other field groups to clone yet.', 'custom-fields-studio' ); ?></p>
+				<p class="description"><?php esc_html_e( 'There are no other field groups to clone yet.', 'fieldloom' ); ?></p>
 			<?php endif; ?>
 		</div>
 		<?php
@@ -73,15 +73,15 @@ class CFStudio_Field_Clone extends CFStudio_Field_Layout_Base {
 			'clone',
 			$prefix,
 			'display',
-			__( 'Display', 'custom-fields-studio' ),
+			__( 'Display', 'fieldloom' ),
 			$field,
 			array(
-				'group'    => __( 'Group (cloned fields are wrapped in one group)', 'custom-fields-studio' ),
-				'seamless' => __( 'Seamless (cloned fields replace this field)', 'custom-fields-studio' ),
+				'group'    => __( 'Group (cloned fields are wrapped in one group)', 'fieldloom' ),
+				'seamless' => __( 'Seamless (cloned fields replace this field)', 'fieldloom' ),
 			),
 			'group'
 		);
-		self::setting_checkbox( 'clone', $prefix, 'prefix_name', __( 'Prefix field names with this field\'s name (seamless display)', 'custom-fields-studio' ), $field );
+		self::setting_checkbox( 'clone', $prefix, 'prefix_name', __( 'Prefix field names with this field\'s name (seamless display)', 'fieldloom' ), $field );
 	}
 
 	public static function sanitize( $raw ) {
@@ -100,7 +100,7 @@ class CFStudio_Field_Clone extends CFStudio_Field_Layout_Base {
 	}
 
 	public static function render_input( $field, $value, $name ) {
-		echo '<p class="description">' . esc_html__( 'Clone field: its fields are shown in place of this one.', 'custom-fields-studio' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Clone field: its fields are shown in place of this one.', 'fieldloom' ) . '</p>';
 	}
 
 	/**

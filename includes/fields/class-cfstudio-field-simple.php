@@ -2,7 +2,7 @@
 /**
  * Simple single-value input types: number, range, email, url, password.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -28,13 +28,13 @@ class CFStudio_Field_Number extends CFStudio_Field_Base {
 	}
 
 	public static function render_settings( $field, $prefix ) {
-		self::setting_input( 'number', $prefix, 'default_value', __( 'Default Value', 'custom-fields-studio' ), $field, 'number' );
-		self::setting_input( 'number', $prefix, 'placeholder', __( 'Placeholder Text', 'custom-fields-studio' ), $field );
-		self::setting_input( 'number', $prefix, 'min', __( 'Minimum Value', 'custom-fields-studio' ), $field, 'number' );
-		self::setting_input( 'number', $prefix, 'max', __( 'Maximum Value', 'custom-fields-studio' ), $field, 'number' );
-		self::setting_input( 'number', $prefix, 'step', __( 'Step Size', 'custom-fields-studio' ), $field, 'number', __( 'Leave blank for 1 (use e.g. 0.01 for decimals).', 'custom-fields-studio' ) );
-		self::setting_input( 'number', $prefix, 'prepend', __( 'Prepend', 'custom-fields-studio' ), $field );
-		self::setting_input( 'number', $prefix, 'append', __( 'Append', 'custom-fields-studio' ), $field );
+		self::setting_input( 'number', $prefix, 'default_value', __( 'Default Value', 'fieldloom' ), $field, 'number' );
+		self::setting_input( 'number', $prefix, 'placeholder', __( 'Placeholder Text', 'fieldloom' ), $field );
+		self::setting_input( 'number', $prefix, 'min', __( 'Minimum Value', 'fieldloom' ), $field, 'number' );
+		self::setting_input( 'number', $prefix, 'max', __( 'Maximum Value', 'fieldloom' ), $field, 'number' );
+		self::setting_input( 'number', $prefix, 'step', __( 'Step Size', 'fieldloom' ), $field, 'number', __( 'Leave blank for 1 (use e.g. 0.01 for decimals).', 'fieldloom' ) );
+		self::setting_input( 'number', $prefix, 'prepend', __( 'Prepend', 'fieldloom' ), $field );
+		self::setting_input( 'number', $prefix, 'append', __( 'Append', 'fieldloom' ), $field );
 	}
 
 	public static function sanitize( $raw ) {
@@ -112,11 +112,11 @@ class CFStudio_Field_Range extends CFStudio_Field_Base {
 	}
 
 	public static function render_settings( $field, $prefix ) {
-		self::setting_input( 'range', $prefix, 'default_value', __( 'Default Value', 'custom-fields-studio' ), $field, 'number' );
-		self::setting_input( 'range', $prefix, 'min', __( 'Minimum Value', 'custom-fields-studio' ), $field, 'number', '', 0 );
-		self::setting_input( 'range', $prefix, 'max', __( 'Maximum Value', 'custom-fields-studio' ), $field, 'number', '', 100 );
-		self::setting_input( 'range', $prefix, 'step', __( 'Step Size', 'custom-fields-studio' ), $field, 'number', '', 1 );
-		self::setting_input( 'range', $prefix, 'append', __( 'Append', 'custom-fields-studio' ), $field );
+		self::setting_input( 'range', $prefix, 'default_value', __( 'Default Value', 'fieldloom' ), $field, 'number' );
+		self::setting_input( 'range', $prefix, 'min', __( 'Minimum Value', 'fieldloom' ), $field, 'number', '', 0 );
+		self::setting_input( 'range', $prefix, 'max', __( 'Maximum Value', 'fieldloom' ), $field, 'number', '', 100 );
+		self::setting_input( 'range', $prefix, 'step', __( 'Step Size', 'fieldloom' ), $field, 'number', '', 1 );
+		self::setting_input( 'range', $prefix, 'append', __( 'Append', 'fieldloom' ), $field );
 	}
 
 	public static function sanitize( $raw ) {
@@ -182,8 +182,8 @@ class CFStudio_Field_Email extends CFStudio_Field_Base {
 	}
 
 	public static function render_settings( $field, $prefix ) {
-		self::setting_input( 'email', $prefix, 'default_value', __( 'Default Value', 'custom-fields-studio' ), $field );
-		self::setting_input( 'email', $prefix, 'placeholder', __( 'Placeholder Text', 'custom-fields-studio' ), $field );
+		self::setting_input( 'email', $prefix, 'default_value', __( 'Default Value', 'fieldloom' ), $field );
+		self::setting_input( 'email', $prefix, 'placeholder', __( 'Placeholder Text', 'fieldloom' ), $field );
 	}
 
 	public static function sanitize( $raw ) {
@@ -229,8 +229,8 @@ class CFStudio_Field_Url extends CFStudio_Field_Base {
 	}
 
 	public static function render_settings( $field, $prefix ) {
-		self::setting_input( 'url', $prefix, 'default_value', __( 'Default Value', 'custom-fields-studio' ), $field );
-		self::setting_input( 'url', $prefix, 'placeholder', __( 'Placeholder Text', 'custom-fields-studio' ), $field );
+		self::setting_input( 'url', $prefix, 'default_value', __( 'Default Value', 'fieldloom' ), $field );
+		self::setting_input( 'url', $prefix, 'placeholder', __( 'Placeholder Text', 'fieldloom' ), $field );
 	}
 
 	public static function sanitize( $raw ) {
@@ -272,7 +272,7 @@ class CFStudio_Field_Password extends CFStudio_Field_Base {
 	}
 
 	public static function render_settings( $field, $prefix ) {
-		self::setting_input( 'password', $prefix, 'placeholder', __( 'Placeholder Text', 'custom-fields-studio' ), $field );
+		self::setting_input( 'password', $prefix, 'placeholder', __( 'Placeholder Text', 'fieldloom' ), $field );
 	}
 
 	public static function sanitize( $raw ) {

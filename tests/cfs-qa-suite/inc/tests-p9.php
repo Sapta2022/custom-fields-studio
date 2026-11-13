@@ -45,7 +45,7 @@ function cfstudio_qa_run_p9( $t_in, &$phase, &$module, $P1 ) {
 	$s = CFStudio_Field_Number::sanitize( array( 'min' => '2', 'max' => '9.5', 'step' => '0', 'prepend' => '<i>£</i>', 'append' => 'kg' ) );
 	$t( 'Number: settings sanitised (step 0 dropped, tags stripped)', '' === $s['step'] && 2 === $s['min'] && 9.5 === $s['max'] && '£' === $s['prepend'], $s );
 	ob_start();
-	CFStudio_Field_Number::render_input( $f( 'number', array( 'prepend' => '£', 'append' => 'kg' ) ), '3', 'cfs[n]' );
+	CFStudio_Field_Number::render_input( $f( 'number', array( 'prepend' => '£', 'append' => 'kg' ) ), '3', 'cfstudio[n]' );
 	$html = ob_get_clean();
 	$t( 'Number: renders prepend/append and type=number', false !== strpos( $html, 'type="number"' ) && false !== strpos( $html, '£' ) && false !== strpos( $html, 'kg' ) );
 
@@ -55,7 +55,7 @@ function cfstudio_qa_run_p9( $t_in, &$phase, &$module, $P1 ) {
 	$s = CFStudio_Field_Range::sanitize( array( 'min' => '50', 'max' => '10' ) );
 	$t( 'Range: max <= min is repaired', $s['max'] > $s['min'], $s );
 	ob_start();
-	CFStudio_Field_Range::render_input( $r, null, 'cfs[r]' );
+	CFStudio_Field_Range::render_input( $r, null, 'cfstudio[r]' );
 	$html = ob_get_clean();
 	$t( 'Range: renders slider + output, defaults to min', false !== strpos( $html, 'type="range"' ) && false !== strpos( $html, 'cfs-range-out' ) && false !== strpos( $html, 'value="10"' ) );
 
@@ -67,7 +67,7 @@ function cfstudio_qa_run_p9( $t_in, &$phase, &$module, $P1 ) {
 	$t( 'URL: scheme-less becomes https-safe or empty (no raw script)', false === stripos( CFStudio_Field_Url::sanitize_value( 'x"><script>', array() ), '<script' ) );
 	$t( 'Password: tags stripped, spaces inside kept', 'p@ss w0rd' === CFStudio_Field_Password::sanitize_value( '<b>p@ss w0rd</b>', array() ) );
 	ob_start();
-	CFStudio_Field_Password::render_input( $f( 'password' ), 's3cret"x', 'cfs[p]' );
+	CFStudio_Field_Password::render_input( $f( 'password' ), 's3cret"x', 'cfstudio[p]' );
 	$html = ob_get_clean();
 	$t( 'Password: input type=password and value escaped', false !== strpos( $html, 'type="password"' ) && false === strpos( $html, 's3cret"x' ) );
 
@@ -81,11 +81,11 @@ function cfstudio_qa_run_p9( $t_in, &$phase, &$module, $P1 ) {
 	$t( 'Checkbox: return label', array( 'Red' ) === CFStudio_Field_Checkbox::format_value( array( 'red' ), $f( 'checkbox', array( 'choices' => $choices, 'return_format' => 'label' ) ) ) );
 	$t( 'Checkbox: return value', array( 'red' ) === CFStudio_Field_Checkbox::format_value( array( 'red' ), $f( 'checkbox', array( 'choices' => $choices ) ) ) );
 	ob_start();
-	CFStudio_Field_Checkbox::render_input( $f( 'checkbox', array( 'choices' => $choices, 'default_value' => 'red, blue', 'layout' => 'horizontal' ) ), null, 'cfs[c]' );
+	CFStudio_Field_Checkbox::render_input( $f( 'checkbox', array( 'choices' => $choices, 'default_value' => 'red, blue', 'layout' => 'horizontal' ) ), null, 'cfstudio[c]' );
 	$html = ob_get_clean();
 	$t( 'Checkbox: defaults pre-ticked, horizontal layout, hidden empty field', 2 === substr_count( $html, "checked='checked'" ) && false !== strpos( $html, 'cfs-layout-horizontal' ) && false !== strpos( $html, 'type="hidden"' ), $html );
 	ob_start();
-	CFStudio_Field_Checkbox::render_input( $f( 'checkbox', array( 'choices' => $choices, 'default_value' => 'red' ) ), array(), 'cfs[c]' );
+	CFStudio_Field_Checkbox::render_input( $f( 'checkbox', array( 'choices' => $choices, 'default_value' => 'red' ) ), array(), 'cfstudio[c]' );
 	$html = ob_get_clean();
 	$t( 'Checkbox: a saved empty selection does not fall back to the default', 0 === substr_count( $html, "checked='checked'" ) );
 
@@ -94,13 +94,13 @@ function cfstudio_qa_run_p9( $t_in, &$phase, &$module, $P1 ) {
 	$t( 'Radio: format value / label / array', 'blue' === CFStudio_Field_Radio::format_value( 'blue', $rd ) && 'Blue' === CFStudio_Field_Radio::format_value( 'blue', $f( 'radio', array( 'choices' => $choices, 'return_format' => 'label' ) ) ) && array( 'value' => 'blue', 'label' => 'Blue' ) === CFStudio_Field_Radio::format_value( 'blue', $f( 'radio', array( 'choices' => $choices, 'return_format' => 'array' ) ) ) );
 	$t( 'Radio: empty -> null', null === CFStudio_Field_Radio::format_value( '', $rd ) );
 	ob_start();
-	CFStudio_Field_Radio::render_input( $rd, 'blue', 'cfs[rd]' );
+	CFStudio_Field_Radio::render_input( $rd, 'blue', 'cfstudio[rd]' );
 	$html = ob_get_clean();
 	$t( 'Radio: one checked, Clear link when allow_null', 1 === substr_count( $html, "checked='checked'" ) && false !== strpos( $html, 'cfs-choice-clear' ) );
 
 	$bg = $f( 'button_group', array( 'choices' => $choices ) );
 	ob_start();
-	CFStudio_Field_Button_Group::render_input( $bg, 'green', 'cfs[bg]' );
+	CFStudio_Field_Button_Group::render_input( $bg, 'green', 'cfstudio[bg]' );
 	$html = ob_get_clean();
 	$t( 'Button group: renders buttons with the active one marked', 3 === substr_count( $html, 'class="button' ) && 1 === substr_count( $html, 'cfs-active' ) );
 	$t( 'Button group: sanitises like radio', 'red' === CFStudio_Field_Button_Group::sanitize_value( 'red', $bg ) && '' === CFStudio_Field_Button_Group::sanitize_value( 'x', $bg ) );
@@ -121,7 +121,7 @@ function cfstudio_qa_run_p9( $t_in, &$phase, &$module, $P1 ) {
 	$t( 'File: url / id formats', is_string( CFStudio_Field_File::format_value( $fid, $f( 'file', array( 'return_format' => 'url' ) ) ) ) && $fid === CFStudio_Field_File::format_value( $fid, $f( 'file', array( 'return_format' => 'id' ) ) ) );
 	$t( 'File: nothing stored -> null', null === CFStudio_Field_File::format_value( '', $ff ) && null === CFStudio_Field_File::format_value( 0, $ff ) );
 	ob_start();
-	CFStudio_Field_File::render_input( $ff, $fid, 'cfs[f]' );
+	CFStudio_Field_File::render_input( $ff, $fid, 'cfstudio[f]' );
 	$html = ob_get_clean();
 	$t( 'File: renders filename + remove button', false !== strpos( $html, 'cfs-qa-p9.pdf' ) && false !== strpos( $html, 'cfs-file-remove' ) );
 
@@ -132,7 +132,7 @@ function cfstudio_qa_run_p9( $t_in, &$phase, &$module, $P1 ) {
 	$t( 'Color: rgba rejected unless opacity is enabled', '' === CFStudio_Field_Color_Picker::sanitize_value( 'rgba(1,2,3,0.5)', $c ) && 'rgba(1,2,3,0.5)' === CFStudio_Field_Color_Picker::sanitize_value( 'rgba(1, 2, 3, 0.5)', $f( 'color_picker', array( 'enable_alpha' => 1 ) ) ) );
 	$t( 'Color: rgba out of range rejected', '' === CFStudio_Field_Color_Picker::sanitize_value( 'rgb(300,2,3)', $f( 'color_picker', array( 'enable_alpha' => 1 ) ) ) );
 	ob_start();
-	CFStudio_Field_Color_Picker::render_input( $c, '#336699', 'cfs[c]' );
+	CFStudio_Field_Color_Picker::render_input( $c, '#336699', 'cfstudio[c]' );
 	$html = ob_get_clean();
 	$t( 'Color: swatch and text box rendered in sync', false !== strpos( $html, 'type="color"' ) && false !== strpos( $html, 'value="#336699"' ) );
 
@@ -148,7 +148,7 @@ function cfstudio_qa_run_p9( $t_in, &$phase, &$module, $P1 ) {
 	$t( 'Date-time: formats', '07/11/2026 2:30 pm' === CFStudio_Field_Date_Time_Picker::format_value( '2026-11-07 14:30:00', $dt ), CFStudio_Field_Date_Time_Picker::format_value( '2026-11-07 14:30:00', $dt ) );
 	$t( 'Date-time: raw format & empty', '2026-11-07 14:30:00' === CFStudio_Field_Date_Time_Picker::format_value( '2026-11-07 14:30:00', $f( 'date_time_picker', array( 'return_format' => 'Y-m-d H:i:s' ) ) ) && null === CFStudio_Field_Date_Time_Picker::format_value( '', $dt ) );
 	ob_start();
-	CFStudio_Field_Date_Time_Picker::render_input( $dt, '2026-11-07 14:30:00', 'cfs[d]' );
+	CFStudio_Field_Date_Time_Picker::render_input( $dt, '2026-11-07 14:30:00', 'cfstudio[d]' );
 	$html = ob_get_clean();
 	$t( 'Date-time: renders datetime-local with the T value', false !== strpos( $html, 'datetime-local' ) && false !== strpos( $html, '2026-11-07T14:30:00' ) );
 

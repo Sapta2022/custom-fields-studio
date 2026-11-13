@@ -2,7 +2,7 @@
 /**
  * Text field type.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -25,17 +25,17 @@ class CFStudio_Field_Text extends CFStudio_Field_Base {
 	public static function render_settings( $field, $prefix ) {
 		?>
 		<div class="cfs-field-setting" data-type="text">
-			<label><?php esc_html_e( 'Default Value', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Default Value', 'fieldloom' ); ?></label>
 			<input type="text" name="<?php echo esc_attr( $prefix ); ?>[default_value]" value="<?php echo esc_attr( $field['default_value'] ?? '' ); ?>" />
 		</div>
 		<div class="cfs-field-setting" data-type="text">
-			<label><?php esc_html_e( 'Placeholder Text', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Placeholder Text', 'fieldloom' ); ?></label>
 			<input type="text" name="<?php echo esc_attr( $prefix ); ?>[placeholder]" value="<?php echo esc_attr( $field['placeholder'] ?? '' ); ?>" />
 		</div>
 		<div class="cfs-field-setting" data-type="text">
-			<label><?php esc_html_e( 'Character Limit', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Character Limit', 'fieldloom' ); ?></label>
 			<input type="number" min="0" name="<?php echo esc_attr( $prefix ); ?>[maxlength]" value="<?php echo esc_attr( $field['maxlength'] ?? '' ); ?>" />
-			<p class="description"><?php esc_html_e( 'Leave blank for no limit.', 'custom-fields-studio' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Leave blank for no limit.', 'fieldloom' ); ?></p>
 		</div>
 		<?php
 	}

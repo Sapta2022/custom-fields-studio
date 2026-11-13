@@ -8,7 +8,7 @@
  * site's content, not the plugin's own data, and removing them here
  * would be destructive and surprising.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {

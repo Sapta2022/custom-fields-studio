@@ -2,7 +2,7 @@
 /**
  * Registry of available field types.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

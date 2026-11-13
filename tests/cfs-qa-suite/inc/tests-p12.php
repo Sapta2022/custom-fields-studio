@@ -39,14 +39,14 @@ function cfstudio_qa_run_p12( $t, &$phase, &$module, $P1, $ids ) {
 	$t( 'Value: zoom clamped, boundary coordinates accepted', 21 === $map::sanitize_value( array( 'lat' => '90', 'lng' => '-180', 'zoom' => '500' ), $fld )['zoom'] && -180.0 === $map::sanitize_value( array( 'lat' => '90', 'lng' => '-180' ), $fld )['lng'] );
 	$t( 'format_value: typed array, null when empty', array( 'address' => '1 Main St', 'lat' => 22.57, 'lng' => 88.36, 'zoom' => 12 ) === $map::format_value( $v, $fld ) && null === $map::format_value( array(), $fld ) && null === $map::format_value( '', $fld ) );
 	ob_start();
-	$map::render_input( array_merge( $fld, array( 'center_lat' => 1.5, 'center_lng' => 2.5 ) ), array(), 'cfs[m]' );
+	$map::render_input( array_merge( $fld, array( 'center_lat' => 1.5, 'center_lng' => 2.5 ) ), array(), 'cfstudio[m]' );
 	$html = ob_get_clean();
-	$t( 'Editor input: address / lat / lng / zoom fields; default centre is NOT pre-filled as a value', false !== strpos( $html, 'name="cfs[m][address]"' ) && false !== strpos( $html, 'name="cfs[m][lat]"' ) && false !== strpos( $html, 'name="cfs[m][lng]"' ) && false !== strpos( $html, 'name="cfs[m][zoom]"' ) && false !== strpos( $html, 'data-center-lat="1.5"' ) && 1 === preg_match( '/cfs-gmap-lat" name="cfs\[m\]\[lat\]" value=""/', $html ), substr( $html, 0, 300 ) );
+	$t( 'Editor input: address / lat / lng / zoom fields; default centre is NOT pre-filled as a value', false !== strpos( $html, 'name="cfstudio[m][address]"' ) && false !== strpos( $html, 'name="cfstudio[m][lat]"' ) && false !== strpos( $html, 'name="cfstudio[m][lng]"' ) && false !== strpos( $html, 'name="cfstudio[m][zoom]"' ) && false !== strpos( $html, 'data-center-lat="1.5"' ) && 1 === preg_match( '/cfs-gmap-lat" name="cfstudio\[m\]\[lat\]" value=""/', $html ), substr( $html, 0, 300 ) );
 	add_filter( 'cfstudio/google_maps_api_key', $kf = function () {
 		return 'KEY123';
 	} );
 	ob_start();
-	$map::render_input( $fld, array( 'lat' => 1, 'lng' => 2, 'address' => 'A "quoted" <b>' ), 'cfs[m]' );
+	$map::render_input( $fld, array( 'lat' => 1, 'lng' => 2, 'address' => 'A "quoted" <b>' ), 'cfstudio[m]' );
 	$html = ob_get_clean();
 	remove_filter( 'cfstudio/google_maps_api_key', $kf );
 	$t( 'API key reaches the widget (data-key); values escaped', false !== strpos( $html, 'data-key="KEY123"' ) && false === strpos( $html, '<b>' ) && false !== strpos( $html, 'value="1"' ), substr( $html, 0, 200 ) );
@@ -62,27 +62,27 @@ function cfstudio_qa_run_p12( $t, &$phase, &$module, $P1, $ids ) {
 		array( 'show_in_rest' => 1 )
 	);
 	$made[] = $mg;
-	$_POST = array( CFStudio_Meta_Box::NONCE_FIELD => wp_create_nonce( CFStudio_Meta_Box::NONCE_ACTION ), 'cfs' => array( 'p12_venue' => array( 'address' => 'Kolkata', 'lat' => '22.5726', 'lng' => '88.3639', 'zoom' => '11' ), 'p12_branches' => array( array( 'place' => array( 'address' => 'B1', 'lat' => '1', 'lng' => '2' ) ), array( 'place' => array( 'address' => 'B2', 'lat' => '', 'lng' => '' ) ) ) ) );
+	$_POST = array( CFStudio_Meta_Box::NONCE_FIELD => wp_create_nonce( CFStudio_Meta_Box::NONCE_ACTION ), 'cfstudio' => array( 'p12_venue' => array( 'address' => 'Kolkata', 'lat' => '22.5726', 'lng' => '88.3639', 'zoom' => '11' ), 'p12_branches' => array( array( 'place' => array( 'address' => 'B1', 'lat' => '1', 'lng' => '2' ) ), array( 'place' => array( 'address' => 'B2', 'lat' => '', 'lng' => '' ) ) ) ) );
 	do_action( 'save_post', $pg, get_post( $pg ), true );
 	$_POST = array();
 	$got = cfstudio_get_field( 'p12_venue', $pg );
 	$t( 'Saved through the meta box; read back with cfstudio_get_field', is_array( $got ) && 'Kolkata' === $got['address'] && 22.5726 === $got['lat'] && 88.3639 === $got['lng'] && 11 === $got['zoom'], $got );
 	$rows = cfstudio_get_field( 'p12_branches', $pg );
 	$t( 'Works inside a repeater (an empty position row stays empty)', 2 === count( $rows ) && 1.0 === $rows[0]['place']['lat'] && null === $rows[1]['place'], $rows );
-	$sc = do_shortcode( '[cfs field="p12_venue" post_id="' . $pg . '"]' );
+	$sc = do_shortcode( '[cfstudio field="p12_venue" post_id="' . $pg . '"]' );
 	$t( 'Shortcode renders a keyless Google embed iframe with lat,lng and zoom', false !== strpos( $sc, 'cfs-out-map' ) && false !== strpos( $sc, 'google.com/maps' ) && false !== strpos( $sc, 'output=embed' ) && false !== strpos( $sc, '22.5726,88.3639' ) && false !== strpos( $sc, 'height="250"' ) && false !== strpos( $sc, 'title="Kolkata"' ), $sc );
-	$_POST = array( CFStudio_Meta_Box::NONCE_FIELD => wp_create_nonce( CFStudio_Meta_Box::NONCE_ACTION ), 'cfs' => array( 'p12_venue' => array( 'address' => '"><script>alert(1)</script>', 'lat' => '1', 'lng' => '2' ) ) );
+	$_POST = array( CFStudio_Meta_Box::NONCE_FIELD => wp_create_nonce( CFStudio_Meta_Box::NONCE_ACTION ), 'cfstudio' => array( 'p12_venue' => array( 'address' => '"><script>alert(1)</script>', 'lat' => '1', 'lng' => '2' ) ) );
 	do_action( 'save_post', $pg, get_post( $pg ), true );
 	$_POST = array();
-	$sc = do_shortcode( '[cfs field="p12_venue" post_id="' . $pg . '"]' );
+	$sc = do_shortcode( '[cfstudio field="p12_venue" post_id="' . $pg . '"]' );
 	$t( 'Hostile address cannot break out of the iframe markup', false === strpos( $sc, '<script' ) && substr_count( $sc, '<iframe' ) === 1, $sc );
-	$_POST = array( CFStudio_Meta_Box::NONCE_FIELD => wp_create_nonce( CFStudio_Meta_Box::NONCE_ACTION ), 'cfs' => array( 'p12_venue' => array( 'address' => '', 'lat' => '', 'lng' => '' ) ) );
+	$_POST = array( CFStudio_Meta_Box::NONCE_FIELD => wp_create_nonce( CFStudio_Meta_Box::NONCE_ACTION ), 'cfstudio' => array( 'p12_venue' => array( 'address' => '', 'lat' => '', 'lng' => '' ) ) );
 	do_action( 'save_post', $pg, get_post( $pg ), true );
 	$_POST = array();
-	$t( 'Clearing the map empties the value and the shortcode output', null === cfstudio_get_field( 'p12_venue', $pg ) && '' === do_shortcode( '[cfs field="p12_venue" post_id="' . $pg . '"]' ) );
+	$t( 'Clearing the map empties the value and the shortcode output', null === cfstudio_get_field( 'p12_venue', $pg ) && '' === do_shortcode( '[cfstudio field="p12_venue" post_id="' . $pg . '"]' ) );
 	$rest = rest_do_request( new WP_REST_Request( 'GET', '/wp/v2/pages/' . $pg ) );
 	$rd   = $rest->get_data();
-	$t( 'REST exposes the map as a plain array (round trip stable)', 200 === $rest->get_status() && array_key_exists( 'p12_venue', (array) $rd['cfs'] ) && is_array( $rd['cfs']['p12_branches'] ), $rd['cfs'] ?? null );
+	$t( 'REST exposes the map as a plain array (round trip stable)', 200 === $rest->get_status() && array_key_exists( 'p12_venue', (array) $rd['cfstudio'] ) && is_array( $rd['cfstudio']['p12_branches'] ), $rd['cfstudio'] ?? null );
 	ob_start();
 	$map::render_settings( array_merge( $fld, array( 'zoom' => 9 ) ), 'cfstudio_fields[0]' );
 	$h = ob_get_clean();
@@ -118,7 +118,7 @@ function cfstudio_qa_run_p12( $t, &$phase, &$module, $P1, $ids ) {
 	$t( 'A block group is found for its block only, never on post screens', 1 === count( CFStudio_Field_Group::get_groups_for_block( 'cfstudio/p12testimonial' ) ) && 0 === count( CFStudio_Field_Group::get_groups_for_block( 'cfstudio/other' ) ) && ! in_array( 'P12 Block group', wp_list_pluck( CFStudio_Field_Group::get_groups_for_post( $pg ), 'title' ), true ) );
 	CFStudio_Blocks::register_all();
 	$t( 'Registered with WordPress as a dynamic block with a form attribute', WP_Block_Type_Registry::get_instance()->is_registered( $name ) && isset( WP_Block_Type_Registry::get_instance()->get_registered( $name )->attributes['form'] ) );
-	$form = 'cfs[quote]=' . rawurlencode( 'Great <b>work</b> & thanks' ) . '&cfs[points][0][t]=One&cfs[points][1][t]=Two&cfs[points][2][t]=' . rawurlencode( "<script>x</script>Three" ) . '&cfs[bogus]=hack';
+	$form = 'cfstudio[quote]=' . rawurlencode( 'Great <b>work</b> & thanks' ) . '&cfstudio[points][0][t]=One&cfstudio[points][1][t]=Two&cfstudio[points][2][t]=' . rawurlencode( "<script>x</script>Three" ) . '&cfstudio[bogus]=hack';
 	$html = render_block( array( 'blockName' => $name, 'attrs' => array( 'form' => $form ), 'innerBlocks' => array(), 'innerHTML' => '', 'innerContent' => array() ) );
 	$t( 'WordPress renders the block: values from the form, loop works', false !== strpos( $html, '<blockquote>Great work &amp; thanks</blockquote>' ) && false !== strpos( $html, '<li>One</li><li>Two</li><li>Three</li>' ) && false !== strpos( $html, '[cfstudio/p12testimonial]' ), $html );
 	$t( 'Wrapper has block class; no preview marker on the front end', false !== strpos( $html, 'class="cfs-block wp-block-cfstudio-p12testimonial' ) && false === strpos( $html, '[preview]' ) );
@@ -130,7 +130,7 @@ function cfstudio_qa_run_p12( $t, &$phase, &$module, $P1, $ids ) {
 	$empty = CFStudio_Blocks::render( $name, '', array() );
 	$t( 'A block with no data renders empty fields without errors', false !== strpos( $empty, '<blockquote></blockquote>' ) && false !== strpos( $empty, '<ul></ul>' ), $empty );
 	$t( 'Alignment attribute becomes a class', false !== strpos( CFStudio_Blocks::render( $name, $form, array( 'align' => 'wide' ) ), 'alignwide' ) );
-	$t( 'Oversized form data is ignored, not parsed', false === strpos( CFStudio_Blocks::render( $name, 'cfs[quote]=' . str_repeat( 'a', CFStudio_Blocks::MAX_FORM + 10 ), array() ), 'aaaa' ) );
+	$t( 'Oversized form data is ignored, not parsed', false === strpos( CFStudio_Blocks::render( $name, 'cfstudio[quote]=' . str_repeat( 'a', CFStudio_Blocks::MAX_FORM + 10 ), array() ), 'aaaa' ) );
 	$t( 'Unknown block renders nothing', '' === CFStudio_Blocks::render( 'cfstudio/ghost', $form ) );
 	$t( 'cfstudio_get_field in a post template is unaffected by a block that rendered earlier', null === cfstudio_get_field( 'quote', $pg ) || '' === cfstudio_get_field( 'quote', $pg ) );
 	// Callback-style block + nested render restores the outer block's values.
@@ -147,7 +147,7 @@ function cfstudio_qa_run_p12( $t, &$phase, &$module, $P1, $ids ) {
 		)
 	);
 	CFStudio_Blocks::register_all();
-	$html = CFStudio_Blocks::render( 'cfstudio/p12callback', 'cfs[btitle]=Outer' );
+	$html = CFStudio_Blocks::render( 'cfstudio/p12callback', 'cfstudio[btitle]=Outer' );
 	$t( 'render_callback blocks work; a nested block render restores the outer block values', false !== strpos( $html, '<h2>Outer</h2>' ) && false !== strpos( $html, '<h3>Outer</h3>' ) && false !== strpos( $html, '<blockquote>Great work' ), $html );
 	// Template path safety.
 	$out_tpl = get_temp_dir() . 'p12-evil.php';
@@ -177,7 +177,7 @@ function cfstudio_qa_run_p12( $t, &$phase, &$module, $P1, $ids ) {
 	$t( 'block.json + render.php in the theme folder registers a block; a broken json is skipped', isset( $blocks['cfstudio/p12demo'] ) && 'P12 Demo' === $blocks['cfstudio/p12demo']['title'] && 'star-filled' === $blocks['cfstudio/p12demo']['icon'] && 0 === count( array_filter( array_keys( $blocks ), function ( $k ) { return 'cfstudio/broken' === $k; } ) ), array_keys( $blocks ) );
 	$g3 = $mk( 'P12 Block group 3', array( array( 'label' => 'D', 'name' => 'dtitle', 'type' => 'text' ) ), array( array( $rule( 'block', 'cfstudio/p12demo' ) ) ) );
 	$made[] = $g3;
-	$t( 'The discovered block renders its render.php with its fields', false !== strpos( CFStudio_Blocks::render( 'cfstudio/p12demo', 'cfs[dtitle]=Hello' ), '<p>demo:Hello</p>' ) );
+	$t( 'The discovered block renders its render.php with its fields', false !== strpos( CFStudio_Blocks::render( 'cfstudio/p12demo', 'cfstudio[dtitle]=Hello' ), '<p>demo:Hello</p>' ) );
 	unlink( $dir . '/demo/block.json' );
 	unlink( $dir . '/demo/render.php' );
 	unlink( $dir . '/broken/block.json' );
@@ -195,9 +195,9 @@ function cfstudio_qa_run_p12( $t, &$phase, &$module, $P1, $ids ) {
 	};
 	$res = $call( array( 'block' => $name, 'form' => $form ) );
 	$d   = $res->get_data();
-	$t( 'POST /cfstudio/v1/block-form returns the field form filled from the stored form string', 200 === $res->get_status() && 1 === $d['groups'] && false !== strpos( $d['html'], 'name="cfs[quote]"' ) && false !== strpos( $d['html'], 'Great work &amp; thanks' ) && false !== strpos( $d['html'], 'name="cfs[points][1][t]"' ) && false !== strpos( $d['html'], 'value="Two"' ), substr( $d['html'] ?? '', 0, 200 ) );
+	$t( 'POST /cfstudio/v1/block-form returns the field form filled from the stored form string', 200 === $res->get_status() && 1 === $d['groups'] && false !== strpos( $d['html'], 'name="cfstudio[quote]"' ) && false !== strpos( $d['html'], 'Great work &amp; thanks' ) && false !== strpos( $d['html'], 'name="cfstudio[points][1][t]"' ) && false !== strpos( $d['html'], 'value="Two"' ), substr( $d['html'] ?? '', 0, 200 ) );
 	$res = $call( array( 'block' => $name, 'form' => '' ) );
-	$t( 'An empty form renders the defaults (a fresh block)', 200 === $res->get_status() && false !== strpos( $res->get_data()['html'], 'name="cfs[quote]"' ) );
+	$t( 'An empty form renders the defaults (a fresh block)', 200 === $res->get_status() && false !== strpos( $res->get_data()['html'], 'name="cfstudio[quote]"' ) );
 	$res = $call( array( 'block' => 'cfstudio/p12evil', 'form' => '' ) );
 	$t( 'A block with no field group reports zero groups (editor shows a hint)', 200 === $res->get_status() && 0 === $res->get_data()['groups'] );
 	$t( 'Unknown block → 404', 404 === $call( array( 'block' => 'cfstudio/ghost' ) )->get_status() );

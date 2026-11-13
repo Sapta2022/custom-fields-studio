@@ -16,7 +16,7 @@ const BASE = 'http://127.0.0.1:8099';
   await p.evaluate(() => { wp.data.dispatch('core/block-editor').insertBlocks(wp.blocks.createBlock('cfstudio/p12e-hero')); });
   // WordPress 6.5 does not iframe this editor, so build the iframe the way newer
   // WordPress does: render the block's form inside a separate document.
-  await p.waitForSelector('.cfs-block-form input[name="cfs[heading]"]', { timeout: 20000 });
+  await p.waitForSelector('.cfs-block-form input[name="cfstudio[heading]"]', { timeout: 20000 });
   await p.evaluate(async () => {
     const res = await wp.apiFetch({ path: '/cfstudio/v1/block-form', method: 'POST', data: { block: 'cfstudio/p12e-hero', form: '' } });
     const fr = document.createElement('iframe'); fr.id = 'fx'; fr.style.cssText = 'width:900px;height:600px';
@@ -26,12 +26,12 @@ const BASE = 'http://127.0.0.1:8099';
   });
   const add = () => p.evaluate(() => { window.__fx.contentDocument.querySelector('.cfs-repeater-add').click(); return window.__fx.contentDocument.querySelectorAll('[name$="[item]"]').length; });
   t('Before binding, the iframe form is dead (reproduces the bug)', await add() === 0);
-  await p.evaluate(() => { window.cfsBindDocument(window.__fx.contentDocument); window.cfsInit(jQuery(window.__fx.contentDocument.getElementById('host'))); });
+  await p.evaluate(() => { window.cfstudioBindDocument(window.__fx.contentDocument); window.cfstudioInit(jQuery(window.__fx.contentDocument.getElementById('host'))); });
   await add();
-  t('After cfsBindDocument, Add Row works inside the iframe', await add() === 2 || await p.evaluate(() => window.__fx.contentDocument.querySelectorAll('[name$="[item]"]').length) >= 1);
+  t('After cfstudioBindDocument, Add Row works inside the iframe', await add() === 2 || await p.evaluate(() => window.__fx.contentDocument.querySelectorAll('[name$="[item]"]').length) >= 1);
   const n = await p.evaluate(() => { const d = window.__fx.contentDocument; d.querySelector('.cfs-repeater-remove').click(); return d.querySelectorAll('[name$="[item]"]').length; });
   t('Remove row works inside the iframe', n >= 1);
-  t('cfsBindDocument is idempotent', await p.evaluate(() => { const before = window.__fx.contentDocument.querySelectorAll('[name$="[item]"]').length; window.cfsBindDocument(window.__fx.contentDocument); window.__fx.contentDocument.querySelector('.cfs-repeater-add').click(); return window.__fx.contentDocument.querySelectorAll('[name$="[item]"]').length === before + 1; }));
+  t('cfstudioBindDocument is idempotent', await p.evaluate(() => { const before = window.__fx.contentDocument.querySelectorAll('[name$="[item]"]').length; window.cfstudioBindDocument(window.__fx.contentDocument); window.__fx.contentDocument.querySelector('.cfs-repeater-add').click(); return window.__fx.contentDocument.querySelectorAll('[name$="[item]"]').length === before + 1; }));
   setOpt('cfstudio_qa_block_editor', 'false'); setup('teardown');
   console.log(`\n${ok} passed, ${bad} failed`, errs.length ? errs.slice(0,3) : '');
   await b.close();

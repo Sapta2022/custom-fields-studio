@@ -5,7 +5,7 @@
  * Choices are authored one per line as `value : Label`. If no colon is
  * given, the same text is used for both value and label.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -29,24 +29,24 @@ class CFStudio_Field_Select extends CFStudio_Field_Base {
 	public static function render_settings( $field, $prefix ) {
 		?>
 		<div class="cfs-field-setting" data-type="select">
-			<label><?php esc_html_e( 'Choices', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Choices', 'fieldloom' ); ?></label>
 			<textarea name="<?php echo esc_attr( $prefix ); ?>[choices]" rows="4" placeholder="red : Red&#10;blue : Blue"><?php echo esc_textarea( $field['choices'] ?? '' ); ?></textarea>
-			<p class="description"><?php esc_html_e( 'One choice per line. Format: value : Label', 'custom-fields-studio' ); ?></p>
+			<p class="description"><?php esc_html_e( 'One choice per line. Format: value : Label', 'fieldloom' ); ?></p>
 		</div>
 		<div class="cfs-field-setting" data-type="select">
-			<label><?php esc_html_e( 'Default Value', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Default Value', 'fieldloom' ); ?></label>
 			<input type="text" name="<?php echo esc_attr( $prefix ); ?>[default_value]" value="<?php echo esc_attr( $field['default_value'] ?? '' ); ?>" />
 		</div>
 		<div class="cfs-field-setting" data-type="select">
 			<label>
 				<input type="checkbox" name="<?php echo esc_attr( $prefix ); ?>[allow_null]" value="1" <?php checked( ! empty( $field['allow_null'] ) ); ?> />
-				<?php esc_html_e( 'Allow Null (adds an empty first choice)', 'custom-fields-studio' ); ?>
+				<?php esc_html_e( 'Allow Null (adds an empty first choice)', 'fieldloom' ); ?>
 			</label>
 		</div>
 		<div class="cfs-field-setting" data-type="select">
 			<label>
 				<input type="checkbox" name="<?php echo esc_attr( $prefix ); ?>[multiple]" value="1" <?php checked( ! empty( $field['multiple'] ) ); ?> />
-				<?php esc_html_e( 'Select Multiple Values', 'custom-fields-studio' ); ?>
+				<?php esc_html_e( 'Select Multiple Values', 'fieldloom' ); ?>
 			</label>
 		</div>
 		<?php
@@ -107,7 +107,7 @@ class CFStudio_Field_Select extends CFStudio_Field_Base {
 		);
 
 		if ( ! $multiple && ! empty( $field['allow_null'] ) ) {
-			echo '<option value="">' . esc_html__( '— Select —', 'custom-fields-studio' ) . '</option>';
+			echo '<option value="">' . esc_html__( '— Select —', 'fieldloom' ) . '</option>';
 		}
 
 		foreach ( $choices as $choice_value => $choice_label ) {

@@ -28,7 +28,7 @@
  * anywhere: a screen is exactly one kind. A group made only of
  * current_user_role rules has no screen to anchor to, so it never matches.
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -45,17 +45,17 @@ class CFStudio_Location_Rules {
 	 */
 	public static function get_params() {
 		return array(
-			'post_type'         => __( 'Post Type', 'custom-fields-studio' ),
-			'post_id'           => __( 'Post', 'custom-fields-studio' ),
-			'post_status'       => __( 'Post Status', 'custom-fields-studio' ),
-			'page_template'     => __( 'Page Template', 'custom-fields-studio' ),
-			'post_category'     => __( 'Post Category', 'custom-fields-studio' ),
-			'post_taxonomy'     => __( 'Post Taxonomy Term', 'custom-fields-studio' ),
-			'current_user_role' => __( 'Current User Role', 'custom-fields-studio' ),
-			'user_role'         => __( 'User Form (edited user role)', 'custom-fields-studio' ),
-			'taxonomy'          => __( 'Taxonomy Term Screen', 'custom-fields-studio' ),
-			'options_page'      => __( 'Options Page', 'custom-fields-studio' ),
-			'block'             => __( 'Block', 'custom-fields-studio' ),
+			'post_type'         => __( 'Post Type', 'fieldloom' ),
+			'post_id'           => __( 'Post', 'fieldloom' ),
+			'post_status'       => __( 'Post Status', 'fieldloom' ),
+			'page_template'     => __( 'Page Template', 'fieldloom' ),
+			'post_category'     => __( 'Post Category', 'fieldloom' ),
+			'post_taxonomy'     => __( 'Post Taxonomy Term', 'fieldloom' ),
+			'current_user_role' => __( 'Current User Role', 'fieldloom' ),
+			'user_role'         => __( 'User Form (edited user role)', 'fieldloom' ),
+			'taxonomy'          => __( 'Taxonomy Term Screen', 'fieldloom' ),
+			'options_page'      => __( 'Options Page', 'fieldloom' ),
+			'block'             => __( 'Block', 'fieldloom' ),
 		);
 	}
 
@@ -111,23 +111,23 @@ class CFStudio_Location_Rules {
 				)
 			);
 			foreach ( $posts as $one ) {
-				$values[ (string) $one->ID ] = ( '' !== $one->post_title ? $one->post_title : __( '(no title)', 'custom-fields-studio' ) ) . ' (#' . $one->ID . ')';
+				$values[ (string) $one->ID ] = ( '' !== $one->post_title ? $one->post_title : __( '(no title)', 'fieldloom' ) ) . ' (#' . $one->ID . ')';
 			}
 			return $values;
 		}
 
 		if ( 'post_status' === $param ) {
 			return array(
-				'publish' => __( 'Published', 'custom-fields-studio' ),
-				'draft'   => __( 'Draft', 'custom-fields-studio' ),
-				'pending' => __( 'Pending Review', 'custom-fields-studio' ),
-				'private' => __( 'Private', 'custom-fields-studio' ),
-				'future'  => __( 'Scheduled', 'custom-fields-studio' ),
+				'publish' => __( 'Published', 'fieldloom' ),
+				'draft'   => __( 'Draft', 'fieldloom' ),
+				'pending' => __( 'Pending Review', 'fieldloom' ),
+				'private' => __( 'Private', 'fieldloom' ),
+				'future'  => __( 'Scheduled', 'fieldloom' ),
 			);
 		}
 
 		if ( 'page_template' === $param ) {
-			$values = array( 'default' => __( 'Default Template', 'custom-fields-studio' ) );
+			$values = array( 'default' => __( 'Default Template', 'fieldloom' ) );
 			if ( function_exists( 'wp_get_theme' ) ) {
 				foreach ( wp_get_theme()->get_page_templates( null, 'page' ) as $file => $name ) {
 					$values[ $file ] = $name;
@@ -176,9 +176,9 @@ class CFStudio_Location_Rules {
 		if ( 'current_user_role' === $param || 'user_role' === $param ) {
 			$values = array();
 			if ( 'current_user_role' === $param ) {
-				$values['super_admin'] = __( 'Super Admin', 'custom-fields-studio' );
+				$values['super_admin'] = __( 'Super Admin', 'fieldloom' );
 			} else {
-				$values['all'] = __( 'All roles', 'custom-fields-studio' );
+				$values['all'] = __( 'All roles', 'fieldloom' );
 			}
 			foreach ( wp_roles()->get_names() as $slug => $name ) {
 				$values[ $slug ] = translate_user_role( $name );
@@ -195,7 +195,7 @@ class CFStudio_Location_Rules {
 		}
 
 		if ( 'taxonomy' === $param ) {
-			$values = array( 'all' => __( 'All taxonomies', 'custom-fields-studio' ) );
+			$values = array( 'all' => __( 'All taxonomies', 'fieldloom' ) );
 			foreach ( get_taxonomies( array( 'public' => true ), 'objects' ) as $tax ) {
 				$values[ $tax->name ] = $tax->labels->singular_name;
 			}
@@ -241,7 +241,7 @@ class CFStudio_Location_Rules {
 		<div id="cfs-location-rules" class="cfs-location-rules">
 			<?php foreach ( $groups as $group_index => $rules ) : ?>
 				<?php if ( $group_index > 0 ) : ?>
-					<div class="cfs-location-or"><?php esc_html_e( 'OR', 'custom-fields-studio' ); ?></div>
+					<div class="cfs-location-or"><?php esc_html_e( 'OR', 'fieldloom' ); ?></div>
 				<?php endif; ?>
 				<div class="cfs-location-group" data-group="<?php echo esc_attr( $group_index ); ?>">
 					<table class="cfs-location-rules-table">
@@ -251,11 +251,11 @@ class CFStudio_Location_Rules {
 						<?php endforeach; ?>
 						</tbody>
 					</table>
-					<button type="button" class="button cfs-add-rule"><?php esc_html_e( '+ Add Rule (AND)', 'custom-fields-studio' ); ?></button>
+					<button type="button" class="button cfs-add-rule"><?php esc_html_e( '+ Add Rule (AND)', 'fieldloom' ); ?></button>
 				</div>
 			<?php endforeach; ?>
 			<p>
-				<button type="button" class="button cfs-add-rule-group"><?php esc_html_e( '+ Add Rule Group (OR)', 'custom-fields-studio' ); ?></button>
+				<button type="button" class="button cfs-add-rule-group"><?php esc_html_e( '+ Add Rule Group (OR)', 'fieldloom' ); ?></button>
 			</p>
 		</div>
 
@@ -300,8 +300,8 @@ class CFStudio_Location_Rules {
 			</td>
 			<td>
 				<select name="<?php echo esc_attr( $name_base ); ?>[operator]" class="cfs-location-operator">
-					<option value="==" <?php selected( $operator, '==' ); ?>><?php esc_html_e( 'is equal to', 'custom-fields-studio' ); ?></option>
-					<option value="!=" <?php selected( $operator, '!=' ); ?>><?php esc_html_e( 'is not equal to', 'custom-fields-studio' ); ?></option>
+					<option value="==" <?php selected( $operator, '==' ); ?>><?php esc_html_e( 'is equal to', 'fieldloom' ); ?></option>
+					<option value="!=" <?php selected( $operator, '!=' ); ?>><?php esc_html_e( 'is not equal to', 'fieldloom' ); ?></option>
 				</select>
 			</td>
 			<td>
@@ -312,7 +312,7 @@ class CFStudio_Location_Rules {
 				</select>
 			</td>
 			<td>
-				<button type="button" class="button-link cfs-remove-rule" aria-label="<?php esc_attr_e( 'Remove rule', 'custom-fields-studio' ); ?>">&times;</button>
+				<button type="button" class="button-link cfs-remove-rule" aria-label="<?php esc_attr_e( 'Remove rule', 'fieldloom' ); ?>">&times;</button>
 			</td>
 		</tr>
 		<?php

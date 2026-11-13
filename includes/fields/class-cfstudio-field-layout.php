@@ -3,7 +3,7 @@
  * Layout types: message, tab, accordion (display only), and group (a
  * named set of sub fields).
  *
- * @package CustomFieldsStudio
+ * @package Fieldloom
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -51,7 +51,7 @@ class CFStudio_Field_Message extends CFStudio_Field_Layout_Base {
 	public static function render_settings( $field, $prefix ) {
 		?>
 		<div class="cfs-field-setting" data-type="message">
-			<label><?php esc_html_e( 'Message', 'custom-fields-studio' ); ?></label>
+			<label><?php esc_html_e( 'Message', 'fieldloom' ); ?></label>
 			<textarea name="<?php echo esc_attr( $prefix ); ?>[message]" rows="4"><?php echo esc_textarea( $field['message'] ?? '' ); ?></textarea>
 		</div>
 		<?php
@@ -59,16 +59,16 @@ class CFStudio_Field_Message extends CFStudio_Field_Layout_Base {
 			'message',
 			$prefix,
 			'new_lines',
-			__( 'New Lines', 'custom-fields-studio' ),
+			__( 'New Lines', 'fieldloom' ),
 			$field,
 			array(
-				'wpautop' => __( 'Automatically add paragraphs', 'custom-fields-studio' ),
-				'br'      => __( 'Automatically add <br>', 'custom-fields-studio' ),
-				''        => __( 'No formatting', 'custom-fields-studio' ),
+				'wpautop' => __( 'Automatically add paragraphs', 'fieldloom' ),
+				'br'      => __( 'Automatically add <br>', 'fieldloom' ),
+				''        => __( 'No formatting', 'fieldloom' ),
 			),
 			'wpautop'
 		);
-		self::setting_checkbox( 'message', $prefix, 'esc_html', __( 'Show HTML as text (escape it)', 'custom-fields-studio' ), $field );
+		self::setting_checkbox( 'message', $prefix, 'esc_html', __( 'Show HTML as text (escape it)', 'fieldloom' ), $field );
 	}
 
 	public static function sanitize( $raw ) {
@@ -107,7 +107,7 @@ class CFStudio_Field_Tab extends CFStudio_Field_Layout_Base {
 	public static function render_settings( $field, $prefix ) {
 		?>
 		<div class="cfs-field-setting" data-type="tab">
-			<p class="description"><?php esc_html_e( 'The fields that follow this one are shown in this tab, until the next tab. Tabs work at the top level of a field group.', 'custom-fields-studio' ); ?></p>
+			<p class="description"><?php esc_html_e( 'The fields that follow this one are shown in this tab, until the next tab. Tabs work at the top level of a field group.', 'fieldloom' ); ?></p>
 		</div>
 		<?php
 	}
@@ -132,10 +132,10 @@ class CFStudio_Field_Accordion extends CFStudio_Field_Layout_Base {
 	}
 
 	public static function render_settings( $field, $prefix ) {
-		self::setting_checkbox( 'accordion', $prefix, 'open', __( 'Open by default', 'custom-fields-studio' ), $field );
+		self::setting_checkbox( 'accordion', $prefix, 'open', __( 'Open by default', 'fieldloom' ), $field );
 		?>
 		<div class="cfs-field-setting" data-type="accordion">
-			<p class="description"><?php esc_html_e( 'The fields that follow this one go inside it, until the next accordion or tab. Works at the top level of a field group.', 'custom-fields-studio' ); ?></p>
+			<p class="description"><?php esc_html_e( 'The fields that follow this one go inside it, until the next accordion or tab. Works at the top level of a field group.', 'fieldloom' ); ?></p>
 		</div>
 		<?php
 	}
@@ -174,11 +174,11 @@ class CFStudio_Field_Group_Field extends CFStudio_Field_Base {
 			'group',
 			$prefix,
 			'layout',
-			__( 'Layout', 'custom-fields-studio' ),
+			__( 'Layout', 'fieldloom' ),
 			$field,
 			array(
-				'block' => __( 'Block (sub fields stacked)', 'custom-fields-studio' ),
-				'row'   => __( 'Row (sub fields side by side)', 'custom-fields-studio' ),
+				'block' => __( 'Block (sub fields stacked)', 'fieldloom' ),
+				'row'   => __( 'Row (sub fields side by side)', 'fieldloom' ),
 			),
 			'block'
 		);
@@ -263,7 +263,7 @@ class CFStudio_Field_Group_Field extends CFStudio_Field_Base {
 	public static function render_input( $field, $value, $name ) {
 		$subs = self::usable_sub_fields( $field );
 		if ( ! $subs && empty( $field['sub_fields'] ) ) {
-			echo '<p class="description">' . esc_html__( 'This group has no sub fields yet. Add some in the field group editor.', 'custom-fields-studio' ) . '</p>';
+			echo '<p class="description">' . esc_html__( 'This group has no sub fields yet. Add some in the field group editor.', 'fieldloom' ) . '</p>';
 			return;
 		}
 		$value = is_array( $value ) ? $value : array();
